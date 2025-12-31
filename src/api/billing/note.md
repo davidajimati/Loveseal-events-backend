@@ -1,0 +1,1 @@
+accommodation and registration payments processing / capturing
