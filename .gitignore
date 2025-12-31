@@ -1,3 +1,51 @@
-.idea
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build output
+dist/
+build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
 .env
-/src/generated/prisma
+.env.local
+.env.*.local
+
+# Prisma
+prisma/generated/
+.prisma/
+
+# IDE files (WebStorm)
+.idea/
+*.iml
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional npm package lock files if using yarn
+package-lock.json
+yarn.lock
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Optional debug
+.vscode/
