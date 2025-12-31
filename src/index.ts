@@ -9,7 +9,7 @@ import express, {type ErrorRequestHandler} from "express";
 
 
 dotenv.config();
-const prisma = new PrismaClient({})
+const prisma = new PrismaClient()
 const corsOptions = {
     origin: "*",
     method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -46,9 +46,7 @@ async function connectDB() {
     }
 }
 
-connectDB().then(r => {
-    console.log("Prisma connection attempt completed")
-});
+connectDB();
 
 app.use(compression());
 app.use(cors(corsOptions));
@@ -59,6 +57,14 @@ app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
 app.use(bodyParser.urlencoded({extended: true}));
 
+
+app.get("/health", (_req, res) => {
+    res.json({status: "ok"});
+});
+
+app.get("/", (_req, res) => {
+    res.redirect(`https://wothsmflx.org`);
+})
 
 const PORT = process.env.SERVER_PORT || 8080;
 app.listen(PORT, () => {
