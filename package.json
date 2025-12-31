@@ -1,0 +1,41 @@
+{
+  "name": "loveseal-events-backend",
+  "version": "1.0.0",
+  "description": "Event management app backend for Loveseal church",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "postinstall": "prisma generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidajimati/Loveseal-events-backend.git"
+  },
+  "keywords": [],
+  "author": "davidajimati",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/davidajimati/Loveseal-events-backend/issues"
+  },
+  "homepage": "https://github.com/davidajimati/Loveseal-events-backend#readme",
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "express": "^4.21.2",
+    "prisma": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "mongoose": "^9.1.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
