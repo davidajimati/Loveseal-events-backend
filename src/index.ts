@@ -47,7 +47,6 @@ async function connectDB() {
 }
 
 connectDB();
-
 app.use(compression());
 app.use(cors(corsOptions));
 app.use(handleInvalidPayload);
