@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-export default function registerCommsRoutes(app: Router) {
+export default function registerEmailingRoutes(app: Router) {
     const router = Router();
 
     router.get("/", (_req, res) => res.send("User list"));

@@ -7,10 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum maritalStatus {
+  SINGLE
+  MARRIED
+}
+
+enum employmentStatus {
+  UNEMPLOYED
+  EMPLOYED
+  SELF_EMPLOYED
+}
+
+enum gender {
+  MALE
+  FEMALE
+}
+
 model user_information {
-  id          String  @id @default(uuid(4))
-  email       String  @unique
-  firstName   String
-  lastName    String
-  phoneNumber String?
+  id               String           @id @default(uuid(4))
+  email            String           @unique
+  firstName        String
+  lastName         String
+  phoneNumber      String
+  gender           gender
+  localAssembly    String?
+  maritalStatus    maritalStatus?
+  createdAt        DateTime         @default(now())
+  employmentStatus employmentStatus @default(EMPLOYED)
 }
