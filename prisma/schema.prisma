@@ -23,15 +23,39 @@ enum gender {
   FEMALE
 }
 
-model user_information {
-  id               String           @id @default(uuid(4))
-  email            String           @unique
+model userInformation {
+  id               String                @id @default(uuid(4))
+  email            String                @unique
   firstName        String
   lastName         String
   phoneNumber      String
   gender           gender
   localAssembly    String?
+  eventsRegistered evenRegistrationTable
   maritalStatus    maritalStatus?
-  createdAt        DateTime         @default(now())
-  employmentStatus employmentStatus @default(EMPLOYED)
+  createdAt        DateTime              @default(now())
+  employmentStatus employmentStatus      @default(EMPLOYED)
+}
+
+model evenRegistrationTable {
+}
+
+model adminUserRecords {
+  adminUserId String   @id @default(uuid(4))
+  userName    String
+  tenantId    String   @default(uuid(7))
+  dateCreated DateTime
+}
+
+model lovesealEvents {
+  eventId         String           @id @default(uuid(4))
+  tenantId        String
+  eventOwner      String
+  title           String
+  startDate       DateTime
+  endDate         DateTime
+  eventTenantInfo adminUserRecords @relation(fields: [tenantId], references: [tenantId])
+  eventOwnerInfo  adminUserRecords @relation(fields: [eventOwner], references: [adminUserId])
+
+  @@map("loveseal_events_table")
 }
