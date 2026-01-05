@@ -29,9 +29,6 @@
 | 99            | Bad request          | object (any)                | BAD REQUEST           |
 | 100           | Something went wrong | object (any)                | INTERNAL_SERVER ERROR |
 
-"code": String (, , 99, )
-"message": ", Failure"
-"data": object
 
 SAMPLE API RESPONSE {
     "code": "00"
