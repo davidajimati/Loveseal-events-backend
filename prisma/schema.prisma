@@ -42,6 +42,9 @@ model evenRegistrationTable {
 
 model adminUserRecords {
   adminUserId String   @id @default(uuid(4))
+  firstName   String
+  lastName    String
+  email       String
   userName    String
   tenantId    String   @default(uuid(7))
   dateCreated DateTime
@@ -52,6 +55,7 @@ model lovesealEvents {
   tenantId        String
   eventOwner      String
   title           String
+  accommodation   Boolean
   startDate       DateTime
   endDate         DateTime
   eventTenantInfo adminUserRecords @relation(fields: [tenantId], references: [tenantId])

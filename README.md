@@ -1,47 +1,44 @@
+**WORK OUTLINE:**
 
-/** THIS FILE IS STILL BEING USED FOR DISCUSSIONS AND DELIBRATIONS
+- accommodation service - David Ajimati
+- events service - David Ajimati
 
-WORK OUTLINE:
-
-- accommodation service -  David Ajimati
-- events service -  David Ajimati
-- 
 - event registration - Bro Blessed
 - admin console - Bro Blessed
-- 
-- billing service -  Bro Semilore
+
+- billing service - Bro Semilore
 - emailing service - Bro Semilore
-- 
+
 - User authentication - Sister Oreoluwa
 - User profile service - Sister Oreoluwa
 
+<br><br>
+**STACK**
 
+- Express
+- typescript
+- prisma ORM
 
-EVENT_REG_TABLE
-name
-email
-phone
-church
-eventId
-payment_made (0,1)
-amount
-date_made_payment
+<br>(br>
+**API RESPONSES**
 
+| code (String) | message (String)     | data ({}, [], "", int, ...) | HTTP STATUS           |
+|---------------|----------------------|-----------------------------|-----------------------|
+| 00            | success              | object (any)                | OK                    |
+| 77            | Duplicate request    | object (any)                | DUPLICATE             |
+| 99            | Bad request          | object (any)                | BAD REQUEST           |
+| 100           | Something went wrong | object (any)                | INTERNAL_SERVER ERROR |
 
-REG (EMPLOYMENT TYPE) -> ACCOMMODATION -> CHARGE (KORAPAY) -> BACKEND(record billing activity)
+"code": String (, , 99, )
+"message": ", Failure"
+"data": object
 
-
-**BILLING**
-FRONTEND <-> KORAPAY 
-
-
-ENDPOINTS FOR BILLING SERVICE
-
-- GET amount to pay
-- validate payment? & - record transaction
-- GET list of all paid participants
-- Download list of all paid participants
-
-select * from table1 whre id == id there
-
-- 
+SAMPLE API RESPONSE {
+    "code": "00"
+    "message": "Success"
+    "data": {
+        "eventId": "ew-32wee-24rwe-32rwssdedf",
+        "eventTitle": "The son of God",
+        "totalRegistered": 9832462
+    }
+}
