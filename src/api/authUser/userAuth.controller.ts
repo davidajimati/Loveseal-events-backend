@@ -1,0 +1,35 @@
+import prisma from "../../../prisma/Prisma.js";
+import * as service from "./userAuth.service.js"
+import {type Request, type Response} from 'express';
+import {badRequest} from "../ApiResponseContract.js";
+import {handleZodError} from "../exceptions/exceptionsHandler.js";
+import {generateOtpSchema, validateOtpSchema} from "./userAuth.model.js"
+
+
+async function generateOtp(req: Request, res: Response) {
+    const data = generateOtpSchema.safeParse(req.body);
+    if (!data.success) {
+        console.log("otp generation failed: email not supplied or invalid")
+        return handleZodError(res, data.error)
+    }
+    const user = await prisma.userInformation.findUnique({where: {email: data.data.email}})
+    if (!user || !user.email) {
+        return badRequest(res, "You do not have a profile. create one to continue.")
+    }
+    await service.generateOtp(res, data.data.email, "Login")
+}
+
+async function validateOtp(req: Request, res: Response) {
+    const result = validateOtpSchema.safeParse(req.body);
+    if (!result.success) {
+        return handleZodError(res, result.error);
+    }
+    await service.verifyOtp(res, result.data);
+    return await service.generateToken(res, result.data.email);
+}
+
+
+export {
+    generateOtp,
+    validateOtp
+}
