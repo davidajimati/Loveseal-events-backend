@@ -1,11 +1,14 @@
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import prisma from "../../../prisma/Prisma.js";
 import * as response from "../ApiResponseContract.js"
-import type {Request, Response} from "express";
-import {email} from "zod";
+import type {Response} from "express";
+import {type userInformationInterface} from "./userAuth.model.js";
+import {randomInt, randomUUID} from "node:crypto";
+
 
 async function generateToken(res: Response, email: string) {
-    const user = await prisma.user_information.findUnique({where: {email}});
+    let user: userInformationInterface | any
+    user = await prisma.user_information.findUnique({where: {email}});
     if (!user) {
         return response.badRequest(res, "Profile does not exist. Register to continue");
     }
@@ -19,12 +22,13 @@ async function generateToken(res: Response, email: string) {
         console.error(error);
         throw new Error("token generation failed");
     }
-
-    return response.successResponse(res, {token, userDetails: user});
+    const {eventRegistrations, paymentRecords, ...necessaryDetails} = user;
+    return response.successResponse(res, {token, userDetails: necessaryDetails});
 }
 
 async function verifyToken(res: Response, token: string) {
     const SECRET = process.env.JWT_SECRET as string;
+    let user: userInformationInterface | any;
 
     let decoded: JwtPayload;
     try {
@@ -37,12 +41,30 @@ async function verifyToken(res: Response, token: string) {
     if (!decoded.id) {
         return response.unauthorizedRequest(res, "Invalid or Expired token");
     }
+    user = await prisma.user_information.findUnique({where: {id: decoded.id}});
+    const {eventRegistrations, paymentRecords, ...necessaryDetails} = user;
+    return response.successResponse(res, {token, userDetails: necessaryDetails});
+}
 
-    const user =  await prisma.user_information.findUnique({where: {id: decoded.id}});
+
+async function generateOtp(res: Response, email: string) {
+    const otpReference = randomInt(999999, 111111)
+    const token = randomUUID();
+
+    const otpResponse = {
+        reference: otpReference
+    }
 
 
 }
 
+async function verifyOtp(res: Response, token: string) {
+
+}
+
 export {
-    verifyToken
+    verifyToken,
+    generateToken,
+    generateOtp,
+    verifyOtp
 }

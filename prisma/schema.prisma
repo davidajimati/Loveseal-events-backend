@@ -102,6 +102,20 @@ model userInformation {
   @@map("loveseal_events_user_info_table")
 }
 
+model otpLogTable {
+  id            String   @id @default(uuid(4))
+  email         String
+  token         String
+  otpReference  String
+  otpReason     String
+  otpUsed       Boolean  @default(false)
+  timeGenerated DateTime @default(now())
+  timeUsed      DateTime
+  created       DateTime @default(now())
+
+  @@map("otp_log_table")
+}
+
 model adminUserRecords {
   adminUserId             String                    @id @default(uuid(4))
   tenantId                String                    @default(uuid(7))
