@@ -96,22 +96,24 @@ model userInformation {
   employmentStatus   employmentStatus?        @default(EMPLOYED)
   stateOfResidence   String?
   eventRegistrations eventRegistrationTable[]
+  paymentRecords     paymentRecords[]
 
   @@index(fields: [userId, email], map: "userInfoIndex")
   @@map("loveseal_events_user_info_table")
 }
 
 model adminUserRecords {
-  adminUserId String             @id @default(uuid(4))
-  tenantId    String             @default(uuid(7))
-  firstName   String
-  lastName    String
-  email       String
-  role        adminUserRoles
-  userName    String
-  eventsOwned eventInformation[]
-  dateCreated DateTime
-  updatedAt   DateTime?
+  adminUserId             String                    @id @default(uuid(4))
+  tenantId                String                    @default(uuid(7))
+  firstName               String
+  lastName                String
+  email                   String
+  role                    adminUserRoles
+  userName                String
+  eventsOwned             eventInformation[]
+  dateCreated             DateTime
+  updatedAt               DateTime?
+  eventsAdminRolesTracker eventsAdminRolesTracker[]
 
   @@unique([tenantId, adminUserId])
   @@map("admin_users_table")
@@ -127,21 +129,24 @@ model eventsAdminRolesTracker {
 }
 
 model eventInformation {
-  eventId             String                   @id @default(uuid(4))
-  tenantId            String
-  eventOwnerId        String
-  eventRecord         adminUserRecords         @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
-  eventYear           String
-  eventName           String
-  startDate           DateTime
-  endDate             DateTime
-  eventStatus         eventStatus
-  accommodationNeeded Boolean
-  registrationOpenAt  DateTime
-  registrationCloseAt DateTime
-  registrants         eventRegistrationTable[]
-  createdAt           DateTime?                @default(now())
-  updatedAt           DateTime?
+  eventId                 String                    @id @default(uuid(4))
+  tenantId                String
+  eventOwnerId            String
+  eventRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
+  eventYear               String
+  eventName               String
+  startDate               DateTime
+  endDate                 DateTime
+  eventStatus             eventStatus
+  accommodationNeeded     Boolean
+  registrationOpenAt      DateTime
+  registrationCloseAt     DateTime
+  registrants             eventRegistrationTable[]
+  createdAt               DateTime?                 @default(now())
+  updatedAt               DateTime?
+  eventsAdminRolesTracker eventsAdminRolesTracker[]
+  paymentRecords          paymentRecords[]
+  accommodationFacilities accommodationFacilities[]
 
   @@index(fields: [eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@map("loveseal_events_table")
@@ -186,11 +191,13 @@ model paymentRecords {
 }
 
 model accommodationFacilities {
-  facilityId   String           @id @default(uuid(4))
-  eventId      String
-  facilityName String
-  available    Boolean
-  eventRecord  eventInformation @relation(fields: [eventId], references: [eventId])
+  facilityId          String                @id @default(uuid(4))
+  eventId             String
+  facilityName        String
+  available           Boolean
+  eventRecord         eventInformation      @relation(fields: [eventId], references: [eventId])
+  hostelAccommodation hostelAccommodation[]
+  hotelAccommodation  hotelAccommodation[]
 }
 
 model hostelAccommodation {
