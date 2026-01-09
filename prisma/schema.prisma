@@ -103,15 +103,15 @@ model userInformation {
 }
 
 model otpLogTable {
-  id            String   @id @default(uuid(4))
+  id            String    @id @default(uuid(4))
   email         String
-  token         String
+  otp           String
   otpReference  String
   otpReason     String
-  otpUsed       Boolean  @default(false)
-  timeGenerated DateTime @default(now())
-  timeUsed      DateTime
-  created       DateTime @default(now())
+  otpUsed       Boolean?  @default(false)
+  timeGenerated DateTime  @default(now())
+  timeUsed      DateTime?
+  created       DateTime  @default(now())
 
   @@map("otp_log_table")
 }

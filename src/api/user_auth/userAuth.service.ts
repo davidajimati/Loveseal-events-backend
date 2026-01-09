@@ -2,13 +2,14 @@ import jwt, {type JwtPayload} from 'jsonwebtoken';
 import prisma from "../../../prisma/Prisma.js";
 import * as response from "../ApiResponseContract.js"
 import type {Response} from "express";
-import {type userInformationInterface} from "./userAuth.model.js";
+import {type otpValidationType, type userInformationInterface} from "./userAuth.model.js";
 import {randomInt, randomUUID} from "node:crypto";
+import {sendOtpByEmail} from "../emailing/comms.service.js";
 
 
 async function generateToken(res: Response, email: string) {
     let user: userInformationInterface | any
-    user = await prisma.user_information.findUnique({where: {email}});
+    user = await prisma.userInformation.findUnique({where: {email}});
     if (!user) {
         return response.badRequest(res, "Profile does not exist. Register to continue");
     }
@@ -41,25 +42,57 @@ async function verifyToken(res: Response, token: string) {
     if (!decoded.id) {
         return response.unauthorizedRequest(res, "Invalid or Expired token");
     }
-    user = await prisma.user_information.findUnique({where: {id: decoded.id}});
+    user = await prisma.userInformation.findUnique({where: {userId: decoded.id}});
     const {eventRegistrations, paymentRecords, ...necessaryDetails} = user;
     return response.successResponse(res, {token, userDetails: necessaryDetails});
 }
 
 
-async function generateOtp(res: Response, email: string) {
-    const otpReference = randomInt(999999, 111111)
-    const token = randomUUID();
+async function generateOtp(res: Response, email: string, otpReason: string) {
+    const otp = randomInt(999999, 111111).toString();
+    const otpReference: string = randomUUID();
+
+    const emailSendResponse = await sendOtpByEmail(email, otp);
+    if (!emailSendResponse) {
+        return response.serviceUnavailable(res, "Error sending otp. Please try again.");
+    }
 
     const otpResponse = {
         reference: otpReference
     }
+    await prisma.otpLogTable.create({
+        data: {
+            otp: otp,
+            otpReference: otpReference,
+            email: email,
+            otpReason: otpReason
+        }
+    });
 
-
+    return response.successResponse(res, otpResponse);
 }
 
-async function verifyOtp(res: Response, token: string) {
+async function verifyOtp(res: Response, validationPayload: otpValidationType) {
+    const otpRecord = await prisma.otpLogTable.findFirst({
+        where: {
+            email: validationPayload.email,
+            otpReference: validationPayload.otpReference
+        }
+    });
 
+    if (!otpRecord) {
+        return response.badRequest(res, "OTP does not exist. Generate an otp to continue");
+    } else if (validationPayload.otp !== otpRecord.otp) {
+        return response.badRequest(res, "Invalid OTP supplied.")
+    }
+
+    await prisma.otpLogTable.update({
+        where: {id: otpRecord.id},
+        data: {
+            otpUsed: true,
+            timeUsed: new Date(),
+        }
+    })
 }
 
 export {

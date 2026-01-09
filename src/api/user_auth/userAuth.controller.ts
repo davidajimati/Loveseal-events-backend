@@ -20,6 +20,7 @@ async function generateOtp(req: Request, res: Response) {
         console.log("otp generation failed: email not supplied or invalid")
         return handleZodError(res, data.error)
     }
+    await service.generateOtp(res, data.data.email, "Login")
 }
 
 async function validateOtp(req: Request, res: Response) {
@@ -27,13 +28,8 @@ async function validateOtp(req: Request, res: Response) {
     if (!result.success) {
         return handleZodError(res, result.error);
     }
-    /**
-     * validate otp
-     * generate new token
-     * return new token + userDetails
-     */
-    service.generateToken(res, result.data.email);
-
+    await service.verifyOtp(res, result.data);
+    return await service.generateToken(res, result.data.email);
 }
 
 

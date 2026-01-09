@@ -10,6 +10,8 @@ const validateOtpSchema = z.object({
     otpReference: z.string().trim(),
 })
 
+type otpValidationType = z.infer<typeof validateOtpSchema>
+
 interface userInformationInterface {
     userId: string
     email: string
@@ -34,5 +36,6 @@ export {
     validateOtpSchema
 };
 export type {
+    otpValidationType,
     userInformationInterface,
 };
