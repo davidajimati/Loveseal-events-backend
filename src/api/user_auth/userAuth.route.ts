@@ -1,10 +1,11 @@
-import { Router } from "express";
+import {Router} from "express";
+import * as controller from "./userAuth.controller.js"
 
 export default function registerUserAuthRoutes(app: Router) {
     const router = Router();
 
-    router.get("/", (_req, res) => res.send("User list"));
-    router.post("/", (_req, res) => res.send("Create user"));
-
+    router.post("/login", controller.userLogin);
+    router.post("/generate-otp", controller.generateOtp);
+    router.post("/validate-otp", controller.validateOtp);
     app.use("/user-auth", router);
 }

@@ -2,7 +2,6 @@
 
 - accommodation service - David Ajimati
 - events service - David Ajimati
-
 - event registration - Bro Blessed
 - admin console - Bro Blessed
 
