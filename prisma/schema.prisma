@@ -81,37 +81,39 @@ enum roomAllocationStatus {
 }
 
 model userInformation {
-  userId           String                 @id @default(uuid(4))
-  email            String                 @unique
-  firstName        String
-  lastName         String
-  emailVerified    Boolean?
-  phoneNumber      String
-  gender           gender
-  ageRange         String?
-  localAssembly    String?
-  eventsRegistered eventRegistrationTable
-  maritalStatus    maritalStatus?
-  createdAt        DateTime?              @default(now())
-  updatedAt        DateTime?
-  employmentStatus employmentStatus?      @default(EMPLOYED)
-  stateOfResidence String?
+  userId             String                   @id @default(uuid(4))
+  email              String                   @unique
+  firstName          String
+  lastName           String
+  emailVerified      Boolean?
+  phoneNumber        String
+  gender             gender
+  ageRange           String?
+  localAssembly      String?
+  maritalStatus      maritalStatus?
+  createdAt          DateTime?                @default(now())
+  updatedAt          DateTime?
+  employmentStatus   employmentStatus?        @default(EMPLOYED)
+  stateOfResidence   String?
+  eventRegistrations eventRegistrationTable[]
 
   @@index(fields: [userId, email], map: "userInfoIndex")
   @@map("loveseal_events_user_info_table")
 }
 
 model adminUserRecords {
-  adminUserId String         @id @default(uuid(4))
-  tenantId    String         @default(uuid(7))
+  adminUserId String             @id @default(uuid(4))
+  tenantId    String             @default(uuid(7))
   firstName   String
   lastName    String
   email       String
   role        adminUserRoles
   userName    String
+  eventsOwned eventInformation[]
   dateCreated DateTime
   updatedAt   DateTime?
 
+  @@unique([tenantId, adminUserId])
   @@map("admin_users_table")
 }
 
@@ -125,10 +127,10 @@ model eventsAdminRolesTracker {
 }
 
 model eventInformation {
-  eventId             String           @id @default(uuid(4))
+  eventId             String                   @id @default(uuid(4))
   tenantId            String
   eventOwnerId        String
-  eventRecord         adminUserRecords @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
+  eventRecord         adminUserRecords         @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
   eventYear           String
   eventName           String
   startDate           DateTime
@@ -137,7 +139,8 @@ model eventInformation {
   accommodationNeeded Boolean
   registrationOpenAt  DateTime
   registrationCloseAt DateTime
-  createdAt           DateTime?        @default(now())
+  registrants         eventRegistrationTable[]
+  createdAt           DateTime?                @default(now())
   updatedAt           DateTime?
 
   @@index(fields: [eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
