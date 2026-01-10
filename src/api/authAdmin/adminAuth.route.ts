@@ -8,5 +8,6 @@ export default function registerAdminAuthRoutes(app: Router) {
     router.post("/login", adminAuth);
     router.post("/otp-generate", controller.generateOtp);
     router.post("/otp-validate", controller.validateOtp);
+    
     app.use("/admin-x-auth", router);
 }

@@ -1,5 +1,5 @@
 import express from "express";
-import registerUserRoutes from "./api/user_mgt/user.route.js"
+import registerUserRoutes from "./api/userProfileMgt/user.route.js"
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerEventRoutes from "./api/events/events.routes.js";

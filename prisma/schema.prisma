@@ -91,9 +91,9 @@ model userInformation {
   ageRange           String?
   localAssembly      String?
   maritalStatus      maritalStatus?
+  employmentStatus   employmentStatus?        @default(EMPLOYED)
   createdAt          DateTime?                @default(now())
   updatedAt          DateTime?
-  employmentStatus   employmentStatus?        @default(EMPLOYED)
   stateOfResidence   String?
   eventRegistrations eventRegistrationTable[]
   paymentRecords     paymentRecords[]
