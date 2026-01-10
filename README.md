@@ -1,15 +1,18 @@
 **WORK OUTLINE:**
 
-- accommodation service - David Ajimati
-- events service - David Ajimati
-- event registration - Bro Blessed
-- admin console - Bro Blessed
+- User authentication - David Ajimati   -   DONE
+- Admin Authentication - David Ajimati  -   DONE
+- User profile service - David Ajimati  -   DONE
+- events admin service - David Ajimati
 
-- billing service - Bro Semilore
-- emailing service - Bro Semilore
+- accommodation service - Bro Mayowa
+- billing service - Bro Mayowa
 
-- User authentication - Sister Oreoluwa
-- User profile service - Sister Oreoluwa
+- event registration - Bro Victor
+- admin console - Bro Victor
+
+- emailing service - Sister Oreoluwa
+
 
 <br><br>
 **STACK**
