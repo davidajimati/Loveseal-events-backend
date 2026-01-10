@@ -91,9 +91,9 @@ model userInformation {
   ageRange           String?
   localAssembly      String?
   maritalStatus      maritalStatus?
+  employmentStatus   employmentStatus?        @default(EMPLOYED)
   createdAt          DateTime?                @default(now())
   updatedAt          DateTime?
-  employmentStatus   employmentStatus?        @default(EMPLOYED)
   stateOfResidence   String?
   eventRegistrations eventRegistrationTable[]
   paymentRecords     paymentRecords[]
@@ -121,7 +121,7 @@ model adminUserRecords {
   tenantId                String                    @default(uuid(7))
   firstName               String
   lastName                String
-  email                   String
+  email                   String                    @unique
   role                    adminUserRoles
   userName                String
   eventsOwned             eventInformation[]
@@ -140,6 +140,8 @@ model eventsAdminRolesTracker {
   eventRole       adminUserRoles
   eventRecord     eventInformation @relation(fields: [eventId], references: [eventId])
   adminUserRecord adminUserRecords @relation(fields: [adminUserId], references: [adminUserId])
+
+  @@map("events_admin_role_table")
 }
 
 model eventInformation {
@@ -202,6 +204,7 @@ model paymentRecords {
   updatedAt        DateTime?
 
   @@index(fields: [eventId], map: "paymentRecordsIndex")
+  @@map("event_payment_records")
 }
 
 model accommodationFacilities {
@@ -212,6 +215,8 @@ model accommodationFacilities {
   eventRecord         eventInformation      @relation(fields: [eventId], references: [eventId])
   hostelAccommodation hostelAccommodation[]
   hotelAccommodation  hotelAccommodation[]
+
+  @@map("accomodation_facilities")
 }
 
 model hostelAccommodation {
@@ -224,6 +229,8 @@ model hostelAccommodation {
   genderRestriction gender
   adminReserverd    Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+
+  @@map("hostel_accommodation_table")
 }
 
 model hostelAllocations {
@@ -234,6 +241,8 @@ model hostelAllocations {
   allocator        roomAllocator
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
+
+  @@map("hostel_allocations_table")
 }
 
 model hotelAccommodation {
@@ -248,4 +257,6 @@ model hotelAccommodation {
   genderRestriction gender
   adminReserverd    Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+
+  @@map("hotel_accommodation_table")
 }

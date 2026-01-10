@@ -1,24 +1,20 @@
 import type {Request, Response} from 'express';
-import {generateOtpSchema, validateOtpSchema} from "./userAuth.model.js"
-import * as response from "../ApiResponseContract.js"
-import * as service from "./userAuth.service.js"
+import prisma from "../../../prisma/Prisma.js";
+import * as service from "./adminAuth.service.js"
 import {handleZodError} from "../exceptions/exceptionsHandler.js";
+import {unauthorizedRequest} from "../ApiResponseContract.js";
+import {generateOtpSchema, validateOtpSchema} from "../authUser/userAuth.model.js"
 
-async function userLogin(req: Request, res: Response) {
-    const token = req.headers.authorization;
-    if (token != null) {
-        return await service.verifyToken(res, token)
-    } else {
-        console.log("login error: missing token")
-        return response.unauthorizedRequest(res, "missing or invalid token")
-    }
-}
 
 async function generateOtp(req: Request, res: Response) {
     const data = generateOtpSchema.safeParse(req.body);
     if (!data.success) {
         console.log("otp generation failed: email not supplied or invalid")
         return handleZodError(res, data.error)
+    }
+    const adminUser = await prisma.adminUserRecords.findUnique({where: {email: data.data.email}})
+    if (!adminUser || !adminUser.email) {
+        return unauthorizedRequest(res, "Sorry, this action is reserved only for admin users.")
     }
     await service.generateOtp(res, data.data.email, "Login")
 }
@@ -34,7 +30,6 @@ async function validateOtp(req: Request, res: Response) {
 
 
 export {
-    userLogin,
     generateOtp,
     validateOtp
 }
