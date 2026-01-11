@@ -10,6 +10,8 @@ import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 
 const app = express();
 
+app.use(express.json());
+
 registerUserRoutes(app);
 registerEventRoutes(app);
 registerAdminRoutes(app);

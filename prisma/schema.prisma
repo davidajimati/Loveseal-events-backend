@@ -212,6 +212,11 @@ model accommodationFacilities {
   eventId             String
   facilityName        String
   available           Boolean
+  selfEmployedUserPrice   Float?
+  employedUserPrice       Float?
+  unemployedUserPrice     Float?
+  totalCapacity          Int?
+  capacityOccupied      Int                    @default(0)  
   eventRecord         eventInformation      @relation(fields: [eventId], references: [eventId])
   hostelAccommodation hostelAccommodation[]
   hotelAccommodation  hotelAccommodation[]
@@ -225,7 +230,6 @@ model hostelAccommodation {
   roomCode          String                  @default(uuid(4))
   roomIdentifier    String
   capacity          Int
-  pricePerBed       Float
   genderRestriction gender
   adminReserverd    Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
@@ -253,7 +257,6 @@ model hotelAccommodation {
   address           String
   description       String
   available         Boolean?
-  pricePerBed       Float
   genderRestriction gender
   adminReserverd    Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
