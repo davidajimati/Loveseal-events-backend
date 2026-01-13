@@ -208,18 +208,20 @@ model paymentRecords {
 }
 
 model accommodationFacilities {
-  facilityId          String                @id @default(uuid(4))
-  eventId             String
-  facilityName        String
-  available           Boolean
+  facilityId              String                @id @default(uuid(4))
+  eventId                 String
+  accommodationCategoryId String
+  facilityName            String
+  available               Boolean
   selfEmployedUserPrice   Float?
   employedUserPrice       Float?
   unemployedUserPrice     Float?
-  totalCapacity          Int?
-  capacityOccupied      Int                    @default(0)  
-  eventRecord         eventInformation      @relation(fields: [eventId], references: [eventId])
-  hostelAccommodation hostelAccommodation[]
-  hotelAccommodation  hotelAccommodation[]
+  totalCapacity           Int
+  capacityOccupied        Int                   @default(0)
+  eventRecord             eventInformation      @relation(fields: [eventId], references: [eventId])
+  hostelAccommodation     hostelAccommodation[]
+  hotelAccommodation      hotelAccommodation[]
+  categoryRecord          accommodationCategory @relation(fields: [accommodationCategoryId], references: [accommodationCategoryId])
 
   @@map("accomodation_facilities")
 }
@@ -230,8 +232,9 @@ model hostelAccommodation {
   roomCode          String                  @default(uuid(4))
   roomIdentifier    String
   capacity          Int
+  capacityOccupied  Int                     @default(0)                    
   genderRestriction gender
-  adminReserverd    Boolean
+  adminReserved     Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
 
   @@map("hostel_accommodation_table")
@@ -250,16 +253,27 @@ model hostelAllocations {
 }
 
 model hotelAccommodation {
-  hotelId           String                  @id @default(uuid(4))
-  facilityId        String
-  hotelCode         String                  @default(uuid(4))
-  hotelIdentifier   String
-  address           String
-  description       String
-  available         Boolean?
-  genderRestriction gender
-  adminReserverd    Boolean
-  facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+  hotelId            String                  @id @default(uuid(4))
+  facilityId         String
+  hotelCode          String                  @default(uuid(4))
+  hotelIdentifier    String
+  address            String
+  description        String
+  available          Boolean?
+  price              Float?
+  noOfRoomsAvailable Int
+  noOfRoomsOccupied  Int                     @default(0)
+  genderRestriction  gender
+  adminReserved      Boolean
+  facilityRecord     accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
 
   @@map("hotel_accommodation_table")
+}
+
+model accommodationCategory {
+  accommodationCategoryId String                    @id @default(uuid(4))
+  name                    String
+  facilityRecord          accommodationFacilities[]
+
+  @@map("accommodation_categories")
 }
