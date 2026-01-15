@@ -2,7 +2,6 @@ import dns from "dns";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import bodyParser from "body-parser";
 import compression from 'compression';
 import registerEventRoutes from "./api/events/events.routes.js";
 import registerBillingRoutes from "./api/billing/billing.routes.js";
