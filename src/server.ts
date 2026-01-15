@@ -26,16 +26,6 @@ const handleInvalidPayload: ErrorRequestHandler = (err, req, res, next) => {
             responseData: err.message
         });
     }
-    next(err);
-};
-
-const handleInternalServerError: ErrorRequestHandler = (err, req, res, next) => {
-    console.error(err);
-    res.status(500).json({
-        responseCode: "100",
-        responseMsg: "Internal Server Error"
-    });
-    next(err);
 };
 
 const corsOptions = {
@@ -49,7 +39,6 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
-app.use(bodyParser.urlencoded({extended: true}));
 
 registerUserRoutes(app);
 registerEventRoutes(app);
@@ -61,7 +50,6 @@ registerAdminAuthRoutes(app);
 registerAccommodationRoutes(app);
 
 app.use(handleInvalidPayload);
-app.use(handleInternalServerError);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
