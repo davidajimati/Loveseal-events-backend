@@ -1,14 +1,24 @@
+import dns from "dns";
+import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
-import registerUserRoutes from "./api/userProfileMgt/user.route.js"
-import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
-import registerEmailingRoutes from "./api/emailing/comms.routes.js";
+import bodyParser from "body-parser";
+import compression from 'compression';
 import registerEventRoutes from "./api/events/events.routes.js";
 import registerBillingRoutes from "./api/billing/billing.routes.js";
+import registerEmailingRoutes from "./api/emailing/comms.routes.js";
+import registerUserRoutes from "./api/userProfileMgt/user.route.js";
 import registerAdminRoutes from "./api/admin_console/admin.routes.js";
-import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
+import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
+import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
+import type {Request, Response, NextFunction, ErrorRequestHandler} from "express";
 
+
+dotenv.config();
 const app = express();
+
+app.use(express.json());
 
 registerUserRoutes(app);
 registerEventRoutes(app);
@@ -18,5 +28,17 @@ registerUserAuthRoutes(app);
 registerEmailingRoutes(app);
 registerAdminAuthRoutes(app);
 registerAccommodationRoutes(app);
+
+app.use(handleInvalidPayload);
+app.use(handleInternalServerError);
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 export default app;

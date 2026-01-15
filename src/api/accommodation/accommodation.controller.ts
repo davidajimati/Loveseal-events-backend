@@ -1,0 +1,94 @@
+import type { Request, Response } from "express";
+import { handleZodError } from "../exceptions/exceptionsHandler.js";
+import {
+  createAccommodationCategorySchema,
+  createAccommodationFacilitySchema,
+  createHostelAccommodationSchema,
+  createHotelAccommodationSchema,
+} from "./accommodation.model.js";
+import * as service from "./accommodation.service.js";
+import * as response from "../ApiResponseContract.js";
+
+async function createFacility(req: Request, res: Response) {
+  const result = createAccommodationFacilitySchema.safeParse(req.body);
+
+  if (!result.success) {
+    return handleZodError(res, result.error);
+  }
+  return await service.createAccommodationFacility(res, result.data);
+}
+
+async function createCategories(req: Request, res: Response) {
+  const result = createAccommodationCategorySchema.safeParse(req.body);
+
+  if (!result.success) {
+    return handleZodError(res, result.error);
+  }
+  return await service.createAccommodationCategory(res, result.data);
+}
+async function createHostelAccommodation(req: Request, res: Response) {
+  const result = createHostelAccommodationSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return handleZodError(res, result.error);
+  }
+  return await service.createHostelAccommodation(res, result.data);
+}
+
+async function createHotelAccommodation(req: Request, res: Response) {
+  const result = createHotelAccommodationSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return handleZodError(res, result.error);
+  }
+  return await service.createHotelAccommodation(res, result.data);
+}
+
+async function getAllCategoriesInfo(req: Request, res: Response) {
+  const categories = await service.getCategoriesInfo();
+
+  try {
+    return response.successResponse(res, categories);
+  } catch (error) {
+    response.badRequest(res, error);
+  }
+}
+
+async function getFacility(req: Request, res: Response) {
+  try {
+    const { categoryId } = req.params;
+
+    if (!categoryId) {
+      return response.badRequest(res, "categoryId is required");
+    }
+
+    const facilities = await service.getFacilityInfo(categoryId);
+    return response.successResponse(res, facilities);
+  } catch (error) {
+    return response.badRequest(res, error);
+  }
+}
+async function getHotelRooms(req: Request, res: Response) {
+  try {
+    const { facilityId } = req.params;
+
+    if (!facilityId) {
+      return response.badRequest(res, "facilityId is required");
+    }
+
+    const hotelRooms = await service.getHotelRooms(facilityId);
+    return response.successResponse(res, hotelRooms);
+  } catch (error) {
+    return response.badRequest(res, error);
+  }
+}
+
+export {
+  createFacility,
+  createCategories,
+  createHostelAccommodation,
+  createHotelAccommodation,
+  getAllCategoriesInfo,
+  getFacility,
+  getHotelRooms
+};
