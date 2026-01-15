@@ -23,9 +23,7 @@ async function getUserProfile(req: AuthenticatedUser, res: Response) {
 }
 
 async function createUserProfile(req: AuthenticatedUser, res: Response) {
-    if (!req.userId)
-        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
-
+    console.log("\n-> request: create new user")
     const result = createUserSchema.safeParse(req.body);
     if (!result.success) return handleZodError(res, result.error);
 

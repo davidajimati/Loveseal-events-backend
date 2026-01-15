@@ -2,7 +2,6 @@ import jwt, {type JwtPayload} from "jsonwebtoken";
 import * as response from "../ApiResponseContract.js";
 import type {NextFunction, Request, Response} from 'express';
 import {unauthorizedRequest} from "../ApiResponseContract.js";
-import type {userInformationInterface} from "../authUser/userAuth.model.js";
 
 export interface AuthenticatedUser extends Request {
     userId?: string,
@@ -10,9 +9,9 @@ export interface AuthenticatedUser extends Request {
 }
 
 export default async function userLogin(req: AuthenticatedUser, res: Response, next: NextFunction) {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
     if (token != null) {
-
+        token = token.replace("Bearer ", "");
         const SECRET = process.env.JWT_SECRET as string;
 
         let decoded: JwtPayload;
@@ -23,11 +22,11 @@ export default async function userLogin(req: AuthenticatedUser, res: Response, n
             return response.unauthorizedRequest(res, "Invalid or Expired token. Please login again");
         }
 
-        if (!decoded.id) {
+        if (!decoded.userId) {
             return response.unauthorizedRequest(res, "Invalid or Expired token");
         }
 
-        req.userId = decoded.id;
+        req.userId = decoded.userId;
         req.email = decoded.email;
         next();
 

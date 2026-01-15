@@ -1,11 +1,10 @@
 import dns from "dns";
 import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
 import bodyParser from "body-parser";
 import compression from 'compression';
-import express, {type ErrorRequestHandler} from "express";
 import registerEventRoutes from "./api/events/events.routes.js";
-import registerEmailRoutes from "./api/emailing/testnodemailer.js";
 import registerBillingRoutes from "./api/billing/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
@@ -13,6 +12,7 @@ import registerAdminRoutes from "./api/admin_console/admin.routes.js";
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
+import type {Request, Response, NextFunction, ErrorRequestHandler} from "express";
 
 
 dotenv.config();
@@ -51,7 +51,6 @@ app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
 app.use(bodyParser.urlencoded({extended: true}));
 
-registerEmailRoutes(app);
 registerUserRoutes(app);
 registerEventRoutes(app);
 registerAdminRoutes(app);
@@ -63,5 +62,14 @@ registerAccommodationRoutes(app);
 
 app.use(handleInvalidPayload);
 app.use(handleInternalServerError);
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 export default app;
