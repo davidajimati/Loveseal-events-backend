@@ -2,9 +2,20 @@ import prisma from "../../../prisma/Prisma.js";
 import * as service from "./userAuth.service.js"
 import {type Request, type Response} from 'express';
 import {badRequest} from "../ApiResponseContract.js";
+import {unauthorizedRequest} from "../ApiResponseContract.js";
 import {handleZodError} from "../exceptions/exceptionsHandler.js";
 import {generateOtpSchema, validateOtpSchema} from "./userAuth.model.js"
 
+async function userLogin(req: Request, res: Response) {
+    let token = req.headers.authorization;
+    if (token != null) {
+        token = token?.replace("Bearer ", "");
+        return await service.verifyToken(res, token)
+    } else {
+        console.log("login error: missing token")
+        return unauthorizedRequest(res, "missing or invalid token")
+    }
+}
 
 async function generateOtp(req: Request, res: Response) {
     const data = generateOtpSchema.safeParse(req.body);
@@ -30,6 +41,7 @@ async function validateOtp(req: Request, res: Response) {
 
 
 export {
+    userLogin,
     generateOtp,
     validateOtp
 }

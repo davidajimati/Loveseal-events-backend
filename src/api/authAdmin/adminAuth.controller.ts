@@ -6,6 +6,17 @@ import {unauthorizedRequest} from "../ApiResponseContract.js";
 import {generateOtpSchema, validateOtpSchema} from "../authUser/userAuth.model.js"
 
 
+async function adminUserLogin(req: Request, res: Response) {
+    let token = req.headers.authorization;
+    if (token != null) {
+        token = token.replace("Bearer ", "");
+        return await service.verifyToken(res, token)
+    } else {
+        console.log("login error: missing token")
+        return unauthorizedRequest(res, "missing or invalid token")
+    }
+}
+
 async function generateOtp(req: Request, res: Response) {
     const data = generateOtpSchema.safeParse(req.body);
     if (!data.success) {
@@ -31,5 +42,6 @@ async function validateOtp(req: Request, res: Response) {
 
 export {
     generateOtp,
-    validateOtp
+    validateOtp,
+    adminUserLogin
 }

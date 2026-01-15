@@ -6,11 +6,11 @@ import auth from "../middleware/auth.js";
 export default function registerUserRoutes(app: Router) {
     const router = Router();
 
-    router.get("/:id", auth, controller.getUserProfile)
+    router.get("/", auth, controller.getUserProfile)
     router.get("/users-count", adminAuth, controller.getUsersCount)
-    router.post("/", auth, controller.createUserProfile);
+    router.post("/", controller.createUserProfile);
     router.put("/", auth, controller.updateUserProfile);
-    router.delete("/:id", auth, controller.deleteUserProfile)
+    router.delete("/", auth, controller.deleteUserProfile)
 
     app.use("/user", router);
 }
