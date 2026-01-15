@@ -18,38 +18,7 @@ import type {Request, Response, NextFunction, ErrorRequestHandler} from "express
 dotenv.config();
 const app = express();
 
-const handleInvalidPayload: ErrorRequestHandler = (err, req, res, next) => {
-    if (err instanceof SyntaxError && "body" in err) {
-        return res.status(400).json({
-            responseCode: "99",
-            responseMsg: "Invalid JSON payload",
-            responseData: err.message
-        });
-    }
-    next(err);
-};
-
-const handleInternalServerError: ErrorRequestHandler = (err, req, res, next) => {
-    console.error(err);
-    res.status(500).json({
-        responseCode: "100",
-        responseMsg: "Internal Server Error"
-    });
-    next(err);
-};
-
-const corsOptions = {
-    origin: "*",
-    method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}
-
 app.use(express.json());
-app.use(compression());
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
-dns.setDefaultResultOrder("ipv4first");
-app.use(bodyParser.urlencoded({extended: true}));
 
 registerUserRoutes(app);
 registerEventRoutes(app);
