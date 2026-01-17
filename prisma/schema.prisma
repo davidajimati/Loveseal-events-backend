@@ -81,7 +81,7 @@ enum roomAllocationStatus {
 }
 
 model userInformation {
-  userId             String                   @id @default(uuid(4))
+  userId             String                   @id @default(uuid())
   email              String                   @unique
   firstName          String
   lastName           String
@@ -103,7 +103,7 @@ model userInformation {
 }
 
 model otpLogTable {
-  id            String    @id @default(uuid(4))
+  id            String    @id @default(uuid())
   email         String
   otp           String
   otpReference  String
@@ -117,8 +117,8 @@ model otpLogTable {
 }
 
 model adminUserRecords {
-  adminUserId             String                    @id @default(uuid(4))
-  tenantId                String                    @default(uuid(7))
+  adminUserId             String                    @id @default(uuid())
+  tenantId                String                    @default(uuid())
   firstName               String
   lastName                String
   email                   String                    @unique
@@ -134,7 +134,7 @@ model adminUserRecords {
 }
 
 model eventsAdminRolesTracker {
-  id              String           @id @default(uuid(4))
+  id              String           @id @default(uuid())
   eventId         String
   adminUserId     String
   eventRole       adminUserRoles
@@ -145,7 +145,7 @@ model eventsAdminRolesTracker {
 }
 
 model eventInformation {
-  eventId                 String                    @id @default(uuid(4))
+  eventId                 String                    @id @default(uuid())
   tenantId                String
   eventOwnerId            String
   eventRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
@@ -169,7 +169,7 @@ model eventInformation {
 }
 
 model eventRegistrationTable {
-  regId                 String             @id @default(uuid(4))
+  regId                 String             @id @default(uuid())
   eventId               String
   userId                String
   userRecord            userInformation    @relation(fields: [userId], references: [userId])
@@ -189,7 +189,7 @@ model eventRegistrationTable {
 }
 
 model paymentRecords {
-  paymentId        String           @id @default(uuid(4))
+  paymentId        String           @id @default(uuid())
   userId           String
   eventId          String
   userRecord       userInformation  @relation(fields: [userId], references: [userId])
@@ -208,7 +208,7 @@ model paymentRecords {
 }
 
 model accommodationFacilities {
-  facilityId              String                @id @default(uuid(4))
+  facilityId              String                @id @default(uuid())
   eventId                 String
   accommodationCategoryId String
   facilityName            String
@@ -227,12 +227,12 @@ model accommodationFacilities {
 }
 
 model hostelAccommodation {
-  roomId            String                  @id @default(uuid(4))
+  roomId            String                  @id @default(uuid())
   facilityId        String
-  roomCode          String                  @default(uuid(4))
+  roomCode          String                  @default(uuid())
   roomIdentifier    String
   capacity          Int
-  capacityOccupied  Int                     @default(0)                    
+  capacityOccupied  Int                     @default(0)
   genderRestriction gender
   adminReserved     Boolean
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
@@ -241,7 +241,7 @@ model hostelAccommodation {
 }
 
 model hostelAllocations {
-  id               String               @id @default(uuid(4))
+  id               String               @id @default(uuid())
   roomId           String
   registrationId   String
   eventId          String
@@ -253,9 +253,9 @@ model hostelAllocations {
 }
 
 model hotelAccommodation {
-  hotelId            String                  @id @default(uuid(4))
+  hotelId            String                  @id @default(uuid())
   facilityId         String
-  hotelCode          String                  @default(uuid(4))
+  hotelCode          String                  @default(uuid())
   hotelIdentifier    String
   address            String
   description        String
@@ -271,7 +271,7 @@ model hotelAccommodation {
 }
 
 model accommodationCategory {
-  accommodationCategoryId String                    @id @default(uuid(4))
+  accommodationCategoryId String                    @id @default(uuid())
   name                    String
   facilityRecord          accommodationFacilities[]
 
