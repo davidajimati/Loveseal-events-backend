@@ -49,3 +49,6 @@ coverage/
 
 # Optional debug
 .vscode/
+
+docs/
+CLAUDE.md
