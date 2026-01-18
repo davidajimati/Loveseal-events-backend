@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import compression from 'compression';
-import registerEventRoutes from "./api/events/events.routes.js";
 import registerBillingRoutes from "./api/billing/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
@@ -12,6 +11,7 @@ import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
 import type {Request, Response, NextFunction, ErrorRequestHandler} from "express";
+import registerEventRoutes from "@api/events/route/events.routes.js";
 
 
 dotenv.config();
