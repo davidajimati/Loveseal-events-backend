@@ -6,7 +6,7 @@ import compression from 'compression';
 import registerBillingRoutes from "./api/billing/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
-import registerAdminRoutes from "./api/admin_console/admin.routes.js";
+import registerAdminRoutes from "@api/adminConsole/admin.routes.js";
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
