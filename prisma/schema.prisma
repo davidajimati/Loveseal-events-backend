@@ -83,18 +83,21 @@ enum roomAllocationStatus {
 model userInformation {
   userId             String                   @id @default(uuid())
   email              String                   @unique
-  firstName          String
-  lastName           String
+  firstName          String?
+  lastName           String?
   emailVerified      Boolean?
-  phoneNumber        String
-  gender             gender
+  phoneNumber        String?
+  gender             gender?
+  country            String?
   ageRange           String?
+  minister           Boolean?                 @default(false)
   localAssembly      String?
   maritalStatus      maritalStatus?
   employmentStatus   employmentStatus?        @default(EMPLOYED)
   createdAt          DateTime?                @default(now())
   updatedAt          DateTime?
   stateOfResidence   String?
+  residentialAddress String?
   eventRegistrations eventRegistrationTable[]
   paymentRecords     paymentRecords[]
 
