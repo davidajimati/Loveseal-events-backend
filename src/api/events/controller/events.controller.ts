@@ -6,6 +6,7 @@ import { createEventSchema, updateEventSchema } from "../events.model.js";
 import type { AuthenticatedUser } from "@api/middleware/auth.js";
 import type { AuthenticatedAdminUser } from "@api/middleware/adminAuth.js";
 import type { PaginationDto } from "@common/pagination.dto.js";
+import prisma from "@prisma/Prisma.js";
 
 class EventsController {
     private readonly eventsService: EventsService;
@@ -24,6 +25,10 @@ class EventsController {
         };
 
         return await this.eventsService.getAllEvents(res, paginationDto);
+    }
+
+    async getActiveEvents(req: AuthenticatedUser, res: Response) {
+       return await this.eventsService.retrieveActiveEvents(res);
     }
 
     async getEventById(req: AuthenticatedUser, res: Response) {

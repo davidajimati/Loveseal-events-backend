@@ -1,10 +1,10 @@
-import type { Response } from "express";
-import { Prisma, type eventInformation } from "@prisma/client";
-import { BaseService } from "@common/index.js";
+import type {Response} from "express";
+import {Prisma, type eventInformation} from "@prisma/client";
+import {BaseService} from "@common/index.js";
 import prisma from "@prisma/Prisma.js";
 import * as response from "@api/ApiResponseContract.js";
-import type { CreateEventType, UpdateEventType } from "../events.model.js";
-import type { PaginationDto } from "@common/pagination.dto.js";
+import type {CreateEventType, UpdateEventType} from "../events.model.js";
+import type {PaginationDto} from "@common/pagination.dto.js";
 
 export class EventsService extends BaseService<eventInformation, CreateEventType, UpdateEventType> {
     constructor() {
@@ -23,6 +23,15 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
             console.log("Exception: " + error);
             return response.internalServerError(res, "Something went wrong. Please try again.");
         }
+    }
+
+    async retrieveActiveEvents(res: Response) {
+        const activeEvents = await prisma.eventInformation.findMany({
+            where: {
+                eventStatus: "ACTIVE"
+            }
+        });
+        return response.successResponse(res, {activeEvents});
     }
 
     async getEventById(res: Response, eventId: string) {
