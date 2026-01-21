@@ -8,6 +8,7 @@ import {
 } from "./accommodation.model.js";
 import * as service from "./accommodation.service.js";
 import * as response from "../ApiResponseContract.js";
+import { BillingService } from "../billing/billing.service.js";
 
 async function createFacility(req: Request, res: Response) {
   const result = createAccommodationFacilitySchema.safeParse(req.body);
@@ -83,6 +84,17 @@ async function getHotelRooms(req: Request, res: Response) {
   }
 }
 
+async function createAccommodationRequest(req: Request, res: Response) {
+  const billingService = new BillingService();
+
+  try {
+    return await billingService.initializePayment(res, req.body);
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+
 export {
   createFacility,
   createCategories,
@@ -90,5 +102,6 @@ export {
   createHotelAccommodation,
   getAllCategoriesInfo,
   getFacility,
-  getHotelRooms
+  getHotelRooms,
+  createAccommodationRequest,
 };
