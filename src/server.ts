@@ -40,6 +40,7 @@ app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
 
 registerUserRoutes(app);
+registerAdminRoutes(app);
 registerEventRoutes(app);
 registerAdminRoutes(app);
 registerBillingRoutes(app);
