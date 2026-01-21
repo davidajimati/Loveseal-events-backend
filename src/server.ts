@@ -12,6 +12,7 @@ import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
 import type {Request, Response, NextFunction, ErrorRequestHandler} from "express";
 import registerEventRoutes from "@api/events/route/events.routes.js";
+import registerEventRegistrationRoutes from "@api/events/route/event-registration.routes.js";
 
 
 dotenv.config();
@@ -41,6 +42,7 @@ dns.setDefaultResultOrder("ipv4first");
 
 registerUserRoutes(app);
 registerEventRoutes(app);
+registerEventRegistrationRoutes(app);
 registerAdminRoutes(app);
 registerBillingRoutes(app);
 registerUserAuthRoutes(app);

@@ -2,10 +2,10 @@ import type { Response } from "express";
 import { EventsService } from "../service/events.service.js";
 import * as response from "@api/ApiResponseContract.js";
 import { handleZodError } from "@api/exceptions/exceptionsHandler.js";
-import { createEventSchema, updateEventSchema } from "../events.model.js";
 import type { AuthenticatedUser } from "@api/middleware/auth.js";
 import type { AuthenticatedAdminUser } from "@api/middleware/adminAuth.js";
 import type { PaginationDto } from "@common/pagination.dto.js";
+import {createEventSchema, updateEventSchema} from "@api/events/models/events.model.js";
 
 class EventsController {
     private readonly eventsService: EventsService;
@@ -74,6 +74,45 @@ class EventsController {
         }
 
         return await this.eventsService.deleteEvent(res, id);
+    }
+
+    async setEventToDraft(req: AuthenticatedAdminUser, res: Response) {
+        if (!req.adminId) {
+            return response.unauthorizedRequest(res, "Request not authorized. Please try again later");
+        }
+
+        const id = req.params.id;
+        if (!id || typeof id !== 'string') {
+            return response.badRequest(res, "Event ID is required");
+        }
+
+        return await this.eventsService.setEventToDraft(res, id);
+    }
+
+    async setEventToActive(req: AuthenticatedAdminUser, res: Response) {
+        if (!req.adminId) {
+            return response.unauthorizedRequest(res, "Request not authorized. Please try again later");
+        }
+
+        const id = req.params.id;
+        if (!id || typeof id !== 'string') {
+            return response.badRequest(res, "Event ID is required");
+        }
+
+        return await this.eventsService.setEventToActive(res, id);
+    }
+
+    async setEventToClosed(req: AuthenticatedAdminUser, res: Response) {
+        if (!req.adminId) {
+            return response.unauthorizedRequest(res, "Request not authorized. Please try again later");
+        }
+
+        const id = req.params.id;
+        if (!id || typeof id !== 'string') {
+            return response.badRequest(res, "Event ID is required");
+        }
+
+        return await this.eventsService.setEventToClosed(res, id);
     }
 }
 
