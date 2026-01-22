@@ -3,6 +3,7 @@ import type {
   InitiatePaymentResponse,
   KoraPayInitiatePaymentResponse,
   KorapPayInitiatePaymentRequest,
+  PaymentStatusWebhook,
 } from "./billing.model.js";
 import { randomUUID } from "crypto";
 import dotenv from "dotenv";
@@ -28,6 +29,41 @@ export class BillingService {
       return this.mapPaymentResponse(res, thirdPartyResponse);
     } catch (error: any) {
       return response.badRequest(res, error.message || error);
+    }
+  }
+
+  async verifyPayment(res: Response, req: PaymentStatusWebhook) {
+    try {
+      const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
+
+      console.log(req);
+      
+
+      const transaction = await prisma.paymentRecords.findUnique({
+        where: {
+          paymentReference: req.data.reference,
+        },
+      });
+
+      if (transaction == null) {
+        throw new HttpError("Invalid transaction reference", 404);
+      }
+
+      await prisma.paymentRecords.update({
+        where: {
+          paymentReference: req.data.reference,
+        },
+        data: {
+          paymentStatus: newStatus,
+          providerRawResponse: JSON.parse(JSON.stringify(req)),
+        },
+      });
+
+      return response.successResponse(res, "Successful");
+    } catch (error: any) {
+      console.log(error);
+
+      response.badRequest(res, error.message);
     }
   }
 

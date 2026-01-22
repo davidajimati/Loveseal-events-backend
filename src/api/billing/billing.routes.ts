@@ -1,10 +1,12 @@
 import { Router } from "express";
+import { billingController } from "./billing.controller.js";
 
 export default function registerBillingRoutes(app: Router) {
-    const router = Router();
+  const router = Router();
 
-    router.get("/", (_req, res) => res.send("User list"));
-    router.post("/", (_req, res) => res.send("Create user"));
+  router.post("/verify", (req, res) =>
+    billingController.verifyPayment(req, res)
+  );
 
-    app.use("/billing", router);
+  app.use("/billing", router);
 }

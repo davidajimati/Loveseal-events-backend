@@ -23,6 +23,20 @@ export interface InitiatePaymentRequest {
   narration?: string;
 }
 
+export interface PaymentStatusWebhook {
+  event: string;
+  data: {
+    reference: string;
+    currency: string;
+    amount: number;
+    fee: number;
+    status: string;
+    payment_method: string;
+    payment_reference?: string; 
+  };
+}
+
+
 export interface InitiatePaymentResponse {
   reference: string;
   checkoutUrl: string;
