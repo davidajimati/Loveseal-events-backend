@@ -1,7 +1,7 @@
 import type {Response} from "express";
 import {Prisma, PrismaClient} from "@prisma/client"
 import * as response from "../../ApiResponseContract.js"
-import type {createAdminPayload} from "@api/adminConsole/adminProfileMgt/admin.model.js";
+import type {updateAdminType, createAdminType} from "./admin.model.js";
 
 const prisma = new PrismaClient();
 
@@ -14,18 +14,20 @@ async function getAdminProfileInfo(res: Response, adminId: string) {
     return response.successResponse(res, {profileData: profile});
 }
 
-async function createAdmin(res: Response, data: createAdminPayload) {
+async function createAdmin(res: Response, payload: createAdminType) {
     try {
         const prismaData = {
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            ...(data.role !== undefined && {role: data.role}),
-            ...(data.userName !== undefined && {userName: data.userName}),
+            email: payload.email,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            role: payload.role,
+            ...(payload.userName !== undefined && {userName: payload.userName}),
         };
+
         await prisma.adminUserRecords.create({data: prismaData});
-        console.log("user created", prismaData);
+        console.log("admin profile created", prismaData);
         return response.successResponse(res, "Profile created");
+
     } catch (error) {
         console.log("Exception: " + error);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -37,26 +39,18 @@ async function createAdmin(res: Response, data: createAdminPayload) {
     }
 }
 
-async function updateProfile(res: Response, userId: string, data: updateUserType) {
+async function updateProfile(res: Response, adminUserId: string, data: updateAdminType) {
     try {
         const prismaData = {
             ...(data.firstName !== undefined && {firstName: data.firstName}),
             ...(data.lastName !== undefined && {lastName: data.lastName}),
-            ...(data.emailVerified !== undefined && {emailVerified: data.emailVerified}),
-            ...(data.phoneNumber !== undefined && {phoneNumber: data.phoneNumber}),
-            ...(data.gender !== undefined && {gender: data.gender}),
-            ...(data.country !== undefined && {country: data.country}),
-            ...(data.ageRange !== undefined && {ageRange: data.ageRange}),
-            ...(data.minister !== undefined && {minister: data.minister}),
-            ...(data.localAssembly !== undefined && {localAssembly: data.localAssembly}),
-            ...(data.maritalStatus !== undefined && {maritalStatus: data.maritalStatus}),
-            ...(data.employmentStatus !== undefined && {employmentStatus: data.employmentStatus}),
-            ...(data.stateOfResidence !== undefined && {stateOfResidence: data.stateOfResidence}),
-            ...(data.residentialAddress !== undefined && {residentialAddress: data.residentialAddress})
+            ...(data.role !== undefined && {role: data.role}),
+            ...(data.userName !== undefined && {userName: data.userName}),
+
         };
 
-        await prisma.userInformation.update({
-            where: {userId},
+        await prisma.adminUserRecords.update({
+            where: {adminUserId},
             data: prismaData
         });
         return response.successResponse(res, "Profile updated");
@@ -68,15 +62,15 @@ async function updateProfile(res: Response, userId: string, data: updateUserType
     }
 }
 
-async function deleteUser(res: Response, userId: string) {
+async function deleteAdminUser(res: Response, adminUserId: string) {
     try {
-        await prisma.userInformation.delete({where: {userId}});
+        await prisma.adminUserRecords.delete({where: {adminUserId}});
         return response.successResponse(res, "Profile deleted");
     } catch (error) {
         console.log("Exception: " + error);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             if (error.code == "P2025") {
-                return response.badRequest(res, "Inexistent profile Cannot be deleted");
+                return response.badRequest(res, "Inexistent admin profile cannot be deleted");
             }
         }
     }
@@ -85,7 +79,7 @@ async function deleteUser(res: Response, userId: string) {
 
 export {
     createAdmin,
-    deleteUser,
+    deleteAdminUser,
     updateProfile,
     getAdminProfileInfo
 }

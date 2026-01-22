@@ -10,7 +10,7 @@ import {badRequest, forbiddenRequest, unauthorizedRequest} from "../../ApiRespon
 
 async function getAdminProfile(req: AuthenticatedAdminUser, res: Response) {
     if (!req.adminId)
-        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
+        return response.unauthorizedRequest(res, "This action is reserved only for admin");
     console.log("\n-> request: get admin user profile");
     return await service.getAdminProfileInfo(res, req.adminId);
 }
@@ -24,27 +24,26 @@ async function createAdminProfile(req: AuthenticatedAdminUser, res: Response) {
 
 async function updateAdminProfile(req: AuthenticatedAdminUser, res: Response) {
     if (!req.adminId)
-        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
+        return response.unauthorizedRequest(res, "This action is reserved only for admin");
 
     const result = UpdateAdminUserSchema.safeParse(req.body);
     if (!result.success) return handleZodError(res, result.error);
 
     else if (result.data.email != req.email) {
-        console.log("Attempt to update another user's profile")
+        console.log("Attempt to update another adminUser's profile")
         return forbiddenRequest(res, "You cannot update another user's account");
     }
-    return await updateProfile(res, req.userId, result.data);
+    return await updateProfile(res, req.adminId, result.data);
 }
 
 async function deleteAdminProfile(req: AuthenticatedAdminUser, res: Response) {
     if (!req.adminId)
-        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
-    return await service.deleteAdmin(res, req.userId);
+        return response.unauthorizedRequest(res, "This action is reserved only for admin");
+    return await service.deleteAdminUser(res, req.adminId);
 }
 
 
 export {
-    getAdminsCount,
     getAdminProfile,
     createAdminProfile,
     updateAdminProfile,
