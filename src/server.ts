@@ -6,13 +6,14 @@ import compression from 'compression';
 import registerBillingRoutes from "./api/billing/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
-import registerAdminRoutes from "@api/adminConsole/admin.routes.js";
+import registerAdminRoutes from "@api/adminConsole/adminProfileMgt/admin.route.js"
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
 import type {Request, Response, NextFunction, ErrorRequestHandler} from "express";
 import registerEventRoutes from "@api/events/route/events.routes.js";
 import registerEventRegistrationRoutes from "@api/events/route/event-registration.routes.js";
+import userDashboardRoutes from "@api/userDashboard/user.dashboard.route.js";
 
 
 dotenv.config();
@@ -43,13 +44,14 @@ dns.setDefaultResultOrder("ipv4first");
 registerUserRoutes(app);
 registerAdminRoutes(app);
 registerEventRoutes(app);
-registerEventRegistrationRoutes(app);
+userDashboardRoutes(app);
 registerAdminRoutes(app);
 registerBillingRoutes(app);
 registerUserAuthRoutes(app);
 registerEmailingRoutes(app);
 registerAdminAuthRoutes(app);
 registerAccommodationRoutes(app);
+registerEventRegistrationRoutes(app);
 
 app.use(handleInvalidPayload);
 
