@@ -95,7 +95,7 @@ model eventInformation {
   registrants             eventRegistrationTable[]
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
-  dependentsTable         dependentsTable[]
+  dependantInfo           dependantInfo[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -117,14 +117,14 @@ model eventRegistrationTable {
   updatedAt             DateTime?
   eventRecord           eventInformation   @relation(fields: [eventId], references: [eventId])
   userRecord            userInformation    @relation(fields: [userId], references: [userId])
-  dependentsTable       dependentsTable[]
+  dependantInfo         dependantInfo[]
 
   @@index([eventId], map: "eventRegIndex")
   @@index([userId], map: "event_registrations_table_userId_fkey")
   @@map("event_registrations_table")
 }
 
-model dependentsTable {
+model dependantInfo {
   id            String                 @id @default(uuid())
   parentRegId   String
   eventId       String
