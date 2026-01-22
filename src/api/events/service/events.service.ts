@@ -3,8 +3,8 @@ import { Prisma, type eventInformation } from "@prisma/client";
 import { BaseService } from "@common/index.js";
 import prisma from "@prisma/Prisma.js";
 import * as response from "@api/ApiResponseContract.js";
-import type { CreateEventType, UpdateEventType } from "../events.model.js";
 import type { PaginationDto } from "@common/pagination.dto.js";
+import type {CreateEventType, UpdateEventType} from "@api/events/models/events.model.js";
 
 export class EventsService extends BaseService<eventInformation, CreateEventType, UpdateEventType> {
     constructor() {
@@ -72,6 +72,51 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
         try {
             await this.remove(eventId);
             return response.successResponse(res, "Event deleted");
+        } catch (error) {
+            console.log("Exception: " + error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2025") {
+                    return response.notFound(res, "Event not found");
+                }
+            }
+            return response.internalServerError(res, "Something went wrong. Please try again.");
+        }
+    }
+
+    async setEventToDraft(res: Response, eventId: string) {
+        try {
+            const event = await this.modify(eventId, { eventStatus: "DRAFT" });
+            return response.successResponse(res, event);
+        } catch (error) {
+            console.log("Exception: " + error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2025") {
+                    return response.notFound(res, "Event not found");
+                }
+            }
+            return response.internalServerError(res, "Something went wrong. Please try again.");
+        }
+    }
+
+    async setEventToActive(res: Response, eventId: string) {
+        try {
+            const event = await this.modify(eventId, { eventStatus: "ACTIVE" });
+            return response.successResponse(res, event);
+        } catch (error) {
+            console.log("Exception: " + error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2025") {
+                    return response.notFound(res, "Event not found");
+                }
+            }
+            return response.internalServerError(res, "Something went wrong. Please try again.");
+        }
+    }
+
+    async setEventToClosed(res: Response, eventId: string) {
+        try {
+            const event = await this.modify(eventId, { eventStatus: "CLOSED" });
+            return response.successResponse(res, event);
         } catch (error) {
             console.log("Exception: " + error);
             if (error instanceof Prisma.PrismaClientKnownRequestError) {

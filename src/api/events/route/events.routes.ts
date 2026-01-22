@@ -12,5 +12,10 @@ export default function registerEventRoutes(app: Router) {
     router.put("/:id", adminAuth, (req, res) => eventsController.updateEvent(req, res));
     router.delete("/:id", adminAuth, (req, res) => eventsController.deleteEvent(req, res));
 
+    // Event status routes
+    router.patch("/:id/draft", adminAuth, (req, res) => eventsController.setEventToDraft(req, res));
+    router.patch("/:id/active", adminAuth, (req, res) => eventsController.setEventToActive(req, res));
+    router.patch("/:id/closed", adminAuth, (req, res) => eventsController.setEventToClosed(req, res));
+
     app.use("/events", router);
 }
