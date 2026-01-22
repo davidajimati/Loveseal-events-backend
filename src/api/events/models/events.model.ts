@@ -14,7 +14,7 @@ const createEventSchema = z.object({
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
     eventStatus: EventStatusEnum,
-    accommodationNeeded: z.boolean(),
+    accommodationNeeded: z.boolean().default(() => false),
     registrationOpenAt: z.coerce.date(),
     registrationCloseAt: z.coerce.date(),
 });
