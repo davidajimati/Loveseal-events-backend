@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import compression from 'compression';
+import { swaggerSpec } from "./swagger.js"
+import swaggerUi from "swagger-ui-express";
 import registerBillingRoutes from "./api/billing/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
@@ -40,6 +42,7 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 registerUserRoutes(app);
 registerAdminRoutes(app);

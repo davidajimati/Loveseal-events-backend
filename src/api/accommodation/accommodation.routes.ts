@@ -1,18 +1,179 @@
 import { Router } from "express";
 import * as controller from "./accommodation.controller.js";
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Accommodation
+ *     description: Accommodation, facilities, hotels, and hostels management
+ */
+
 export default function registerAccommodationRoutes(app: Router) {
   const router = Router();
 
-  router.get("/", (_req, res) => res.send("User list"));
+  /**
+   * @swagger
+   * /accommodation/facility:
+   *   post:
+   *     summary: Create a facility
+   *     tags: [Accommodation]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateAccommodationFacilityRequest'
+   *     responses:
+   *       201:
+   *         description: Facility created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ApiResponse'
+   *       400:
+   *         description: Invalid request payload
+   */
   router.post("/facility", controller.createFacility);
+
+  /**
+   * @swagger
+   * /accommodation/facility/{categoryId}:
+   *   get:
+   *     summary: Get facilities by category ID
+   *     tags: [Accommodation]
+   *     parameters:
+   *       - in: path
+   *         name: categoryId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Facilities retrieved successfully
+   *       404:
+   *         description: Category not found
+   */
   router.get("/facility/:categoryId", controller.getFacility);
+
+  /**
+   * @swagger
+   * /accommodation/hotels/{facilityId}:
+   *   get:
+   *     summary: Get hotel rooms by facility ID
+   *     tags: [Accommodation]
+   *     parameters:
+   *       - in: path
+   *         name: facilityId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Hotel rooms retrieved successfully
+   *       404:
+   *         description: Facility not found
+   */
   router.get("/hotels/:facilityId", controller.getHotelRooms);
+
+  /**
+   * @swagger
+   * /accommodation/category:
+   *   post:
+   *     summary: Create accommodation categories
+   *     tags: [Accommodation]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateAccommodationCategoryRequest'
+   *     responses:
+   *       201:
+   *         description: Category created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ApiResponse'
+   */
   router.post("/category", controller.createCategories);
+
+  /**
+   * @swagger
+   * /accommodation/hostel:
+   *   post:
+   *     summary: Create hostel accommodation
+   *     tags: [Accommodation]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateHostelAccommodationRequest'
+   *     responses:
+   *       201:
+   *         description: Hostel accommodation created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ApiResponse'
+   */
   router.post("/hostel", controller.createHostelAccommodation);
+
+  /**
+   * @swagger
+   * /accommodation/hotel:
+   *   post:
+   *     summary: Create hotel accommodation
+   *     tags: [Accommodation]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateHotelAccommodationRequest'
+   *     responses:
+   *       201:
+   *         description: Hotel accommodation created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ApiResponse'
+   */
   router.post("/hotel", controller.createHotelAccommodation);
+
+  /**
+   * @swagger
+   * /accommodation/categories:
+   *   get:
+   *     summary: Get all accommodation categories
+   *     tags: [Accommodation]
+   *     responses:
+   *       200:
+   *         description: Categories retrieved successfully
+   */
   router.get("/categories", controller.getAllCategoriesInfo);
-  router.delete("/delete-accommodation/:accommodationId", (req, res) => {});
+
+  /**
+   * @swagger
+   * /accommodation/delete-accommodation/{accommodationId}:
+   *   delete:
+   *     summary: Delete an accommodation
+   *     tags: [Accommodation]
+   *     parameters:
+   *       - in: path
+   *         name: accommodationId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Accommodation deleted successfully
+   *       404:
+   *         description: Accommodation not found
+   */
+  router.delete("/delete-accommodation/:accommodationId", (_req, res) => {
+    res.status(501).json({ code: "99", message: "Not Implemented", data: null });
+  });
 
   app.use("/accommodation", router);
 }
