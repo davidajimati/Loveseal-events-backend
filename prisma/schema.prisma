@@ -197,7 +197,8 @@ model paymentRecords {
   paymentReason    String
   amount           Float
   currencyCode     String?          @default("NGN")
-  paymentReference String
+  paymentReference String           @unique
+  providerRawResponse Json?
   paymentStatus    paymentStatus    @default(PENDING)
   paidAt           DateTime         @default(now())
   createdAt        DateTime?        @default(now())
