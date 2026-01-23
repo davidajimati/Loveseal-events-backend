@@ -9,7 +9,7 @@ import registerUserRoutes from "./api/userProfileMgt/user.route.js";
 import registerAdminRoutes from "./api/admin_console/admin.routes.js";
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
-import registerAccommodationRoutes from "./api/accommodation/accommodation.routes.js";
+import registerAccommodationRoutes from "./api/accommodation/route/accommodation.routes.js";
 import type {
   Request,
   Response,
@@ -18,6 +18,7 @@ import type {
 } from "express";
 import registerEventRoutes from "@api/events/route/events.routes.js";
 import registerEventRegistrationRoutes from "@api/events/route/event-registration.routes.js";
+import registerAllocationRoutes from "./api/accommodation/route/allocation.routes.js";
 
 dotenv.config();
 const app = express();
@@ -53,6 +54,7 @@ registerUserAuthRoutes(app);
 registerEmailingRoutes(app);
 registerAdminAuthRoutes(app);
 registerAccommodationRoutes(app);
+registerAllocationRoutes(app)
 
 app.use(handleInvalidPayload);
 

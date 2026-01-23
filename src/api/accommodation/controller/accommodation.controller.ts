@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
-import { handleZodError } from "../exceptions/exceptionsHandler.js";
+import { handleZodError } from "../../exceptions/exceptionsHandler.js";
 import {
   createAccommodationCategorySchema,
   createAccommodationFacilitySchema,
   createHostelAccommodationSchema,
   createHotelAccommodationSchema,
-} from "./accommodation.model.js";
-import * as service from "./accommodation.service.js";
-import * as response from "../ApiResponseContract.js";
-import { BillingService } from "../billing/service/billing.service.js";
+} from "../model/accommodation.model.js";
+import * as service from "../service/accommodation.service.js";
+import * as response from "../../ApiResponseContract.js";
+import { BillingService } from "../../billing/service/billing.service.js";
 
 async function createFacility(req: Request, res: Response) {
   const result = createAccommodationFacilitySchema.safeParse(req.body);

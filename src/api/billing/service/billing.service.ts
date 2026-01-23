@@ -4,7 +4,7 @@ import type {
   KoraPayInitiatePaymentResponse,
   KorapPayInitiatePaymentRequest,
   PaymentStatusWebhook,
-} from "../billing.model.js";
+} from "../model/billing.model.js";
 import { randomUUID } from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
@@ -22,7 +22,7 @@ export class BillingService {
 
       const thirdPartyResponse = await this.hitThirdPartyEndpoint(
         res,
-        paymentRequest
+        paymentRequest,
       );
 
       await this.populateTable(req);
@@ -35,6 +35,28 @@ export class BillingService {
   async verifyPayment(res: Response, req: PaymentStatusWebhook) {
     try {
       const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
+
+      if (req.data.status === "success") {
+        await prisma.hostelAllocations.update({
+          where: {
+            paymentReference: req.data.reference,
+          },
+          data: {
+            allocationStatus: "ACTIVE",
+          },
+        });
+      } else {
+        //Add flow to restore the capacityOccupied to both the room and the facility
+
+        await prisma.hostelAllocations.update({
+          where: {
+            paymentReference: req.data.reference,
+          },
+          data: {
+            allocationStatus: "REVOKED",
+          },
+        });
+      }
 
       const transaction = await prisma.paymentRecords.findUnique({
         where: {
@@ -81,7 +103,7 @@ export class BillingService {
 
   mapPaymentResponse(
     res: Response,
-    koraPayResponse: KoraPayInitiatePaymentResponse
+    koraPayResponse: KoraPayInitiatePaymentResponse,
   ) {
     const paymentResponse: InitiatePaymentResponse = {
       checkoutUrl: koraPayResponse?.data.checkout_url,
@@ -93,7 +115,7 @@ export class BillingService {
 
   async hitThirdPartyEndpoint(
     res: Response,
-    paymentRequest: InitiatePaymentRequest
+    paymentRequest: InitiatePaymentRequest,
   ) {
     try {
       const response = await fetch(
@@ -105,7 +127,7 @@ export class BillingService {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(paymentRequest),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -123,7 +145,7 @@ export class BillingService {
 
   async mapKoraPayRequest(
     res: Response,
-    paymentRequest: InitiatePaymentRequest
+    paymentRequest: InitiatePaymentRequest,
   ) {
     const userInformation = await prisma.userInformation.findFirst({
       where: {
