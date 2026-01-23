@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { billingController } from "./billing.controller.js";
+import { billingController } from "../controller/billing.controller.js";
 
 export default function registerBillingRoutes(app: Router) {
   const router = Router();

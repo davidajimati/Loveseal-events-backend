@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { BillingService } from "./billing.service.js";
-import type { PaymentStatusWebhook } from "./billing.model.js";
+import { BillingService } from "../service/billing.service.js";
+import type { PaymentStatusWebhook } from "../billing.model.js";
 
 class BillingController {
   private billingService: BillingService;

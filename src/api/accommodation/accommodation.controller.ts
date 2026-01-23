@@ -8,7 +8,7 @@ import {
 } from "./accommodation.model.js";
 import * as service from "./accommodation.service.js";
 import * as response from "../ApiResponseContract.js";
-import { BillingService } from "../billing/billing.service.js";
+import { BillingService } from "../billing/service/billing.service.js";
 
 async function createFacility(req: Request, res: Response) {
   const result = createAccommodationFacilitySchema.safeParse(req.body);
@@ -91,7 +91,6 @@ async function createAccommodationRequest(req: Request, res: Response) {
     return await billingService.initializePayment(res, req.body);
   } catch (error) {
     console.log(error);
-    
   }
 }
 

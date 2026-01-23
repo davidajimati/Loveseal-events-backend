@@ -4,16 +4,16 @@ import type {
   KoraPayInitiatePaymentResponse,
   KorapPayInitiatePaymentRequest,
   PaymentStatusWebhook,
-} from "./billing.model.js";
+} from "../billing.model.js";
 import { randomUUID } from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
 
 import prisma from "@prisma/Prisma.js";
 
-import * as response from "../ApiResponseContract.js";
+import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
-import { HttpError } from "../exceptions/HttpError.js";
+import { HttpError } from "../../exceptions/HttpError.js";
 
 export class BillingService {
   async initializePayment(res: Response, req: InitiatePaymentRequest) {
@@ -35,9 +35,6 @@ export class BillingService {
   async verifyPayment(res: Response, req: PaymentStatusWebhook) {
     try {
       const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
-
-      console.log(req);
-      
 
       const transaction = await prisma.paymentRecords.findUnique({
         where: {
