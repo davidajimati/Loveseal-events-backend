@@ -121,6 +121,8 @@ model eventRegistrationTable {
 
   @@index([eventId], map: "eventRegIndex")
   @@index([userId], map: "event_registrations_table_userId_fkey")
+  @@unique([eventId, userId], map: "eventRegEventUserUnique")
+  @@index(fields: [eventId], map: "eventRegIndex")
   @@map("event_registrations_table")
 }
 
@@ -145,16 +147,17 @@ model paymentRecords {
   paymentId        String           @id @default(uuid())
   userId           String
   eventId          String
+  userRecord       userInformation  @relation(fields: [userId], references: [userId])
+  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
   paymentReason    String
   amount           Float
   currencyCode     String?          @default("NGN")
   paymentReference String
+  providerRawResponse Json?
   paymentStatus    paymentStatus    @default(PENDING)
   paidAt           DateTime         @default(now())
   createdAt        DateTime?        @default(now())
   updatedAt        DateTime?
-  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
-  userRecord       userInformation  @relation(fields: [userId], references: [userId])
 
   @@index([eventId], map: "paymentRecordsIndex")
   @@index([userId], map: "event_payment_records_userId_fkey")
@@ -202,10 +205,12 @@ model hostelAllocations {
   roomId           String
   registrationId   String
   eventId          String
+  paymentReference String                @unique
   allocator        roomAllocator
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
 
+  @@index(fields: [paymentReference], map: "paymentReferenceIndex")
   @@map("hostel_allocations_table")
 }
 
@@ -230,7 +235,7 @@ model hotelAccommodation {
 
 model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
-  name                    String
+  name                    accommodationType
   facilityRecord          accommodationFacilities[]
 
   @@map("accommodation_categories")
