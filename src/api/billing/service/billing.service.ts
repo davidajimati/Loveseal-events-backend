@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import prisma from "@prisma/Prisma.js";
+import prisma from "../../../../prisma/Prisma.js";
 
 import * as response from "../../ApiResponseContract.js";
 import type {Response} from "express";

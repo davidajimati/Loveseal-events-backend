@@ -25,12 +25,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@common/*": ["src/common/*"],
-      "@api/*": ["src/api/*"],
-      "@prisma/*": ["prisma/*"]
-    }
+    "baseUrl": "."
   }
 }

@@ -1,10 +1,10 @@
 import type {Response} from "express";
 import {Prisma, type eventInformation} from "@prisma/client";
-import {BaseService} from "@common/index.js";
-import prisma from "@prisma/Prisma.js";
-import * as response from "@api/ApiResponseContract.js";
-import type {PaginationDto} from "@common/pagination.dto.js";
-import type {CreateEventType, UpdateEventType} from "@api/events/models/events.model.js";
+import {BaseService} from "../../../common/index.js";
+import prisma from "../../../../prisma/Prisma.js";
+import * as response from "../../ApiResponseContract.js";
+import type {PaginationDto} from "../../../common/index.js";
+import type {CreateEventType, UpdateEventType} from "../models/events.model.js";
 
 export class EventsService extends BaseService<eventInformation, CreateEventType, UpdateEventType> {
     constructor() {

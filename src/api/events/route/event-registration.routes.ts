@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { eventRegistrationController } from "../controller/event-registration.controller.js";
-import auth from "@api/middleware/auth.js";
-import adminAuth from "@api/middleware/adminAuth.js";
+import auth from "../../middleware/auth.js";
+import adminAuth from "../../middleware/adminAuth.js";
 
 /**
  * @swagger
