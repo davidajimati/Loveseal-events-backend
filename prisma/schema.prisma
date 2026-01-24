@@ -7,6 +7,240 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model userInformation {
+  userId             String                   @id @default(uuid())
+  email              String                   @unique
+  firstName          String?
+  lastName           String?
+  emailVerified      Boolean?
+  phoneNumber        String?
+  gender             gender?
+  ageRange           String?
+  localAssembly      String?
+  maritalStatus      maritalStatus?
+  employmentStatus   employmentStatus?        @default(EMPLOYED)
+  createdAt          DateTime?                @default(now())
+  updatedAt          DateTime?
+  stateOfResidence   String?
+  country            String?
+  minister           Boolean?                 @default(false)
+  residentialAddress String?
+  paymentRecords     paymentRecords[]
+  eventRegistrations eventRegistrationTable[]
+
+  @@index([userId, email], map: "userInfoIndex")
+  @@map("loveseal_events_user_info_table")
+}
+
+model otpLogTable {
+  id            String    @id @default(uuid())
+  email         String
+  otp           String
+  otpReference  String
+  otpReason     String
+  otpUsed       Boolean?  @default(false)
+  timeGenerated DateTime  @default(now())
+  timeUsed      DateTime?
+  created       DateTime  @default(now())
+
+  @@map("otp_log_table")
+}
+
+model adminUserRecords {
+  adminUserId             String                    @id @default(uuid())
+  tenantId                String?                   @default(uuid())
+  firstName               String
+  lastName                String
+  email                   String                    @unique
+  role                    adminUserRoles?
+  userName                String?
+  dateCreated             DateTime?                 @default(now())
+  updatedAt               DateTime?                 @default(now())
+  eventsAdminRolesTracker eventsAdminRolesTracker[]
+  eventsOwned             eventInformation[]
+
+  @@unique([tenantId, adminUserId])
+  @@map("admin_users_table")
+}
+
+model eventsAdminRolesTracker {
+  id              String           @id @default(uuid())
+  eventId         String
+  adminUserId     String
+  eventRole       adminUserRoles
+  adminUserRecord adminUserRecords @relation(fields: [adminUserId], references: [adminUserId])
+  eventRecord     eventInformation @relation(fields: [eventId], references: [eventId])
+
+  @@index([adminUserId], map: "events_admin_role_table_adminUserId_fkey")
+  @@index([eventId], map: "events_admin_role_table_eventId_fkey")
+  @@map("events_admin_role_table")
+}
+
+model eventInformation {
+  eventId                 String                    @id @default(uuid())
+  tenantId                String
+  eventOwnerId            String
+  eventYear               String
+  eventName               String
+  startDate               DateTime
+  endDate                 DateTime
+  eventStatus             eventStatus
+  accommodationNeeded     Boolean
+  registrationOpenAt      DateTime
+  registrationCloseAt     DateTime
+  createdAt               DateTime?                 @default(now())
+  updatedAt               DateTime?
+  accommodationFacilities accommodationFacilities[]
+  paymentRecords          paymentRecords[]
+  registrants             eventRegistrationTable[]
+  eventsAdminRolesTracker eventsAdminRolesTracker[]
+  adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
+  dependantInfo           dependantInfo[]
+
+  @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
+  @@index([tenantId, eventOwnerId], map: "loveseal_events_table_tenantId_eventOwnerId_fkey")
+  @@map("loveseal_events_table")
+}
+
+model eventRegistrationTable {
+  regId                 String             @id @default(uuid())
+  eventId               String
+  userId                String
+  status                regStatus?         @default(PENDING)
+  registrationCompleted Boolean?
+  participationMode     particpationMode
+  intiator              regInitiator       @default(USER)
+  accommodationType     accommodationType? @default(NONE)
+  accommodationAssigned Boolean
+  accommodationDetails  String
+  createdAt             DateTime?          @default(now())
+  updatedAt             DateTime?
+  eventRecord           eventInformation   @relation(fields: [eventId], references: [eventId])
+  userRecord            userInformation    @relation(fields: [userId], references: [userId])
+  dependantInfo         dependantInfo[]
+
+  @@index([eventId], map: "eventRegIndex")
+  @@index([userId], map: "event_registrations_table_userId_fkey")
+  @@unique([eventId, userId], map: "eventRegEventUserUnique")
+  @@index(fields: [eventId], map: "eventRegIndex")
+  @@map("event_registrations_table")
+}
+
+model dependantInfo {
+  id            String                 @id @default(uuid())
+  parentRegId   String
+  eventId       String
+  name          String
+  age           Int
+  gender        gender
+  paymentStatus paymentStatus?         @default(PENDING)
+  amount        BigInt
+  dateCreated   DateTime?              @default(now())
+  updatedAt     DateTime?
+  eventInfo     eventInformation       @relation(fields: [eventId], references: [eventId])
+  parentRegInfo eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
+
+  @@map("registrant_dependants_table")
+}
+
+model paymentRecords {
+  paymentId        String           @id @default(uuid())
+  userId           String
+  eventId          String
+  userRecord       userInformation  @relation(fields: [userId], references: [userId])
+  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
+  paymentReason    String
+  amount           Float
+  currencyCode     String?          @default("NGN")
+  paymentReference String
+  providerRawResponse Json?
+  paymentStatus    paymentStatus    @default(PENDING)
+  paidAt           DateTime         @default(now())
+  createdAt        DateTime?        @default(now())
+  updatedAt        DateTime?
+
+  @@index([eventId], map: "paymentRecordsIndex")
+  @@index([userId], map: "event_payment_records_userId_fkey")
+  @@map("event_payment_records")
+}
+
+model accommodationFacilities {
+  facilityId              String                @id @default(uuid())
+  eventId                 String
+  facilityName            String
+  available               Boolean
+  accommodationCategoryId String
+  capacityOccupied        Int                   @default(0)
+  employedUserPrice       Float?
+  selfEmployedUserPrice   Float?
+  totalCapacity           Int
+  unemployedUserPrice     Float?
+  categoryRecord          accommodationCategory @relation(fields: [accommodationCategoryId], references: [accommodationCategoryId])
+  eventRecord             eventInformation      @relation(fields: [eventId], references: [eventId])
+  hostelAccommodation     hostelAccommodation[]
+  hotelAccommodation      hotelAccommodation[]
+
+  @@index([accommodationCategoryId], map: "accomodation_facilities_accommodationCategoryId_fkey")
+  @@index([eventId], map: "accomodation_facilities_eventId_fkey")
+  @@map("accomodation_facilities")
+}
+
+model hostelAccommodation {
+  roomId            String                  @id @default(uuid())
+  facilityId        String
+  roomCode          String                  @default(uuid())
+  roomIdentifier    String
+  capacity          Int
+  genderRestriction gender
+  adminReserved     Boolean
+  capacityOccupied  Int                     @default(0)
+  facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+
+  @@index([facilityId], map: "hostel_accommodation_table_facilityId_fkey")
+  @@map("hostel_accommodation_table")
+}
+
+model hostelAllocations {
+  id               String               @id @default(uuid())
+  roomId           String
+  registrationId   String
+  eventId          String
+  paymentReference String                @unique
+  allocator        roomAllocator
+  allocatedAt      DateTime
+  allocationStatus roomAllocationStatus
+
+  @@index(fields: [paymentReference], map: "paymentReferenceIndex")
+  @@map("hostel_allocations_table")
+}
+
+model hotelAccommodation {
+  hotelId            String                  @id @default(uuid())
+  facilityId         String
+  hotelCode          String                  @default(uuid())
+  hotelIdentifier    String
+  address            String
+  description        String
+  available          Boolean?
+  genderRestriction  gender
+  adminReserved      Boolean
+  noOfRoomsAvailable Int
+  noOfRoomsOccupied  Int                     @default(0)
+  price              Float?
+  facilityRecord     accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+
+  @@index([facilityId], map: "hotel_accommodation_table_facilityId_fkey")
+  @@map("hotel_accommodation_table")
+}
+
+model accommodationCategory {
+  accommodationCategoryId String                    @id @default(uuid())
+  name                    accommodationType
+  facilityRecord          accommodationFacilities[]
+
+  @@map("accommodation_categories")
+}
+
 enum maritalStatus {
   SINGLE
   MARRIED
@@ -78,202 +312,4 @@ enum roomAllocator {
 enum roomAllocationStatus {
   ACTIVE
   REVOKED
-}
-
-model userInformation {
-  userId             String                   @id @default(uuid())
-  email              String                   @unique
-  firstName          String
-  lastName           String
-  emailVerified      Boolean?
-  phoneNumber        String
-  gender             gender
-  ageRange           String?
-  localAssembly      String?
-  maritalStatus      maritalStatus?
-  employmentStatus   employmentStatus?        @default(EMPLOYED)
-  createdAt          DateTime?                @default(now())
-  updatedAt          DateTime?
-  stateOfResidence   String?
-  eventRegistrations eventRegistrationTable[]
-  paymentRecords     paymentRecords[]
-
-  @@index(fields: [userId, email], map: "userInfoIndex")
-  @@map("loveseal_events_user_info_table")
-}
-
-model otpLogTable {
-  id            String    @id @default(uuid())
-  email         String
-  otp           String
-  otpReference  String
-  otpReason     String
-  otpUsed       Boolean?  @default(false)
-  timeGenerated DateTime  @default(now())
-  timeUsed      DateTime?
-  created       DateTime  @default(now())
-
-  @@map("otp_log_table")
-}
-
-model adminUserRecords {
-  adminUserId             String                    @id @default(uuid())
-  tenantId                String                    @default(uuid())
-  firstName               String
-  lastName                String
-  email                   String                    @unique
-  role                    adminUserRoles
-  userName                String
-  eventsOwned             eventInformation[]
-  dateCreated             DateTime
-  updatedAt               DateTime?
-  eventsAdminRolesTracker eventsAdminRolesTracker[]
-
-  @@unique([tenantId, adminUserId])
-  @@map("admin_users_table")
-}
-
-model eventsAdminRolesTracker {
-  id              String           @id @default(uuid())
-  eventId         String
-  adminUserId     String
-  eventRole       adminUserRoles
-  eventRecord     eventInformation @relation(fields: [eventId], references: [eventId])
-  adminUserRecord adminUserRecords @relation(fields: [adminUserId], references: [adminUserId])
-
-  @@map("events_admin_role_table")
-}
-
-model eventInformation {
-  eventId                 String                    @id @default(uuid())
-  tenantId                String
-  eventOwnerId            String
-  eventRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
-  eventYear               String
-  eventName               String
-  startDate               DateTime
-  endDate                 DateTime
-  eventStatus             eventStatus
-  accommodationNeeded     Boolean
-  registrationOpenAt      DateTime
-  registrationCloseAt     DateTime
-  registrants             eventRegistrationTable[]
-  createdAt               DateTime?                 @default(now())
-  updatedAt               DateTime?
-  eventsAdminRolesTracker eventsAdminRolesTracker[]
-  paymentRecords          paymentRecords[]
-  accommodationFacilities accommodationFacilities[]
-
-  @@index(fields: [eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
-  @@map("loveseal_events_table")
-}
-
-model eventRegistrationTable {
-  regId                 String             @id @default(uuid())
-  eventId               String
-  userId                String
-  userRecord            userInformation    @relation(fields: [userId], references: [userId])
-  eventRecord           eventInformation   @relation(fields: [eventId], references: [eventId])
-  status                regStatus?         @default(PENDING)
-  registrationCompleted Boolean?
-  participationMode     particpationMode
-  intiator              regInitiator       @default(USER)
-  accommodationType     accommodationType? @default(NONE)
-  accommodationAssigned Boolean
-  accommodationDetails  String
-  createdAt             DateTime?          @default(now())
-  updatedAt             DateTime?
-
-  @@index(fields: [eventId], map: "eventRegIndex")
-  @@map("event_registrations_table")
-}
-
-model paymentRecords {
-  paymentId        String           @id @default(uuid())
-  userId           String
-  eventId          String
-  userRecord       userInformation  @relation(fields: [userId], references: [userId])
-  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
-  paymentReason    String
-  amount           Float
-  currencyCode     String?          @default("NGN")
-  paymentReference String
-  paymentStatus    paymentStatus    @default(PENDING)
-  paidAt           DateTime         @default(now())
-  createdAt        DateTime?        @default(now())
-  updatedAt        DateTime?
-
-  @@index(fields: [eventId], map: "paymentRecordsIndex")
-  @@map("event_payment_records")
-}
-
-model accommodationFacilities {
-  facilityId              String                @id @default(uuid())
-  eventId                 String
-  accommodationCategoryId String
-  facilityName            String
-  available               Boolean
-  selfEmployedUserPrice   Float?
-  employedUserPrice       Float?
-  unemployedUserPrice     Float?
-  totalCapacity           Int
-  capacityOccupied        Int                   @default(0)
-  eventRecord             eventInformation      @relation(fields: [eventId], references: [eventId])
-  hostelAccommodation     hostelAccommodation[]
-  hotelAccommodation      hotelAccommodation[]
-  categoryRecord          accommodationCategory @relation(fields: [accommodationCategoryId], references: [accommodationCategoryId])
-
-  @@map("accomodation_facilities")
-}
-
-model hostelAccommodation {
-  roomId            String                  @id @default(uuid())
-  facilityId        String
-  roomCode          String                  @default(uuid())
-  roomIdentifier    String
-  capacity          Int
-  capacityOccupied  Int                     @default(0)
-  genderRestriction gender
-  adminReserved     Boolean
-  facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
-
-  @@map("hostel_accommodation_table")
-}
-
-model hostelAllocations {
-  id               String               @id @default(uuid())
-  roomId           String
-  registrationId   String
-  eventId          String
-  allocator        roomAllocator
-  allocatedAt      DateTime
-  allocationStatus roomAllocationStatus
-
-  @@map("hostel_allocations_table")
-}
-
-model hotelAccommodation {
-  hotelId            String                  @id @default(uuid())
-  facilityId         String
-  hotelCode          String                  @default(uuid())
-  hotelIdentifier    String
-  address            String
-  description        String
-  available          Boolean?
-  price              Float?
-  noOfRoomsAvailable Int
-  noOfRoomsOccupied  Int                     @default(0)
-  genderRestriction  gender
-  adminReserved      Boolean
-  facilityRecord     accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
-
-  @@map("hotel_accommodation_table")
-}
-
-model accommodationCategory {
-  accommodationCategoryId String                    @id @default(uuid())
-  name                    String
-  facilityRecord          accommodationFacilities[]
-
-  @@map("accommodation_categories")
 }

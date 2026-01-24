@@ -6,6 +6,7 @@ import type {AuthenticatedAdminUser} from "../middleware/adminAuth.js";
 import {createUserSchema, updateUserSchema} from "./user.model.js";
 import {handleZodError} from "../exceptions/exceptionsHandler.js";
 import {updateProfile} from "./user.service.js";
+import {badRequest, forbiddenRequest, unauthorizedRequest} from "../ApiResponseContract.js";
 
 
 async function getUsersCount(req: AuthenticatedAdminUser, res: Response) {
@@ -36,6 +37,11 @@ async function updateUserProfile(req: AuthenticatedUser, res: Response) {
 
     const result = updateUserSchema.safeParse(req.body);
     if (!result.success) return handleZodError(res, result.error);
+
+    else if (result.data.email != req.email) {
+        console.log("Attempt to update another user's profile")
+        return forbiddenRequest(res, "You cannot update another user's account");
+    }
     return await updateProfile(res, req.userId, result.data);
 }
 

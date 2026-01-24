@@ -16,9 +16,20 @@ async function connectDB() {
     }
 }
 
-connectDB();
+await connectDB();
 
 
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check
+ *     tags:
+ *       - Health
+ *     responses:
+ *       200:
+ *         description: API is healthy
+ */
 app.get("/health", (_req, res) => {
     res.json({status: "ok"});
 });
