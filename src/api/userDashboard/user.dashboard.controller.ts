@@ -1,13 +1,13 @@
 import type {Response} from 'express'
 import * as services from "./user.dashboard.service.js";
-import type {AuthenticatedUser} from "@api/middleware/auth.js";
-import {handleZodError} from "@api/exceptions/exceptionsHandler.js";
-import {badRequest, unauthorizedRequest} from "@api/ApiResponseContract.js";
+import type {AuthenticatedUser} from "../middleware/auth.js";
+import {handleZodError} from "../exceptions/exceptionsHandler.js";
+import {badRequest, unauthorizedRequest} from "../ApiResponseContract.js";
 import {
     dependantSchema,
     bookAccommodationSchema,
     payForDependantSchema
-} from "@api/userDashboard/user.dashboard.model.js";
+} from "./user.dashboard.model.js";
 
 
 async function dashboard(req: AuthenticatedUser, res: Response) {

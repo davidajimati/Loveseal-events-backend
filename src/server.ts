@@ -8,7 +8,7 @@ import compression from "compression";
 import registerBillingRoutes from "./api/billing/route/billing.routes.js";
 import registerEmailingRoutes from "./api/emailing/comms.routes.js";
 import registerUserRoutes from "./api/userProfileMgt/user.route.js";
-import registerAdminRoutes from "@api/adminConsole/adminProfileMgt/admin.route.js"
+import registerAdminRoutes from "./api/adminConsole/adminProfileMgt/admin.route.js"
 import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/route/accommodation.routes.js";
@@ -18,10 +18,10 @@ import type {
   NextFunction,
   ErrorRequestHandler,
 } from "express";
-import registerEventRoutes from "@api/events/route/events.routes.js";
-import registerEventRegistrationRoutes from "@api/events/route/event-registration.routes.js";
+import registerEventRoutes from "./api/events/route/events.routes.js";
+import registerEventRegistrationRoutes from "./api/events/route/event-registration.routes.js";
 import registerAllocationRoutes from "./api/accommodation/route/allocation.routes.js";
-import userDashboardRoutes from "@api/userDashboard/user.dashboard.route.js";
+import userDashboardRoutes from "./api/userDashboard/user.dashboard.route.js";
 
 
 dotenv.config();

@@ -1,12 +1,12 @@
 import {PrismaClient, Prisma} from '@prisma/client';
-import type {AuthenticatedUser} from "@api/middleware/auth.js";
+import type {AuthenticatedUser} from "../middleware/auth.js";
 import {type Response} from "express";
 import type {
     dependantType,
     bookAccommodationType,
     payForDependantType
 } from "./user.dashboard.model.js";
-import * as response from "@api/ApiResponseContract.js";
+import * as response from "../ApiResponseContract.js";
 import {gender} from "@prisma/client";
 
 function mapGender(gender: string): gender {

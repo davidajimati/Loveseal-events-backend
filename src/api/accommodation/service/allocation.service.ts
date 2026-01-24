@@ -1,13 +1,13 @@
 import type {InitiateAccommodationAllocationType} from "../model/allocation.model.js";
-import prisma from "@prisma/Prisma.js";
+import prisma from "../../../../prisma/Prisma.js";
 import type {Response} from "express";
 import {type accommodationFacilities, type hostelAccommodation, Prisma,} from "@prisma/client";
 import crypto from "crypto";
-import {HttpError} from "@/api/exceptions/HttpError.js";
-import {BillingService} from "@/api/billing/service/billing.service.js";
-import type {InitiatePaymentRequest} from "@/api/billing/model/billing.model.js";
+import {HttpError} from "../../exceptions/HttpError.js";
+import {BillingService} from "../../billing/service/billing.service.js";
+import type {InitiatePaymentRequest} from "../../billing/model/billing.model.js";
 import * as response from "../../ApiResponseContract.js";
-import {AccommodationType} from "@common/constants.js";
+import {AccommodationType} from "../../../common/constants.js";
 import {roomAllocationStatus} from "@prisma/client";
 
 

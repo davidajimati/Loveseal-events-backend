@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { eventsController } from "../controller/events.controller.js";
-import auth from "@api/middleware/auth.js";
-import adminAuth from "@api/middleware/adminAuth.js";
+import auth from "../../middleware/auth.js";
+import adminAuth from "../../middleware/adminAuth.js";
 
 /**
  * @swagger

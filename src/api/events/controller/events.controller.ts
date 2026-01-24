@@ -1,11 +1,11 @@
 import type {Response} from "express";
 import {EventsService} from "../service/events.service.js";
-import * as response from "@api/ApiResponseContract.js";
-import {handleZodError} from "@api/exceptions/exceptionsHandler.js";
-import type {AuthenticatedUser} from "@api/middleware/auth.js";
-import type {AuthenticatedAdminUser} from "@api/middleware/adminAuth.js";
-import type {PaginationDto} from "@common/pagination.dto.js";
-import {createEventSchema, updateEventSchema} from "@api/events/models/events.model.js";
+import * as response from "../../ApiResponseContract.js";
+import {handleZodError} from "../../exceptions/exceptionsHandler.js";
+import type {AuthenticatedUser} from "../../middleware/auth.js";
+import type {AuthenticatedAdminUser} from "../../middleware/adminAuth.js";
+import type {PaginationDto} from "../../../common/index.js";
+import {createEventSchema, updateEventSchema} from "../models/events.model.js";
 
 class EventsController {
     private readonly eventsService: EventsService;
