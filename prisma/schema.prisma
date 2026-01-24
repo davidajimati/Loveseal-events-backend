@@ -71,8 +71,8 @@ model eventsAdminRolesTracker {
   adminUserRecord adminUserRecords @relation(fields: [adminUserId], references: [adminUserId])
   eventRecord     eventInformation @relation(fields: [eventId], references: [eventId])
 
-  @@index([adminUserId], map: "events_admin_role_table_adminUserId_fkey")
-  @@index([eventId], map: "events_admin_role_table_eventId_fkey")
+  @@index([adminUserId], map: "idx_events_admin_role_adminUserId")
+  @@index([eventId], map: "idx_events_admin_role_eventId")
   @@map("events_admin_role_table")
 }
 
@@ -98,7 +98,7 @@ model eventInformation {
   dependantInfo           dependantInfo[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
-  @@index([tenantId, eventOwnerId], map: "loveseal_events_table_tenantId_eventOwnerId_fkey")
+  @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
   @@map("loveseal_events_table")
 }
 
@@ -119,10 +119,9 @@ model eventRegistrationTable {
   userRecord            userInformation    @relation(fields: [userId], references: [userId])
   dependantInfo         dependantInfo[]
 
-  @@index([eventId], map: "eventRegIndex")
-  @@index([userId], map: "event_registrations_table_userId_fkey")
   @@unique([eventId, userId], map: "eventRegEventUserUnique")
-  @@index(fields: [eventId], map: "eventRegIndex")
+  @@index([eventId], map: "eventRegIndex")
+  @@index([userId], map: "idx_event_registrations_table_userId_fkey")
   @@map("event_registrations_table")
 }
 
@@ -144,23 +143,23 @@ model dependantInfo {
 }
 
 model paymentRecords {
-  paymentId        String           @id @default(uuid())
-  userId           String
-  eventId          String
-  userRecord       userInformation  @relation(fields: [userId], references: [userId])
-  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
-  paymentReason    String
-  amount           Float
-  currencyCode     String?          @default("NGN")
-  paymentReference String
+  paymentId           String           @id @default(uuid())
+  userId              String
+  eventId             String
+  userRecord          userInformation  @relation(fields: [userId], references: [userId])
+  eventRecord         eventInformation @relation(fields: [eventId], references: [eventId])
+  paymentReason       String
+  amount              Float
+  currencyCode        String?          @default("NGN")
+  paymentReference    String
   providerRawResponse Json?
-  paymentStatus    paymentStatus    @default(PENDING)
-  paidAt           DateTime         @default(now())
-  createdAt        DateTime?        @default(now())
-  updatedAt        DateTime?
+  paymentStatus       paymentStatus    @default(PENDING)
+  paidAt              DateTime         @default(now())
+  createdAt           DateTime?        @default(now())
+  updatedAt           DateTime?
 
   @@index([eventId], map: "paymentRecordsIndex")
-  @@index([userId], map: "event_payment_records_userId_fkey")
+  @@index([userId], map: "idx_event_payment_records_userId_fkey")
   @@map("event_payment_records")
 }
 
@@ -180,8 +179,8 @@ model accommodationFacilities {
   hostelAccommodation     hostelAccommodation[]
   hotelAccommodation      hotelAccommodation[]
 
-  @@index([accommodationCategoryId], map: "accomodation_facilities_accommodationCategoryId_fkey")
-  @@index([eventId], map: "accomodation_facilities_eventId_fkey")
+  @@index([accommodationCategoryId], map: "idx_accomodation_facilities_accommodationCategoryId_fkey")
+  @@index([eventId], map: "idx_accomodation_facilities_eventId_fkey")
   @@map("accomodation_facilities")
 }
 
@@ -196,7 +195,7 @@ model hostelAccommodation {
   capacityOccupied  Int                     @default(0)
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
 
-  @@index([facilityId], map: "hostel_accommodation_table_facilityId_fkey")
+  @@index([facilityId], map: "idx_hostel_accommodation_table_facilityId_fkey")
   @@map("hostel_accommodation_table")
 }
 
@@ -205,7 +204,7 @@ model hostelAllocations {
   roomId           String
   registrationId   String
   eventId          String
-  paymentReference String                @unique
+  paymentReference String               @unique
   allocator        roomAllocator
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
@@ -229,7 +228,7 @@ model hotelAccommodation {
   price              Float?
   facilityRecord     accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
 
-  @@index([facilityId], map: "hotel_accommodation_table_facilityId_fkey")
+  @@index([facilityId], map: "idx_hotel_accommodation_table_facilityId_fkey")
   @@map("hotel_accommodation_table")
 }
 
