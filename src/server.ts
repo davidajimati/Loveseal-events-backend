@@ -2,7 +2,7 @@ import dns from "dns";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { swaggerSpec } from "./swagger.js"
+import { swaggerSpec, swaggerUiOptions } from "./swagger.js"
 import swaggerUi from "swagger-ui-express";
 import compression from "compression";
 import registerBillingRoutes from "./api/billing/route/billing.routes.js";
@@ -48,7 +48,7 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 registerUserRoutes(app);
 registerAdminRoutes(app);
