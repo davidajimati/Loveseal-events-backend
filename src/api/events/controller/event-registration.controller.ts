@@ -1,11 +1,11 @@
 import type { Response } from "express";
 import { EventRegistrationService } from "../service/event-registration.service.js";
-import * as response from "@api/ApiResponseContract.js";
-import { handleZodError } from "@api/exceptions/exceptionsHandler.js";
-import type { AuthenticatedUser } from "@api/middleware/auth.js";
-import type { AuthenticatedAdminUser } from "@api/middleware/adminAuth.js";
-import type { PaginationDto } from "@common/pagination.dto.js";
-import { createEventRegistrationSchema, updateEventRegistrationSchema } from "@api/events/models/event-registration.model.js";
+import * as response from "../../ApiResponseContract.js";
+import { handleZodError } from "../../exceptions/exceptionsHandler.js";
+import type { AuthenticatedUser } from "../../middleware/auth.js";
+import type { AuthenticatedAdminUser } from "../../middleware/adminAuth.js";
+import type { PaginationDto } from "../../../common/index.js";
+import { createEventRegistrationSchema, updateEventRegistrationSchema } from "../models/event-registration.model.js";
 
 class EventRegistrationController {
     private readonly registrationService: EventRegistrationService;

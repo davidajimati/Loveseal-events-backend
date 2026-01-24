@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AllocationService } from "../service/allocation.service.js";
 import { initiateAccommodationAllocationSchema } from "../model/allocation.model.js";
-import { handleZodError } from "@/api/exceptions/exceptionsHandler.js";
+import { handleZodError } from "../../exceptions/exceptionsHandler.js";
 
 class AllocationController {
   private allocationService: AllocationService;

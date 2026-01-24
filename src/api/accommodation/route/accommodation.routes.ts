@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as controller from "../controller/accommodation.controller.js";
-import auth from "@api/middleware/auth.js";
+import auth from "../../middleware/auth.js";
 
 /**
  * @swagger
