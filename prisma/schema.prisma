@@ -95,7 +95,7 @@ model eventInformation {
   registrants             eventRegistrationTable[]
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
-  dependantInfo           dependantInfo[]
+  dependantInfo           dependantInfoTable[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -103,21 +103,21 @@ model eventInformation {
 }
 
 model eventRegistrationTable {
-  regId                 String             @id @default(uuid())
+  regId                 String               @id @default(uuid())
   eventId               String
   userId                String
-  status                regStatus?         @default(PENDING)
+  status                regStatus?           @default(PENDING)
   registrationCompleted Boolean?
   participationMode     particpationMode
-  intiator              regInitiator       @default(USER)
-  accommodationType     accommodationType? @default(NONE)
+  intiator              regInitiator         @default(USER)
+  accommodationType     accommodationType?   @default(NONE)
   accommodationAssigned Boolean
   accommodationDetails  String
-  createdAt             DateTime?          @default(now())
+  createdAt             DateTime?            @default(now())
   updatedAt             DateTime?
-  eventRecord           eventInformation   @relation(fields: [eventId], references: [eventId])
-  userRecord            userInformation    @relation(fields: [userId], references: [userId])
-  dependantInfo         dependantInfo[]
+  eventRecord           eventInformation     @relation(fields: [eventId], references: [eventId])
+  userRecord            userInformation      @relation(fields: [userId], references: [userId])
+  dependantInfo         dependantInfoTable[]
 
   @@unique([eventId, userId], map: "eventRegEventUserUnique")
   @@index([eventId], map: "eventRegIndex")
@@ -125,7 +125,7 @@ model eventRegistrationTable {
   @@map("event_registrations_table")
 }
 
-model dependantInfo {
+model dependantInfoTable {
   id            String                 @id @default(uuid())
   parentRegId   String
   eventId       String
@@ -133,7 +133,7 @@ model dependantInfo {
   age           Int
   gender        gender
   paymentStatus paymentStatus?         @default(PENDING)
-  amount        BigInt
+  amount        BigInt?                @default(5000)
   dateCreated   DateTime?              @default(now())
   updatedAt     DateTime?
   eventInfo     eventInformation       @relation(fields: [eventId], references: [eventId])
@@ -151,7 +151,7 @@ model paymentRecords {
   paymentReason       String
   amount              Float
   currencyCode        String?          @default("NGN")
-  paymentReference    String
+  paymentReference    String           @unique
   providerRawResponse Json?
   paymentStatus       paymentStatus    @default(PENDING)
   paidAt              DateTime         @default(now())
@@ -310,5 +310,6 @@ enum roomAllocator {
 
 enum roomAllocationStatus {
   ACTIVE
+  PENDING
   REVOKED
 }

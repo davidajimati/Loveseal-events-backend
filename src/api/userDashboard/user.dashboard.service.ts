@@ -1,4 +1,4 @@
-import prisma, {Prisma} from '@prisma/client';
+import {PrismaClient, Prisma} from '@prisma/client';
 import type {AuthenticatedUser} from "@api/middleware/auth.js";
 import {type Response} from "express";
 import type {
@@ -7,6 +7,20 @@ import type {
     payForDependantType
 } from "./user.dashboard.model.js";
 import * as response from "@api/ApiResponseContract.js";
+import {gender} from "@prisma/client";
+
+function mapGender(gender: string): gender {
+    switch (gender) {
+        case "MALE":
+            return "MALE";
+        case 'FEMALE':
+            return "FEMALE";
+        default:
+            return "MALE";
+    }
+}
+
+const prisma = new PrismaClient();
 
 
 async function fetchDashboard(res: Response, userId: string) {
@@ -16,15 +30,18 @@ async function fetchDashboard(res: Response, userId: string) {
 
 async function addDependants(res: Response, userId: string, data: dependantType) {
     try {
+        const gender = mapGender(data.gender);
         const prismaData = {
             name: data.name,
             age: data.age,
-            gender: data.gender,
+            gender: gender,
             parentRegId: userId,
             eventId: data.eventId
+
         }
-        await prisma.dependantInfo.create({
-            data: primsaData
+
+        await prisma.dependantInfoTable.create({
+            data: prismaData
         })
         return response.successResponse(res, "Dependants added successfully.");
     } catch (err) {
@@ -40,7 +57,7 @@ async function addDependants(res: Response, userId: string, data: dependantType)
 
 async function removeDependant(res: Response, dependantId: string) {
     try {
-        await prisma.dependantInfo.deleteById(dependantId);
+        await prisma.dependantInfoTable.delete({where: {id: dependantId}});
         return response.successResponse(res, "dependant removed");
     } catch (error) {
         console.log("Exception: " + error);
