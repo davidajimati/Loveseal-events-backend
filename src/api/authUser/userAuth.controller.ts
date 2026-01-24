@@ -17,6 +17,15 @@ async function userLogin(req: Request, res: Response) {
     }
 }
 
+async function generateTokenForRegistrant(req: Request, res: Response) {
+    const email = req.body.email;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        return badRequest(res, "a valid email is required");
+    }
+    return service.getOtpForRegistrant(res, email)
+}
+
 async function generateOtp(req: Request, res: Response) {
     const data = generateOtpSchema.safeParse(req.body);
     if (!data.success) {
@@ -43,5 +52,6 @@ async function validateOtp(req: Request, res: Response) {
 export {
     userLogin,
     generateOtp,
-    validateOtp
+    validateOtp,
+    generateTokenForRegistrant
 }

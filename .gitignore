@@ -53,3 +53,5 @@ coverage/
 docs/
 CLAUDE.md
 .claude
+
+/prisma/migrations

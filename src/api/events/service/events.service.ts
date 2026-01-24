@@ -1,9 +1,9 @@
-import type { Response } from "express";
-import { Prisma, type eventInformation } from "@prisma/client";
-import { BaseService } from "@common/index.js";
+import type {Response} from "express";
+import {Prisma, type eventInformation} from "@prisma/client";
+import {BaseService} from "@common/index.js";
 import prisma from "@prisma/Prisma.js";
 import * as response from "@api/ApiResponseContract.js";
-import type { PaginationDto } from "@common/pagination.dto.js";
+import type {PaginationDto} from "@common/pagination.dto.js";
 import type {CreateEventType, UpdateEventType} from "@api/events/models/events.model.js";
 
 export class EventsService extends BaseService<eventInformation, CreateEventType, UpdateEventType> {
@@ -23,6 +23,15 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
             console.log("Exception: " + error);
             return response.internalServerError(res, "Something went wrong. Please try again.");
         }
+    }
+
+    async retrieveActiveEvents(res: Response) {
+        const activeEvents = await prisma.eventInformation.findMany({
+            where: {
+                eventStatus: "ACTIVE"
+            }
+        });
+        return response.successResponse(res, {activeEvents});
     }
 
     async getEventById(res: Response, eventId: string) {
@@ -85,7 +94,7 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
 
     async setEventToDraft(res: Response, eventId: string) {
         try {
-            const event = await this.modify(eventId, { eventStatus: "DRAFT" });
+            const event = await this.modify(eventId, {eventStatus: "DRAFT"});
             return response.successResponse(res, event);
         } catch (error) {
             console.log("Exception: " + error);
@@ -100,7 +109,7 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
 
     async setEventToActive(res: Response, eventId: string) {
         try {
-            const event = await this.modify(eventId, { eventStatus: "ACTIVE" });
+            const event = await this.modify(eventId, {eventStatus: "ACTIVE"});
             return response.successResponse(res, event);
         } catch (error) {
             console.log("Exception: " + error);
@@ -115,7 +124,7 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
 
     async setEventToClosed(res: Response, eventId: string) {
         try {
-            const event = await this.modify(eventId, { eventStatus: "CLOSED" });
+            const event = await this.modify(eventId, {eventStatus: "CLOSED"});
             return response.successResponse(res, event);
         } catch (error) {
             console.log("Exception: " + error);

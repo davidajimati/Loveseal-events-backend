@@ -6,6 +6,21 @@ import {randomInt, randomUUID} from "node:crypto";
 import {sendOtpByEmail} from "../emailing/comms.service.js";
 import {Prisma, PrismaClient} from "@prisma/client";
 
+async function getOtpForRegistrant(res: Response, email: string) {
+    const user = await prisma.userInformation.findFirst({where: {email}});
+    if (!user) {
+        const newUser = await prisma.userInformation.create({data: {email}})
+        if (!newUser) {
+            console.log("new user creation failed");
+            return response.internalServerError(res, "Error generating OTP")
+        }
+        return generateOtp(res, email, "registration");
+    } else {
+        return generateOtp(res, email, "login");
+    }
+}
+
+
 const prisma = new PrismaClient();
 
 async function generateToken(res: Response, email: string) {
@@ -19,7 +34,7 @@ async function generateToken(res: Response, email: string) {
         const SECRET = process.env.JWT_SECRET as string;
         let token: string;
         try {
-            token = jwt.sign({email: user.email, userId: user.userId, }, SECRET, {expiresIn: '7d'});
+            token = jwt.sign({email: user.email, userId: user.userId,}, SECRET, {expiresIn: '7d'});
         } catch (error) {
             console.log("unable to generate new token for user");
             console.error(error);
@@ -54,6 +69,9 @@ async function verifyToken(res: Response, token: string) {
             return response.unauthorizedRequest(res, "Invalid or Expired token");
         }
         user = await prisma.userInformation.findUnique({where: {userId: decoded.userId}});
+        if (!user) {
+            return response.badRequest(res, "Create an account to continue");
+        }
         const {eventRegistrations, paymentRecords, ...necessaryDetails} = user;
         return response.successResponse(res, {token, userDetails: necessaryDetails});
     } catch (err) {
@@ -140,5 +158,6 @@ export {
     verifyToken,
     generateToken,
     generateOtp,
-    verifyOtp
+    verifyOtp,
+    getOtpForRegistrant
 }

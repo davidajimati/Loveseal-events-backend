@@ -52,14 +52,18 @@ async function updateProfile(res: Response, userId: string, data: updateUserType
         const prismaData = {
             ...(data.firstName !== undefined && {firstName: data.firstName}),
             ...(data.lastName !== undefined && {lastName: data.lastName}),
+            ...(data.emailVerified !== undefined && {emailVerified: data.emailVerified}),
             ...(data.phoneNumber !== undefined && {phoneNumber: data.phoneNumber}),
             ...(data.gender !== undefined && {gender: data.gender}),
+            ...(data.country !== undefined && {country: data.country}),
             ...(data.ageRange !== undefined && {ageRange: data.ageRange}),
-            ...(data.emailVerified !== undefined && {emailVerified: data.emailVerified}),
+            ...(data.minister !== undefined && {minister: data.minister}),
             ...(data.localAssembly !== undefined && {localAssembly: data.localAssembly}),
             ...(data.maritalStatus !== undefined && {maritalStatus: data.maritalStatus}),
             ...(data.employmentStatus !== undefined && {employmentStatus: data.employmentStatus}),
-        }
+            ...(data.stateOfResidence !== undefined && {stateOfResidence: data.stateOfResidence}),
+            ...(data.residentialAddress !== undefined && {residentialAddress: data.residentialAddress})
+        };
 
         await prisma.userInformation.update({
             where: {userId},
