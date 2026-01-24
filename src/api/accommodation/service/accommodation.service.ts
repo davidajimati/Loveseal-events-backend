@@ -4,14 +4,15 @@ import {
   type CreateAccommodationFacilityType,
   type CreateHostelAccommodationType,
   type CreateHotelAccommodationType,
-} from "./accommodation.model.js";
-import prisma from "../../../prisma/Prisma.js";
-import * as response from "../ApiResponseContract.js";
+} from "../model/accommodation.model.js";
+import prisma from "../../../../prisma/Prisma.js";
+import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
+import { Prisma } from "@prisma/client";
 
 async function createAccommodationFacility(
   res: Response,
-  createFacilityPayload: CreateAccommodationFacilityType
+  createFacilityPayload: CreateAccommodationFacilityType,
 ) {
   const accomodationFacility = await prisma.accommodationFacilities.create({
     data: {
@@ -31,21 +32,27 @@ async function createAccommodationFacility(
 
 async function createAccommodationCategory(
   res: Response,
-  createCategoryPayload: CreateAccommodationCategoryType
+  createCategoryPayload: CreateAccommodationCategoryType,
 ) {
-  const createdCategories = await prisma.accommodationCategory.createMany({
-    data: createCategoryPayload.map((category: any) => ({
-      name: category.name,
-    })),
-    skipDuplicates: true,
-  });
+  try {
+    const createdCategories = await prisma.accommodationCategory.createMany({
+      data: createCategoryPayload.map((category: any) => ({
+        name: category.name,
+      })),
+      skipDuplicates: true,
+    });
 
-  return response.successResponse(res, null);
+    return response.successResponse(res, null);
+  } catch (error:any) {
+    console.log(error);
+
+    response.internalServerError(res, error.message);
+  }
 }
 
 async function createHostelAccommodation(
   res: Response,
-  createHostelAccommodationPayload: CreateHostelAccommodationType
+  createHostelAccommodationPayload: CreateHostelAccommodationType,
 ) {
   const createdAccommodation = await prisma.hostelAccommodation.create({
     data: {
@@ -63,7 +70,7 @@ async function createHostelAccommodation(
 
 async function createHotelAccommodation(
   res: Response,
-  createHotelAccommodationPayload: CreateHotelAccommodationType
+  createHotelAccommodationPayload: CreateHotelAccommodationType,
 ) {
   const createdAccommodation = await prisma.hotelAccommodation.create({
     data: {
@@ -104,7 +111,7 @@ async function getCategoriesInfo() {
         acc.capacityOccupied += cur.capacityOccupied;
         return acc;
       },
-      { totalCapacity: 0, capacityOccupied: 0 }
+      { totalCapacity: 0, capacityOccupied: 0 },
     );
 
     return {
@@ -148,7 +155,7 @@ async function getFacilityInfo(categoryId: string) {
         unemployedUserPrice,
         employedUserPrice,
         ...rest
-      }) => rest
+      }) => rest,
     );
   }
 
@@ -172,5 +179,5 @@ export {
   createHostelAccommodation,
   getCategoriesInfo,
   getFacilityInfo,
-  getHotelRooms
+  getHotelRooms,
 };

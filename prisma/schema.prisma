@@ -78,6 +78,7 @@ enum roomAllocator {
 enum roomAllocationStatus {
   ACTIVE
   REVOKED
+  PENDING
 }
 
 model userInformation {
@@ -184,24 +185,26 @@ model eventRegistrationTable {
   createdAt             DateTime?          @default(now())
   updatedAt             DateTime?
 
+  @@unique([eventId, userId], map: "eventRegEventUserUnique")
   @@index(fields: [eventId], map: "eventRegIndex")
   @@map("event_registrations_table")
 }
 
 model paymentRecords {
-  paymentId        String           @id @default(uuid())
-  userId           String
-  eventId          String
-  userRecord       userInformation  @relation(fields: [userId], references: [userId])
-  eventRecord      eventInformation @relation(fields: [eventId], references: [eventId])
-  paymentReason    String
-  amount           Float
-  currencyCode     String?          @default("NGN")
-  paymentReference String
-  paymentStatus    paymentStatus    @default(PENDING)
-  paidAt           DateTime         @default(now())
-  createdAt        DateTime?        @default(now())
-  updatedAt        DateTime?
+  paymentId           String           @id @default(uuid())
+  userId              String
+  eventId             String
+  userRecord          userInformation  @relation(fields: [userId], references: [userId])
+  eventRecord         eventInformation @relation(fields: [eventId], references: [eventId])
+  paymentReason       String
+  amount              Float
+  currencyCode        String?          @default("NGN")
+  paymentReference    String           @unique
+  providerRawResponse Json?
+  paymentStatus       paymentStatus    @default(PENDING)
+  paidAt              DateTime         @default(now())
+  createdAt           DateTime?        @default(now())
+  updatedAt           DateTime?
 
   @@index(fields: [eventId], map: "paymentRecordsIndex")
   @@map("event_payment_records")
@@ -245,10 +248,12 @@ model hostelAllocations {
   roomId           String
   registrationId   String
   eventId          String
+  paymentReference String                @unique
   allocator        roomAllocator
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
 
+  @@index(fields: [paymentReference], map: "paymentReferenceIndex")
   @@map("hostel_allocations_table")
 }
 
@@ -272,7 +277,7 @@ model hotelAccommodation {
 
 model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
-  name                    String
+  name                    accommodationType
   facilityRecord          accommodationFacilities[]
 
   @@map("accommodation_categories")
