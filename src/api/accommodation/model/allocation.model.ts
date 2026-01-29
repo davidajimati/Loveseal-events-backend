@@ -6,13 +6,23 @@ const initiateAccommodationAllocationSchema = z.object({
   facilityid: z.string().trim(),
 });
 
+const initiateHotelAllocationSchema = z.object({
+  roomTypeId: z.string().trim(),
+  eventId: z.string().trim(),
+  userId: z.string().trim(),
+  facilityId: z.string().trim(),
+});
 
-type InitiateAccommodationAllocationType = z.infer<typeof initiateAccommodationAllocationSchema>;
+type InitiateAccommodationAllocationType = z.infer<
+  typeof initiateAccommodationAllocationSchema
+>;
 
+type InitiateHotelAllocationType = z.infer<
+  typeof initiateHotelAllocationSchema
+>;
 
-export {
-   initiateAccommodationAllocationSchema
-};
+export { initiateAccommodationAllocationSchema, initiateHotelAllocationSchema };
 export type {
-  InitiateAccommodationAllocationType
+  InitiateAccommodationAllocationType,
+  InitiateHotelAllocationType,
 };

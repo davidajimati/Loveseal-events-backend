@@ -30,8 +30,7 @@ const createHostelAccommodationSchema = z.object({
 
 const createHotelAccommodationSchema = z.object({
   facilityId: z.string().trim(),
-  hotelCode: z.string().trim(),
-  hotelIdentifier: z.string().trim(),
+  roomType: z.string().trim(),
   address: z.string(),
   description: z.string().trim(),
   available: z.boolean(),
