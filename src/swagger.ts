@@ -469,6 +469,7 @@ const options: swaggerJSDoc.Options = {
           required: ["eventId", "userId", "facilityid"],
           properties: {
             eventId: { type: "string" },
+            registrationId: { type: "string" },
             userId: { type: "string" },
             facilityid: { type: "string" },
           },
@@ -476,9 +477,16 @@ const options: swaggerJSDoc.Options = {
 
         InitiateHotelAllocationRequest: {
           type: "object",
-          required: ["roomTypeId", "eventId", "userId", "facilityId"],
+          required: [
+            "roomTypeId",
+            "eventId",
+            "userId",
+            "facilityId",
+            "registrationId",
+          ],
           properties: {
             roomTypeId: { type: "string" },
+            registrationId: { type: "string" },
             eventId: { type: "string" },
             userId: { type: "string" },
             facilityid: { type: "string" },

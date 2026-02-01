@@ -14,7 +14,9 @@ import * as response from "../../ApiResponseContract.js";
 import { AccommodationType } from "../../../common/constants.js";
 import { roomAllocationStatus } from "@prisma/client";
 
-export function mapAccommodationType(categoryName?: string): AccommodationType | null {
+export function mapAccommodationType(
+  categoryName?: string,
+): AccommodationType | null {
   switch (categoryName) {
     case "HOTEL":
       return AccommodationType.HOTEL;
@@ -51,8 +53,7 @@ export class AllocationService {
     try {
       let registeredUser = await prisma.eventRegistrationTable.findFirst({
         where: {
-          eventId: initiateAllocationRequest.eventId,
-          userId: initiateAllocationRequest.userId,
+          regId: initiateAllocationRequest.registrationId,
         },
       });
 
@@ -70,18 +71,8 @@ export class AllocationService {
       }
       const accType = mapAccommodationType(facility?.categoryRecord.name);
 
-      if (!registeredUser && facility) {
-        registeredUser = await prisma.eventRegistrationTable.create({
-          data: {
-            userId: initiateAllocationRequest.userId,
-            accommodationAssigned: false,
-            accommodationDetails: "",
-            eventId: initiateAllocationRequest.eventId,
-            participationMode: "CAMPER",
-            accommodationType: accType,
-            intiator: "USER",
-          },
-        });
+      if (!registeredUser ) {
+        throw new Error("User not registered for this event!");
       }
 
       if (facility?.categoryRecord.name == "HOSTEL") {
@@ -106,9 +97,6 @@ export class AllocationService {
     }
   }
 
-
-
-  
   private async processHostelAccommodation(
     res: any,
     registeredUser: any,
@@ -129,9 +117,6 @@ export class AllocationService {
       FOR UPDATE
     `;
 
-      if (!registeredUser) {
-        throw new HttpError("Unable to locate or register user", 400);
-      }
 
       if (availableRoom?.length < 1 || availableRoom[0] == undefined) {
         throw new HttpError("Accommodation exhausted", 404);
@@ -147,7 +132,7 @@ export class AllocationService {
           registrationId: registeredUser.regId,
           allocator: "ALGORITHM",
           allocatedAt: new Date(),
-          allocationStatus: mapRoomAllocationStatus("PENDING_PAYMENT"),
+          allocationStatus: mapRoomAllocationStatus("PENDING"),
         },
       });
 

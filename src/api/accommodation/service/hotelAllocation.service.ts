@@ -33,8 +33,7 @@ export class HotelAllocationService {
     try {
       let registeredUser = await prisma.eventRegistrationTable.findFirst({
         where: {
-          eventId: initiateHotelAllocationRequest.eventId,
-          userId: initiateHotelAllocationRequest.userId,
+          regId: initiateHotelAllocationRequest.registrationId,
         },
       });
 
@@ -52,18 +51,8 @@ export class HotelAllocationService {
       }
       const accType = mapAccommodationType(facility?.categoryRecord.name);
 
-      if (!registeredUser && facility) {
-        registeredUser = await prisma.eventRegistrationTable.create({
-          data: {
-            userId: initiateHotelAllocationRequest.userId,
-            accommodationAssigned: false,
-            accommodationDetails: "",
-            eventId: initiateHotelAllocationRequest.eventId,
-            participationMode: "CAMPER",
-            accommodationType: accType,
-            intiator: "USER",
-          },
-        });
+      if (!registeredUser) {
+        throw new Error("User not registered for this event!");
       }
 
       if (facility?.categoryRecord.name == "HOTEL") {
@@ -110,9 +99,7 @@ export class HotelAllocationService {
       FOR UPDATE
     `;
 
-      if (!registeredUser) {
-        throw new HttpError("Unable to locate or register user", 400);
-      }
+  
 
       if (availableRoom.length < 1 || availableRoom[0] == undefined) {
         throw new HttpError("Accommodation exhausted", 404);
