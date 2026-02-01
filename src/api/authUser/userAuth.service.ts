@@ -3,7 +3,7 @@ import * as response from "../ApiResponseContract.js"
 import type {Response} from "express";
 import {type otpValidationType, type userInformationInterface} from "./userAuth.model.js";
 import {randomInt, randomUUID} from "node:crypto";
-import {sendOtpByEmail} from "../emailing/comms.service.js";
+import {sendEmailViaSes} from "../emailing/comms.service.js";
 import {Prisma, PrismaClient} from "@prisma/client";
 
 async function getOtpForRegistrant(res: Response, email: string) {
@@ -91,9 +91,10 @@ async function generateOtp(res: Response, email: string, otpReason: string) {
         const otp = randomInt(111111, 999999).toString();
         const otpReference: string = randomUUID();
 
-        const emailSendResponse = sendOtpByEmail(otp, email, "Dev test user login");
-        if (!emailSendResponse) {
-            return response.serviceUnavailable(res, "Error sending otp. Please try again.");
+        const emailSent = await sendEmailViaSes(email, "Dev test user login", otp, res);
+
+        if (!emailSent) {
+            return response.internalServerError(res, "Error sending OTP. Please try again later");
         }
 
         const otpResponse = {
