@@ -17,7 +17,7 @@ describe("auth middleware integration", () => {
             res.json({userId: (req as {userId?: string}).userId, email: (req as {email?: string}).email});
         });
 
-        const token = jwt.sign({userId: "user-123", email: "user@example.com"}, process.env.JWT_SECRET);
+        const token = jwt.sign({userId: "user-123", email: "user@example.com"}, process.env.JWT_SECRET!);
         const response = await request(app)
             .get("/user")
             .set("Authorization", `Bearer ${token}`);
@@ -48,7 +48,7 @@ describe("auth middleware integration", () => {
             res.json({adminId: (req as {adminId?: string}).adminId});
         });
 
-        const token = jwt.sign({email: "admin@example.com"}, process.env.ADMIN_JWT_SECRET);
+        const token = jwt.sign({email: "admin@example.com"}, process.env.ADMIN_JWT_SECRET!);
         const response = await request(app).get("/admin").set("Authorization", token);
 
         expect(response.status).toBe(401);
@@ -65,7 +65,7 @@ describe("auth middleware integration", () => {
             res.json({adminId: (req as {adminId?: string}).adminId, email: (req as {email?: string}).email});
         });
 
-        const token = jwt.sign({id: "admin-123", email: "admin@example.com"}, process.env.ADMIN_JWT_SECRET);
+        const token = jwt.sign({id: "admin-123", email: "admin@example.com"}, process.env.ADMIN_JWT_SECRET!);
         const response = await request(app).get("/admin").set("Authorization", token);
 
         expect(response.status).toBe(200);
