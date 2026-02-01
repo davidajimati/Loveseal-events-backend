@@ -3,11 +3,12 @@ import {randomInt, randomUUID} from "node:crypto";
 import jwt, {type JwtPayload} from 'jsonwebtoken';
 import {Prisma, PrismaClient} from "@prisma/client";
 import * as response from "../ApiResponseContract.js"
-import {sendOtpByEmail} from "../emailing/comms.service.js";
+import {sendEmailViaSes} from "../emailing/comms.service.js";
 import {type otpValidationType} from "../authUser/userAuth.model.js"
 import {type adminUserInformationInterface} from "./adminAuth.model.js";
 
 const prisma = new PrismaClient();
+
 async function generateToken(res: Response, email: string) {
     try {
         let adminUser: adminUserInformationInterface | any
@@ -78,10 +79,10 @@ async function generateOtp(res: Response, email: string, otpReason: string) {
         const otp = randomInt(111111, 999999).toString();
 
         const otpReference: string = randomUUID();
-        const emailSendResponse: boolean = await sendOtpByEmail(otp, email, "Dev test admin login");
+        const emailSent = await sendEmailViaSes(email, "Dev test admin login", otp, res);
 
-        if (!emailSendResponse) {
-            return response.internalServerError(res, "Error sending OTP by email. Please try again");
+        if (!emailSent) {
+            return response.internalServerError(res, "Error sending OTP. Please try again later");
         }
 
         const otpResponse = {
