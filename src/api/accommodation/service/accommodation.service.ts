@@ -14,20 +14,25 @@ async function createAccommodationFacility(
   res: Response,
   createFacilityPayload: CreateAccommodationFacilityType,
 ) {
-  const accomodationFacility = await prisma.accommodationFacilities.create({
-    data: {
-      eventId: createFacilityPayload.eventId,
-      accommodationCategoryId: createFacilityPayload.accommodationCategoryId,
-      facilityName: createFacilityPayload.facilityName,
-      available: createFacilityPayload.available,
-      employedUserPrice: createFacilityPayload.employedUserPrice,
-      selfEmployedUserPrice: createFacilityPayload.selfEmployedUserPrice,
-      unemployedUserPrice: createFacilityPayload.unemployedUserPrice,
-      totalCapacity: createFacilityPayload.totalCapacity,
-    },
-  });
+  try {
+    const accomodationFacility = await prisma.accommodationFacilities.create({
+      data: {
+        eventId: createFacilityPayload.eventId,
+        accommodationCategoryId: createFacilityPayload.accommodationCategoryId,
+        facilityName: createFacilityPayload.facilityName,
+        available: createFacilityPayload.available,
+        employedUserPrice: createFacilityPayload.employedUserPrice,
+        selfEmployedUserPrice: createFacilityPayload.selfEmployedUserPrice,
+        unemployedUserPrice: createFacilityPayload.unemployedUserPrice,
+        totalCapacity: createFacilityPayload.totalCapacity,
+      },
+    });
 
-  return response.successResponse(res, accomodationFacility.facilityId);
+    return response.successResponse(res, accomodationFacility.facilityId);
+  } catch (error) {
+    console.log(error);
+    response.badRequest(res, "Invalid input");
+  }
 }
 
 async function createAccommodationCategory(
@@ -43,7 +48,7 @@ async function createAccommodationCategory(
     });
 
     return response.successResponse(res, null);
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(error);
 
     response.internalServerError(res, error.message);
@@ -54,40 +59,49 @@ async function createHostelAccommodation(
   res: Response,
   createHostelAccommodationPayload: CreateHostelAccommodationType,
 ) {
-  const createdAccommodation = await prisma.hostelAccommodation.create({
-    data: {
-      facilityId: createHostelAccommodationPayload.facilityId,
-      roomCode: createHostelAccommodationPayload.roomCode,
-      roomIdentifier: createHostelAccommodationPayload.roomIdentifier,
-      capacity: createHostelAccommodationPayload.capacity,
-      adminReserved: createHostelAccommodationPayload.adminReserved,
-      genderRestriction: createHostelAccommodationPayload.genderRestriction,
-    },
-  });
+  try {
+    const createdAccommodation = await prisma.hostelAccommodation.create({
+      data: {
+        facilityId: createHostelAccommodationPayload.facilityId,
+        roomCode: createHostelAccommodationPayload.roomCode,
+        roomIdentifier: createHostelAccommodationPayload.roomIdentifier,
+        capacity: createHostelAccommodationPayload.capacity,
+        adminReserved: createHostelAccommodationPayload.adminReserved,
+        genderRestriction: createHostelAccommodationPayload.genderRestriction,
+      },
+    });
 
-  return response.successResponse(res, { id: createdAccommodation.roomId });
+    return response.successResponse(res, { id: createdAccommodation.roomId });
+  } catch (error) {
+    console.log(error);
+    response.badRequest(res, "Invalid input");
+  }
 }
 
 async function createHotelAccommodation(
   res: Response,
   createHotelAccommodationPayload: CreateHotelAccommodationType,
 ) {
-  const createdAccommodation = await prisma.hotelAccommodation.create({
-    data: {
-      facilityId: createHotelAccommodationPayload.facilityId,
-      hotelCode: createHotelAccommodationPayload.hotelCode,
-      hotelIdentifier: createHotelAccommodationPayload.hotelIdentifier,
-      address: createHotelAccommodationPayload.address,
-      description: createHotelAccommodationPayload.description,
-      available: createHotelAccommodationPayload.available,
-      genderRestriction: createHotelAccommodationPayload.genderRestriction,
-      adminReserved: createHotelAccommodationPayload.adminReserved,
-      price: createHotelAccommodationPayload.price,
-      noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
-    },
-  });
+  try {
+    const createdAccommodation = await prisma.hotelAccommodation.create({
+      data: {
+        facilityId: createHotelAccommodationPayload.facilityId,
+        roomType: createHotelAccommodationPayload.roomType,
+        address: createHotelAccommodationPayload.address,
+        description: createHotelAccommodationPayload.description,
+        available: createHotelAccommodationPayload.available,
+        genderRestriction: createHotelAccommodationPayload.genderRestriction,
+        adminReserved: createHotelAccommodationPayload.adminReserved,
+        price: createHotelAccommodationPayload.price,
+        noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
+      },
+    });
 
-  return response.successResponse(res, { id: createdAccommodation.hotelId });
+    return response.successResponse(res, { id: createdAccommodation.roomTypeId });
+  } catch (error) {
+    console.log(error);
+    response.badRequest(res, error);
+  }
 }
 
 async function getCategoriesInfo() {
