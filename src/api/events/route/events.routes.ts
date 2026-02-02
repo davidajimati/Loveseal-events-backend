@@ -64,6 +64,27 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/active:
      *   get:
+     *     summary: Get all active events for user
+     *     tags: [Events]
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: Active events retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       401:
+     *         description: Unauthorized - Admin authentication required
+     */
+    router.get("/user/active", auth, (req, res) => eventsController.getActiveEvents(req, res));
+
+
+  /**
+     * @swagger
+     * /events/active:
+     *   get:
      *     summary: Get all active events
      *     tags: [Events]
      *     security:
