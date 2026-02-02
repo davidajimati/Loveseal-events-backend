@@ -62,7 +62,7 @@ export default function registerEventRoutes(app: Router) {
 
     /**
      * @swagger
-     * /events/active:
+     * /events/user/active:
      *   get:
      *     summary: Get all active events for user
      *     tags: [Events]
