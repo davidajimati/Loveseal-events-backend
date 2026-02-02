@@ -139,6 +139,8 @@ model dependantInfoTable {
   eventInfo     eventInformation       @relation(fields: [eventId], references: [eventId])
   parentRegInfo eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
 
+  @@index([eventId], map: "idx_registrant_dependants_table_eventId_fkey")
+  @@index([parentRegId], map: "idx_registrant_dependants_table_parentRegId_fkey")
   @@map("registrant_dependants_table")
 }
 
@@ -146,8 +148,6 @@ model paymentRecords {
   paymentId           String           @id @default(uuid())
   userId              String
   eventId             String
-  userRecord          userInformation  @relation(fields: [userId], references: [userId])
-  eventRecord         eventInformation @relation(fields: [eventId], references: [eventId])
   paymentReason       String
   amount              Float
   currencyCode        String?          @default("NGN")
@@ -157,6 +157,8 @@ model paymentRecords {
   paidAt              DateTime         @default(now())
   createdAt           DateTime?        @default(now())
   updatedAt           DateTime?
+  eventRecord         eventInformation @relation(fields: [eventId], references: [eventId])
+  userRecord          userInformation  @relation(fields: [userId], references: [userId])
 
   @@index([eventId], map: "paymentRecordsIndex")
   @@index([userId], map: "idx_event_payment_records_userId_fkey")
@@ -209,15 +211,30 @@ model hostelAllocations {
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
 
-  @@index(fields: [paymentReference], map: "paymentReferenceIndex")
+  @@index([paymentReference], map: "idx_paymentReferenceIndex")
   @@map("hostel_allocations_table")
 }
 
+model hotelAllocations {
+  id               String               @id @default(uuid())
+  hotelRoomId      String
+  registrationId   String
+  eventId          String
+  paymentReference String               @unique
+  allocator        roomAllocator
+  allocatedAt      DateTime
+  allocationStatus roomAllocationStatus
+  hotelRoomRecord  hotelAccommodation   @relation(fields: [hotelRoomId], references: [roomTypeId])
+
+  @@index([paymentReference], map: "paymentReferenceIndex")
+  @@index([hotelRoomId], map: "idx_hotel_allocations_table_hotelRoomId_fkey")
+  @@map("hotel_allocations_table")
+}
+
 model hotelAccommodation {
-  hotelId            String                  @id @default(uuid())
+  roomTypeId         String                  @id @default(uuid())
   facilityId         String
-  hotelCode          String                  @default(uuid())
-  hotelIdentifier    String
+  roomType           String?
   address            String
   description        String
   available          Boolean?
@@ -227,6 +244,7 @@ model hotelAccommodation {
   noOfRoomsOccupied  Int                     @default(0)
   price              Float?
   facilityRecord     accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
+  hotelAllocations   hotelAllocations[]
 
   @@index([facilityId], map: "idx_hotel_accommodation_table_facilityId_fkey")
   @@map("hotel_accommodation_table")

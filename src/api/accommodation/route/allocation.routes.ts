@@ -16,7 +16,7 @@ export default function registerAllocationRoutes(app: Router) {
    * @swagger
    * /allocation/hostel:
    *   post:
-   *     summary: Secure/allocate hostel accommodation for a user
+   *     summary: Secure/allocate hostel accommodation for a user (User)
    *     tags: [Accommodation Allocation]
    *     security:
    *       - bearerAuth: []
@@ -42,6 +42,38 @@ export default function registerAllocationRoutes(app: Router) {
    */
   router.post("/hostel", auth, (req, res) =>
     allocationController.secureAccommodation(res, req),
+  );
+
+  /**
+   * @swagger
+   * /allocation/hotel:
+   *   post:
+   *     summary: Secure/allocate hotel accommodation for a user (User)
+   *     tags: [Accommodation Allocation]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/InitiateHotelAllocationRequest'
+   *     responses:
+   *       200:
+   *         description: Hotel allocation initiated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ApiResponse'
+   *       400:
+   *         description: Invalid request payload
+   *       401:
+   *         description: Unauthorized - Authentication required
+   *       404:
+   *         description: Event, user, or facility not found
+   */
+  router.post("/hotel", auth, (req, res) =>
+    allocationController.secureHotelAccommodation(res, req),
   );
 
   app.use("/allocation", router);
