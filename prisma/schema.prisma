@@ -226,7 +226,7 @@ model hotelAllocations {
   allocationStatus roomAllocationStatus
   hotelRoomRecord  hotelAccommodation   @relation(fields: [hotelRoomId], references: [roomTypeId])
 
-  @@index([paymentReference], map: "paymentReferenceIndex")
+  @@index([paymentReference], map: "idx_hotel_allocaton_paymentReferenceIndex")
   @@index([hotelRoomId], map: "idx_hotel_allocations_table_hotelRoomId_fkey")
   @@map("hotel_allocations_table")
 }
