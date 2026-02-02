@@ -139,8 +139,8 @@ model dependantInfoTable {
   eventInfo     eventInformation       @relation(fields: [eventId], references: [eventId])
   parentRegInfo eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
 
-  @@index([eventId], map: "registrant_dependants_table_eventId_fkey")
-  @@index([parentRegId], map: "registrant_dependants_table_parentRegId_fkey")
+  @@index([eventId], map: "idx_registrant_dependants_table_eventId_fkey")
+  @@index([parentRegId], map: "idx_registrant_dependants_table_parentRegId_fkey")
   @@map("registrant_dependants_table")
 }
 
@@ -211,7 +211,7 @@ model hostelAllocations {
   allocatedAt      DateTime
   allocationStatus roomAllocationStatus
 
-  @@index([paymentReference], map: "paymentReferenceIndex")
+  @@index([paymentReference], map: "idx_paymentReferenceIndex")
   @@map("hostel_allocations_table")
 }
 
@@ -227,7 +227,7 @@ model hotelAllocations {
   hotelRoomRecord  hotelAccommodation   @relation(fields: [hotelRoomId], references: [roomTypeId])
 
   @@index([paymentReference], map: "paymentReferenceIndex")
-  @@index([hotelRoomId], map: "hotel_allocations_table_hotelRoomId_fkey")
+  @@index([hotelRoomId], map: "idx_hotel_allocations_table_hotelRoomId_fkey")
   @@map("hotel_allocations_table")
 }
 

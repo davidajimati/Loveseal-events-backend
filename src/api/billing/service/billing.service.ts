@@ -5,7 +5,6 @@ import type {
   KorapPayInitiatePaymentRequest,
   PaymentStatusWebhook,
 } from "../model/billing.model.js";
-import { randomUUID } from "crypto";
 import dotenv from "dotenv";
 
 dotenv.config();
