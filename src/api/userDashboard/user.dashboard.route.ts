@@ -16,7 +16,7 @@ export default function userDashboardRoutes(app: Router) {
      * @swagger
      * /user-dashboard:
      *   get:
-     *     summary: Get user dashboard information
+     *     summary: Get user dashboard information (User)
      *     tags: [User Dashboard]
      *     security:
      *       - bearerAuth: []
@@ -36,7 +36,7 @@ export default function userDashboardRoutes(app: Router) {
      * @swagger
      * /user-dashboard/add-dependent:
      *   post:
-     *     summary: Add a dependant to user's registration
+     *     summary: Add a dependant to user's registration (User)
      *     tags: [User Dashboard]
      *     security:
      *       - bearerAuth: []
@@ -64,7 +64,7 @@ export default function userDashboardRoutes(app: Router) {
      * @swagger
      * /user-dashboard/remove-dependent/{id}:
      *   delete:
-     *     summary: Remove a dependant from user's registration
+     *     summary: Remove a dependant from user's registration (User)
      *     tags: [User Dashboard]
      *     security:
      *       - bearerAuth: []
@@ -96,7 +96,7 @@ export default function userDashboardRoutes(app: Router) {
      * @swagger
      * /user-dashboard/pay-for-dependants:
      *   post:
-     *     summary: Pay for dependants
+     *     summary: Pay for dependants (User)
      *     tags: [User Dashboard]
      *     security:
      *       - bearerAuth: []
@@ -124,7 +124,7 @@ export default function userDashboardRoutes(app: Router) {
      * @swagger
      * /user-dashboard/book-accommodation:
      *   post:
-     *     summary: Book accommodation for user
+     *     summary: Book accommodation for user (User)
      *     tags: [User Dashboard]
      *     security:
      *       - bearerAuth: []

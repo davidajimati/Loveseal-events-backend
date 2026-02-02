@@ -17,7 +17,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events:
      *   get:
-     *     summary: Get all events (with pagination)
+     *     summary: Get all events (with pagination) (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -64,7 +64,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/user/active:
      *   get:
-     *     summary: Get all active events for user
+     *     summary: Get all active events for user (User)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -85,7 +85,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/active:
      *   get:
-     *     summary: Get all active events
+     *     summary: Get all active events (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -105,7 +105,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}:
      *   get:
-     *     summary: Get event by ID
+     *     summary: Get event by ID (User)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -136,7 +136,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events:
      *   post:
-     *     summary: Create a new event
+     *     summary: Create a new event (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -164,7 +164,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}:
      *   put:
-     *     summary: Update an event
+     *     summary: Update an event (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -201,7 +201,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}:
      *   delete:
-     *     summary: Delete an event
+     *     summary: Delete an event (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -232,7 +232,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}/draft:
      *   patch:
-     *     summary: Set event status to DRAFT
+     *     summary: Set event status to DRAFT (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -263,7 +263,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}/active:
      *   patch:
-     *     summary: Set event status to ACTIVE
+     *     summary: Set event status to ACTIVE (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []
@@ -294,7 +294,7 @@ export default function registerEventRoutes(app: Router) {
      * @swagger
      * /events/{id}/closed:
      *   patch:
-     *     summary: Set event status to CLOSED
+     *     summary: Set event status to CLOSED (Admin)
      *     tags: [Events]
      *     security:
      *       - bearerAuth: []

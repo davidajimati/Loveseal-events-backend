@@ -17,7 +17,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/my-registrations:
      *   get:
-     *     summary: Get current user's event registrations
+     *     summary: Get current user's event registrations (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -64,7 +64,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations:
      *   post:
-     *     summary: Create a new event registration (user-initiated)
+     *     summary: Create a new event registration (user-initiated) (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -92,7 +92,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations:
      *   get:
-     *     summary: Get all event registrations (admin only)
+     *     summary: Get all event registrations (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -139,7 +139,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/event/{eventId}:
      *   get:
-     *     summary: Get all registrations for a specific event (admin only)
+     *     summary: Get all registrations for a specific event (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -195,7 +195,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/{id}:
      *   get:
-     *     summary: Get registration by ID
+     *     summary: Get registration by ID (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -227,7 +227,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/admin:
      *   post:
-     *     summary: Create a new event registration (admin-initiated)
+     *     summary: Create a new event registration (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -255,7 +255,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/{id}:
      *   put:
-     *     summary: Update an event registration (admin only)
+     *     summary: Update an event registration (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -293,7 +293,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/{id}:
      *   delete:
-     *     summary: Delete an event registration (admin only)
+     *     summary: Delete an event registration (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []

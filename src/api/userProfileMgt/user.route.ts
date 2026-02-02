@@ -17,7 +17,7 @@ export default function registerUserRoutes(app: Router) {
      * @swagger
      * /user:
      *   get:
-     *     summary: Get current user profile
+     *     summary: Get current user profile (User)
      *     tags: [User Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -37,7 +37,7 @@ export default function registerUserRoutes(app: Router) {
      * @swagger
      * /user/users-count:
      *   get:
-     *     summary: Get total count of users (admin only)
+     *     summary: Get total count of users (Admin)
      *     tags: [User Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -81,7 +81,7 @@ export default function registerUserRoutes(app: Router) {
      * @swagger
      * /user:
      *   put:
-     *     summary: Update current user profile
+     *     summary: Update current user profile (User)
      *     tags: [User Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -111,7 +111,7 @@ export default function registerUserRoutes(app: Router) {
      * @swagger
      * /user:
      *   delete:
-     *     summary: Delete current user profile
+     *     summary: Delete current user profile (User)
      *     tags: [User Profile Management]
      *     security:
      *       - bearerAuth: []

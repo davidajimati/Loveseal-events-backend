@@ -1,5 +1,4 @@
 import {Router} from "express";
-import auth from "../../middleware/auth.js";
 import {billingController} from "../controller/billing.controller.js";
 
 /**
@@ -37,7 +36,7 @@ export default function registerBillingRoutes(app: Router) {
      *       404:
      *         description: Transaction reference not found
      */
-    router.post("/verify", auth, billingController.verifyPayment);
+    router.post("/verify", billingController.verifyPayment);
 
     app.use("/billing", router);
 }

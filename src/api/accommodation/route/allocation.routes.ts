@@ -16,7 +16,7 @@ export default function registerAllocationRoutes(app: Router) {
    * @swagger
    * /allocation/hostel:
    *   post:
-   *     summary: Secure/allocate hostel accommodation for a user
+   *     summary: Secure/allocate hostel accommodation for a user (User)
    *     tags: [Accommodation Allocation]
    *     security:
    *       - bearerAuth: []
@@ -48,7 +48,7 @@ export default function registerAllocationRoutes(app: Router) {
    * @swagger
    * /allocation/hotel:
    *   post:
-   *     summary: Secure/allocate hotel accommodation for a user
+   *     summary: Secure/allocate hotel accommodation for a user (User)
    *     tags: [Accommodation Allocation]
    *     security:
    *       - bearerAuth: []

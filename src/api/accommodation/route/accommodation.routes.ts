@@ -17,7 +17,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/facility:
      *   post:
-     *     summary: Create a facility
+     *     summary: Create a facility (Admin)
      *     tags: [Accommodation]
      *     requestBody:
      *       required: true
@@ -61,7 +61,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/hotels/{facilityId}:
      *   get:
-     *     summary: Get hotel rooms by facility ID
+     *     summary: Get hotel rooms by facility ID (Admin)
      *     tags: [Accommodation]
      *     parameters:
      *       - in: path
@@ -81,7 +81,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/category:
      *   post:
-     *     summary: Create accommodation categories
+     *     summary: Create accommodation categories (Admin)
      *     tags: [Accommodation]
      *     requestBody:
      *       required: true
@@ -103,7 +103,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/hostel:
      *   post:
-     *     summary: Create hostel accommodation
+     *     summary: Create hostel accommodation (Admin)
      *     tags: [Accommodation]
      *     requestBody:
      *       required: true
@@ -125,7 +125,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/hotel:
      *   post:
-     *     summary: Create hotel accommodation
+     *     summary: Create hotel accommodation (Admin)
      *     tags: [Accommodation]
      *     requestBody:
      *       required: true
@@ -147,7 +147,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/categories:
      *   get:
-     *     summary: Get all accommodation categories
+     *     summary: Get all accommodation categories (Admin)
      *     tags: [Accommodation]
      *     responses:
      *       200:
@@ -178,7 +178,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/initialize:
      *   post:
-     *     summary: Initialize payment for accommodation booking
+     *     summary: Initialize payment for accommodation booking (User)
      *     tags: [Accommodation]
      *     security:
      *       - bearerAuth: []
