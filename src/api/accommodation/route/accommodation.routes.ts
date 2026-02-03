@@ -59,7 +59,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /accommodation/facility/{categoryId}:
+     * /accommodation/admin/facility/{categoryId}:
      *   get:
      *     summary: Get facilities by category ID(admin)
      *     tags: [Accommodation]
@@ -99,7 +99,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /accommodation/hotels/{facilityId}:
+     * /accommodation/admin/hotels/{facilityId}:
      *   get:
      *     summary: Get hotel rooms by facility ID (Admin)
      *     tags: [Accommodation]
@@ -197,7 +197,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /accommodation/categories:
+     * /accommodation/admin/categories:
      *   get:
      *     summary: Get all accommodation categories (Admin)
      *     tags: [Accommodation]

@@ -70,7 +70,7 @@ async function removeDependant(res: Response, dependantId: string) {
 }
 
 /**
- * @semilore will pick up the following two endpoints
+ * add semilore's work the following two endpoints
  */
 async function bookAccommodation(res: Response, userId: string, data: bookAccommodationType) {
 
