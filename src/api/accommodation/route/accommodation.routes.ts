@@ -41,7 +41,7 @@ export default function registerAccommodationRoutes(app: Router) {
      * @swagger
      * /accommodation/facility/{categoryId}:
      *   get:
-     *     summary: Get facilities by category ID
+     *     summary: Get facilities by category ID(user)
      *     tags: [Accommodation]
      *     parameters:
      *       - in: path
@@ -55,7 +55,47 @@ export default function registerAccommodationRoutes(app: Router) {
      *       404:
      *         description: Category not found
      */
-    router.get("/facility/:categoryId", controller.getFacility);
+    router.get("/facility/:categoryId", auth, controller.getFacility);
+
+    /**
+     * @swagger
+     * /accommodation/facility/{categoryId}:
+     *   get:
+     *     summary: Get facilities by category ID(admin)
+     *     tags: [Accommodation]
+     *     parameters:
+     *       - in: path
+     *         name: categoryId
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Facilities retrieved successfully
+     *       404:
+     *         description: Category not found
+     */
+    router.get("/facility/:categoryId", adminAuth, controller.getFacility);
+
+    /**
+     * @swagger
+     * /accommodation/hotels/{facilityId}:
+     *   get:
+     *     summary: Get hotel rooms by facility ID (user)
+     *     tags: [Accommodation]
+     *     parameters:
+     *       - in: path
+     *         name: facilityId
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Hotel rooms retrieved successfully
+     *       404:
+     *         description: Facility not found
+     */
+    router.get("/hotels/:facilityId", auth, controller.getHotelRooms);
 
     /**
      * @swagger
@@ -142,6 +182,18 @@ export default function registerAccommodationRoutes(app: Router) {
      *               $ref: '#/components/schemas/ApiResponse'
      */
     router.post("/hotel", adminAuth, controller.createHotelAccommodation);
+
+    /**
+     * @swagger
+     * /accommodation/categories:
+     *   get:
+     *     summary: Get all accommodation categories (user)
+     *     tags: [Accommodation]
+     *     responses:
+     *       200:
+     *         description: Categories retrieved successfully
+     */
+    router.get("/categories", auth, controller.getAllCategoriesInfo);
 
     /**
      * @swagger
