@@ -84,7 +84,7 @@ model eventInformation {
   eventName               String
   startDate               DateTime
   endDate                 DateTime
-  venue                   String
+  venue                   String?
   eventStatus             eventStatus
   accommodationNeeded     Boolean
   registrationOpenAt      DateTime
