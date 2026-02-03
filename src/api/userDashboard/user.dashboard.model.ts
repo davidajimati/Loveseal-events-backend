@@ -17,7 +17,7 @@ interface dashboardInterface {
         eventId: string;
         eventTitle: string;
         date: Date;
-        venue: string;
+        venue?: string;
     };
     accommodation: {
         requiresAccommodation: boolean;

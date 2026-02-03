@@ -67,7 +67,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
                 eventId,
                 eventTitle: event.eventName,
                 date: event.startDate,
-                venue: event.venue,
+                ...(event.venue != null && {venue: event.venue}),
             },
             accommodation: {
                 requiresAccommodation: (regRecord.accommodationType ?? "NONE") !== "NONE",
