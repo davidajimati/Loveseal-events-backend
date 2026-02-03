@@ -75,7 +75,7 @@ export default function registerAccommodationRoutes(app: Router) {
      *       404:
      *         description: Category not found
      */
-    router.get("/facility/:categoryId", adminAuth, controller.getFacility);
+    router.get("/admin/facility/:categoryId", adminAuth, controller.getFacility);
 
     /**
      * @swagger
@@ -115,7 +115,7 @@ export default function registerAccommodationRoutes(app: Router) {
      *       404:
      *         description: Facility not found
      */
-    router.get("/hotels/:facilityId", adminAuth, controller.getHotelRooms);
+    router.get("/admin/hotels/:facilityId", adminAuth, controller.getHotelRooms);
 
     /**
      * @swagger
@@ -205,7 +205,7 @@ export default function registerAccommodationRoutes(app: Router) {
      *       200:
      *         description: Categories retrieved successfully
      */
-    router.get("/categories", adminAuth, controller.getAllCategoriesInfo);
+    router.get("/admin/categories", adminAuth, controller.getAllCategoriesInfo);
 
     /**
      * @swagger
