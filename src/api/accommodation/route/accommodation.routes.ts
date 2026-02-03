@@ -19,6 +19,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   post:
      *     summary: Create a facility (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -43,6 +45,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get facilities by category ID(user)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: categoryId
@@ -63,6 +67,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get facilities by category ID(admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: categoryId
@@ -83,6 +89,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get hotel rooms by facility ID (user)
      *     tags: [Accommodation]
+     *      security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: facilityId
@@ -103,6 +111,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get hotel rooms by facility ID (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
      *       - in: path
      *         name: facilityId
@@ -123,6 +133,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   post:
      *     summary: Create accommodation categories (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -145,6 +157,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   post:
      *     summary: Create hostel accommodation (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -167,6 +181,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   post:
      *     summary: Create hotel accommodation (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -189,6 +205,8 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get all accommodation categories (user)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Categories retrieved successfully
@@ -201,30 +219,13 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get all accommodation categories (Admin)
      *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Categories retrieved successfully
      */
     router.get("/admin/categories", adminAuth, controller.getAllCategoriesInfo);
-
-    /**
-     * @swagger
-     * /accommodation/delete-accommodation/{accommodationId}:
-     *   delete:
-     *     summary: Delete an accommodation
-     *     tags: [Accommodation]
-     *     parameters:
-     *       - in: path
-     *         name: accommodationId
-     *         required: true
-     *         schema:
-     *           type: string
-     *     responses:
-     *       200:
-     *         description: Accommodation deleted successfully
-     *       404:
-     *         description: Accommodation not found
-     */
 
     /**
      * @swagger
@@ -261,6 +262,26 @@ export default function registerAccommodationRoutes(app: Router) {
      */
     router.post("/initialize", auth, controller.createAccommodationRequest);
 
+    /**
+     * @swagger
+     * /accommodation/delete-accommodation/{accommodationId}:
+     *   delete:
+     *     summary: Delete an accommodation
+     *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: accommodationId
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Accommodation deleted successfully
+     *       404:
+     *         description: Accommodation not found
+     */
     router.delete("/delete-accommodation/:accommodationId", (_req, res) => {
         res.status(501).json({code: "99", message: "Not Implemented", data: null});
     });
