@@ -1,5 +1,4 @@
 import {PrismaClient, Prisma} from '@prisma/client';
-import type {AuthenticatedUser} from "../middleware/auth.js";
 import {type Response} from "express";
 import type {
     dependantType,
@@ -48,19 +47,15 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
             return response.badRequest(res, "You're not registered for this event");
         }
 
-        // Payment handling (paymentRecord can be null)
         const paymentSuccessful = paymentRecord?.paymentStatus === "SUCCESSFUL";
 
-        // Dependants
         const dependants = await prisma.dependantInfoTable.findMany({
             where: {parentRegId: userId, eventId},
             select: {id: true, name: true, age: true, gender: true},
             orderBy: {dateCreated: "desc"},
         });
 
-        const mealTicket = regRecord.participationMode === "CAMPER" && regRecord.registrationCompleted === true
-            ? true
-            : paymentSuccessful;
+        const mealTicket = regRecord.participationMode === "CAMPER" && regRecord.registrationCompleted === true && paymentSuccessful;
 
         const dashboard: dashboardInterface = {
             userId,
@@ -75,10 +70,10 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
                 venue: event.venue,
             },
             accommodation: {
-                requiresAccommodation: regRecord.accommodationType !== "NONE",
+                requiresAccommodation: (regRecord.accommodationType ?? "NONE") !== "NONE",
                 paidForAccommodation: paymentSuccessful,
-                amountPaidForAccommodation: paymentRecord?.amount,
-                accommodationType: regRecord.accommodationType?.toString(),
+                ...(paymentRecord?.amount !== undefined && {amountPaidForAccommodation: paymentRecord.amount}),
+                ...(regRecord.accommodationType != null && {accommodationType: regRecord.accommodationType.toString()}),
                 room: regRecord.accommodationDetails,
                 accommodationImageUrl: "",
             },
@@ -88,6 +83,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
                     dependantId: d.id,
                     dependantName: d.name,
                     dependantAge: d.age,
+                    dependantGender: d.gender
                 })),
             },
         };

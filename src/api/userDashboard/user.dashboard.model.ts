@@ -4,6 +4,7 @@ interface dependantData {
     dependantId: string;
     dependantName: string;
     dependantAge: number;
+    dependantGender: string;
 }
 
 interface dashboardInterface {
@@ -28,7 +29,7 @@ interface dashboardInterface {
     };
     dependants: {
         dependantCount: number;
-        dependantsData: [dependantData];
+        dependantsData: dependantData[];
     }
 }
 

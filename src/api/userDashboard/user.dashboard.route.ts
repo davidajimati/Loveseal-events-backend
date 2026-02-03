@@ -30,7 +30,7 @@ export default function userDashboardRoutes(app: Router) {
      *       401:
      *         description: Unauthorized - Authentication required
      */
-    router.get("/", auth, controller.dashboard);
+    router.get("/:eventId", auth, controller.dashboard);
 
     /**
      * @swagger
