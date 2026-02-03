@@ -21,10 +21,9 @@ interface dashboardInterface {
     accommodation: {
         requiresAccommodation: boolean;
         paidForAccommodation: boolean;
-        amountPaidForAccommodation: bigint;
-        accommodationType: string;
+        amountPaidForAccommodation?: number;
+        accommodationType?: string;
         room: string;
-        bedSpace: string;
         accommodationImageUrl: string
     };
     dependants: {
