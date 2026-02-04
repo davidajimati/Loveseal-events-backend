@@ -89,7 +89,7 @@ export default function registerAccommodationRoutes(app: Router) {
      *   get:
      *     summary: Get hotel rooms by facility ID (user)
      *     tags: [Accommodation]
-     *      security:
+     *     security:
      *       - bearerAuth: []
      *     parameters:
      *       - in: path
