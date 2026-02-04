@@ -363,7 +363,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /admin/registrations/{id}:
+     * /registrations/admin/:regId:
      *   delete:
      *     summary: Delete an event registration for user (Admin)
      *     tags: [Event Registrations]
