@@ -1,10 +1,10 @@
-import type { Response } from "express";
-import { Prisma, type eventRegistrationTable } from "@prisma/client";
-import { BaseService } from "../../../common/index.js";
+import type {Response} from "express";
+import {Prisma, type eventRegistrationTable} from "@prisma/client";
+import {BaseService} from "../../../common/index.js";
 import prisma from "../../../../prisma/Prisma.js";
 import * as response from "../../ApiResponseContract.js";
-import type { PaginationDto } from "../../../common/index.js";
-import type { CreateEventRegistrationType, UpdateEventRegistrationType } from "../models/event-registration.model.js";
+import type {PaginationDto} from "../../../common/index.js";
+import type {CreateEventRegistrationType, UpdateEventRegistrationType} from "../models/event-registration.model.js";
 
 export class EventRegistrationService extends BaseService<eventRegistrationTable, CreateEventRegistrationType, UpdateEventRegistrationType> {
     constructor() {
@@ -40,7 +40,7 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
 
     async getRegistrationsByEventId(res: Response, eventId: string, paginationDto: PaginationDto) {
         try {
-            const result = await this.paginateWithWhere(paginationDto, { eventId });
+            const result = await this.paginateWithWhere(paginationDto, {eventId});
             return response.successResponse(res, result);
         } catch (error) {
             console.log("Exception: " + error);
@@ -50,7 +50,7 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
 
     async getRegistrationsByUserId(res: Response, userId: string, paginationDto: PaginationDto) {
         try {
-            const result = await this.paginateWithWhere(paginationDto, { userId });
+            const result = await this.paginateWithWhere(paginationDto, {userId});
             return response.successResponse(res, result);
         } catch (error) {
             console.log("Exception: " + error);
@@ -66,20 +66,25 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
                 eventId: data.eventId,
             });
 
-            if (existingRegistration) {
-                return response.duplicateRequest(res, "User is already registered for this event");
+            let registration;
+            const {initiator, ...rest} = data;
+            const dbData = {
+                ...rest,
+                intiator: initiator,
+                accommodationAssigned: false,
+                accommodationDetails: "",
             }
 
-            const { initiator, ...rest } = data;
-
-            const registration = await this.delegate.create({
-                data: {
-                    ...rest,
-                    intiator: initiator,
-                    accommodationAssigned: false,
-                    accommodationDetails: "",
-                },
-            });
+            if (existingRegistration) {
+                console.log("user registration already exists. Updating registration...")
+                registration = await this.delegate.update({
+                    data: dbData
+                });
+            } else {
+                registration = await this.delegate.create({
+                    data: dbData
+                });
+            }
 
             return response.successResponse(res, registration);
         } catch (error) {
@@ -98,15 +103,15 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
 
     async updateRegistration(res: Response, regId: string, data: Partial<UpdateEventRegistrationType>) {
         try {
-            const { initiator, ...rest } = data;
-            const updateData: Record<string, any> = { ...rest };
+            const {initiator, ...rest} = data;
+            const updateData: Record<string, any> = {...rest};
 
             if (initiator) {
                 updateData.intiator = initiator;
             }
 
             const registration = await this.delegate.update({
-                where: { regId },
+                where: {regId},
                 data: updateData,
             });
 
