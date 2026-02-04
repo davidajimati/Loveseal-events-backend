@@ -15,6 +15,26 @@ export default function registerUserRoutes(app: Router) {
 
     /**
      * @swagger
+     * /user/{userId}:
+     *   get:
+     *     summary: Get user profile (Admin)
+     *     tags: [User Profile Management]
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: User profile retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       401:
+     *         description: Unauthorized - Authentication required
+     */
+    router.get("/:userId", adminAuth, controller.getUserProfileForAdmin)
+
+    /**
+     * @swagger
      * /user:
      *   get:
      *     summary: Get current user profile (User)

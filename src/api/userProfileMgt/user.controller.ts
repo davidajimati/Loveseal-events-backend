@@ -23,6 +23,18 @@ async function getUserProfile(req: AuthenticatedUser, res: Response) {
     return await service.getUserProfileInfo(res, req.userId);
 }
 
+async function getUserProfileForAdmin(req: AuthenticatedAdminUser, res: Response) {
+    if (!req.adminId) {
+        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
+    }
+    const userId =  req.params.userId;
+    if (!userId) {
+        console.log("getUserProfileForAdmin: no userId provided");
+        return response.badRequest(res, "No userId provided");
+    }
+    return await service.getUserProfileInfo(res, userId);
+}
+
 async function createUserProfile(req: AuthenticatedUser, res: Response) {
     console.log("\n-> request: create new user")
     const result = createUserSchema.safeParse(req.body);
@@ -57,5 +69,6 @@ export {
     getUserProfile,
     createUserProfile,
     updateUserProfile,
-    deleteUserProfile
+    deleteUserProfile,
+    getUserProfileForAdmin
 }
