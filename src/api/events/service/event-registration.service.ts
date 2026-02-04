@@ -4,7 +4,11 @@ import {BaseService} from "../../../common/index.js";
 import prisma from "../../../../prisma/Prisma.js";
 import * as response from "../../ApiResponseContract.js";
 import type {PaginationDto} from "../../../common/index.js";
-import type {CreateEventRegistrationType, UpdateEventRegistrationType} from "../models/event-registration.model.js";
+import {
+    type CreateEventRegistrationType,
+    ParticipationModeEnum,
+    type UpdateEventRegistrationType
+} from "../models/event-registration.model.js";
 
 export class EventRegistrationService extends BaseService<eventRegistrationTable, CreateEventRegistrationType, UpdateEventRegistrationType> {
     constructor() {
@@ -68,19 +72,26 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
 
             let registration;
             const {initiator, ...rest} = data;
-            const dbData = {
-                ...rest,
-                intiator: initiator,
-                accommodationAssigned: false,
-                accommodationDetails: "",
-            }
 
             if (existingRegistration) {
                 console.log("user registration already exists. Updating registration...")
                 registration = await this.delegate.update({
-                    data: dbData
+                    where: {
+                        regId: existingRegistration.regId,
+                    },
+                    data: {
+                        participationMode: data.participationMode,
+                        initiator: data.initiator,
+                        accommodationType: data.accommodationType,
+                    }
                 });
             } else {
+                const dbData = {
+                    ...rest,
+                    initiator: initiator,
+                    accommodationAssigned: false,
+                    accommodationDetails: "",
+                }
                 registration = await this.delegate.create({
                     data: dbData
                 });
@@ -129,7 +140,12 @@ export class EventRegistrationService extends BaseService<eventRegistrationTable
 
     async deleteRegistration(res: Response, regId: string) {
         try {
-            await this.remove(regId);
+            const deletedRecord = await prisma.eventRegistrationTable.delete({
+                where: {
+                    regId
+                }
+            });
+            console.log("deletedRecord: " + deletedRecord);
             return response.successResponse(res, "Registration deleted");
         } catch (error) {
             console.log("Exception: " + error);
