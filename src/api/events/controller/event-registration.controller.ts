@@ -121,7 +121,21 @@ class EventRegistrationController {
         return await this.registrationService.updateRegistration(res, id, result.data);
     }
 
-    async deleteRegistration(req: AuthenticatedAdminUser, res: Response) {
+    async deleteRegistration(req: AuthenticatedUser, res: Response) {
+        if (!req.userId) {
+            return response.unauthorizedRequest(res, "Request not authorized. Please try again later");
+        }
+
+        const id = req.params.id;
+        if (!id || typeof id !== 'string') {
+            return response.badRequest(res, "Registration ID is required");
+        }
+
+        return await this.registrationService.deleteRegistration(res, id);
+    }
+
+
+    async adminDeleteRegistration(req: AuthenticatedAdminUser, res: Response) {
         if (!req.adminId) {
             return response.unauthorizedRequest(res, "Request not authorized. Please try again later");
         }

@@ -391,7 +391,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      *       404:
      *         description: Registration not found
      */
-    router.delete("/admin/:id", adminAuth, (req, res) => eventRegistrationController.deleteRegistration(req, res));
+    router.delete("/admin/:id", adminAuth, (req, res) => eventRegistrationController.adminDeleteRegistration(req, res));
 
     app.use("/registrations", router);
 }
