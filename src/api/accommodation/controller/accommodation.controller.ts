@@ -46,7 +46,13 @@ async function createHotelAccommodation(req: Request, res: Response) {
 }
 
 async function getAllCategoriesInfo(req: Request, res: Response) {
-  const categories = await service.getCategoriesInfo();
+  const { eventId } = req.params;
+
+  if (!eventId) {
+    return response.badRequest(res, "eventId is required");
+  }
+
+  const categories = await service.getCategoriesInfo(eventId);
 
   try {
     return response.successResponse(res, categories);

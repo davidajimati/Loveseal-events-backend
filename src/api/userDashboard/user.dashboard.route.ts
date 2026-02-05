@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import auth from "../middleware/auth.js";
 import * as controller from "./user.dashboard.controller.js";
 
@@ -14,11 +14,12 @@ export default function userDashboardRoutes(app: Router) {
 
   /**
    * @swagger
-   * /user-dashboard/:eventId
+   * /user-dashboard/{eventId}:
    *   get:
    *     summary: Get user dashboard information (User)
-   *     tags: [User Dashboard]
-   *    parameters:
+   *     tags:
+   *       - User Dashboard
+   *     parameters:
    *       - in: path
    *         name: eventId
    *         required: true

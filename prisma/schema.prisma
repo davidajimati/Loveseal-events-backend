@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -97,6 +97,7 @@ model eventInformation {
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
   dependantInfo           dependantInfoTable[]
+  accomodationCategories    accommodationCategory[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -254,7 +255,9 @@ model hotelAccommodation {
 model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
   name                    accommodationType
+  eventId                 String?
   facilityRecord          accommodationFacilities[]
+  eventRecord             eventInformation?   @relation(fields: [eventId], references: [eventId])
 
   @@map("accommodation_categories")
 }

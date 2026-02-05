@@ -13,11 +13,14 @@ const createAccommodationFacilitySchema = z.object({
   totalCapacity: z.number().min(0),
 });
 
-const createAccommodationCategorySchema = z.array(
-  z.object({
-    name: categoryEnum,
-  }),
-);
+const createAccommodationCategorySchema = z.object({
+  eventId: z.string().trim(),
+  categories: z.array(
+    z.object({
+      name: categoryEnum,
+    }),
+  ),
+});
 
 const createHostelAccommodationSchema = z.object({
   facilityId: z.string().trim(),
