@@ -97,7 +97,7 @@ model eventInformation {
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
   dependantInfo           dependantInfoTable[]
-  accomodationCategories    accommodationCategory[]
+  accomodationCategories  accommodationCategory[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -257,7 +257,7 @@ model accommodationCategory {
   name                    accommodationType
   eventId                 String?
   facilityRecord          accommodationFacilities[]
-  eventRecord             eventInformation?   @relation(fields: [eventId], references: [eventId])
+  eventRecord             eventInformation?         @relation(fields: [eventId], references: [eventId])
 
   @@map("accommodation_categories")
 }
@@ -297,6 +297,7 @@ enum accommodationType {
   HOSTEL
   HOTEL
   NONE
+  SHARED_APARTMENT
 }
 
 enum regStatus {

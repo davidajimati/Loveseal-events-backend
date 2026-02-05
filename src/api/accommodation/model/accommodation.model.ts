@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const categoryEnum = z.enum(["HOSTEL", "HOTEL", "NONE"]);
+const categoryEnum = z.enum(["HOSTEL", "HOTEL", "NONE", "SHARED_APARTMENT"]);
 
 const createAccommodationFacilitySchema = z.object({
   eventId: z.string().trim(),
