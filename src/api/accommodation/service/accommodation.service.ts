@@ -114,6 +114,43 @@ async function createHotelAccommodation(
   }
 }
 
+async function getHostelSpacesLeft(res: Response) {
+  try {
+    const allHostels = await prisma.accommodationCategory.findMany({
+      where: {
+        name: "HOSTEL",
+      },
+    });
+
+    if (allHostels.length < 1) {
+      throw new Error("Invalid category");
+    }
+
+    const aggregates = await prisma.accommodationFacilities.aggregate({
+      where: {
+        accommodationCategoryId: {
+          in: allHostels.map((item) => item.accommodationCategoryId),
+        },
+        eventRecord: {
+          eventStatus: "ACTIVE",
+        },
+      },
+      _sum: {
+        capacityOccupied: true,
+        totalCapacity: true,
+      },
+    });
+
+    const occupied = aggregates._sum.capacityOccupied ?? 0;
+    const total = aggregates._sum.totalCapacity ?? 0;
+
+    response.successResponse(res, {
+      capacityLeft: total - occupied,
+    });
+  } catch (error) {
+    response.badRequest(res, error);
+  }
+}
 async function getCategoriesInfo(eventId: string) {
   const allCategoriesInfo = await prisma.accommodationCategory.findMany({
     where: {
@@ -207,4 +244,5 @@ export {
   getCategoriesInfo,
   getFacilityInfo,
   getHotelRooms,
+  getHostelSpacesLeft,
 };

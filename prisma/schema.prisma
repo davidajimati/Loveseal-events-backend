@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -255,9 +255,9 @@ model hotelAccommodation {
 model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
   name                    accommodationType
-  eventId                 String?
+  eventId                 String
   facilityRecord          accommodationFacilities[]
-  eventRecord             eventInformation?         @relation(fields: [eventId], references: [eventId])
+  eventRecord             eventInformation          @relation(fields: [eventId], references: [eventId])
 
   @@map("accommodation_categories")
 }

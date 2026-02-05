@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import * as controller from "../controller/accommodation.controller.js";
 import auth from "../../middleware/auth.js";
 import adminAuth from "../../middleware/adminAuth.js";
@@ -241,6 +241,21 @@ export default function registerAccommodationRoutes(app: Router) {
     "/admin/categories/:eventId",
     adminAuth,
     controller.getAllCategoriesInfo,
+  );
+
+  /**
+   * @swagger
+   * /accommodation/hostel/unoccupied:
+   *   get:
+   *     summary: Get all hostel spaces left (All)
+   *     tags: [Accommodation]
+   *     responses:
+   *       200:
+   *         description:  Successfully
+   */
+  router.get(
+    "/hostel/unoccupied",
+    controller.getHostelSpacesLeft,
   );
 
   /**
