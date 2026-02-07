@@ -7,7 +7,7 @@ import { sendEmailViaSes } from "../emailing/comms.service.js";
 import { type otpValidationType } from "../authUser/userAuth.model.js";
 import { type adminUserInformationInterface } from "./adminAuth.model.js";
 import { EmailingService } from "../emailing/brevo/notification.service.js";
-import type {TextNotifyRequest} from "../emailing/model/notification.model.js";
+import type { TextNotifyRequest } from "../emailing/model/notification.model.js";
 
 const prisma = new PrismaClient();
 
