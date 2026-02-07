@@ -236,8 +236,9 @@ export class BillingService {
       },
       merchant_bears_cost: false,
       narration: paymentRequest.narration,
-      notification_url: "http://localhost:8080/webhook",
-      redirect_url: "https://wothsmflx.org",
+      notification_url:
+        "https://loveseal-events-backend.onrender.com/billing/verify",
+      redirect_url: "https://smflx-front-office.vercel.app/dashboard",
       reference: paymentRequest.reference,
     };
 

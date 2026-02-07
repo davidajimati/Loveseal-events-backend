@@ -13,6 +13,7 @@ const createEventSchema = z.object({
     eventName: z.string().min(3),
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
+    venue: z.string(),
     eventStatus: EventStatusEnum,
     accommodationNeeded: z.boolean().default(() => false),
     registrationOpenAt: z.coerce.date(),

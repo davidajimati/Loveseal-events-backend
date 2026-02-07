@@ -40,14 +40,22 @@ async function createAccommodationCategory(
   createCategoryPayload: CreateAccommodationCategoryType,
 ) {
   try {
-    const createdCategories = await prisma.accommodationCategory.createMany({
-      data: createCategoryPayload.map((category: any) => ({
+    const createdCategories = await Promise.all(
+      createCategoryPayload.categories.map((category) =>
+        prisma.accommodationCategory.create({
+          data: {
+            eventId: createCategoryPayload.eventId,
+            name: category.name,
+          },
+        }),
+      ),
+    );
+    return response.successResponse(res, {
+      createdCategories: createdCategories.map((category) => ({
+        id: category.accommodationCategoryId,
         name: category.name,
       })),
-      skipDuplicates: true,
     });
-
-    return response.successResponse(res, null);
   } catch (error: any) {
     console.log(error);
 
@@ -97,15 +105,57 @@ async function createHotelAccommodation(
       },
     });
 
-    return response.successResponse(res, { id: createdAccommodation.roomTypeId });
+    return response.successResponse(res, {
+      id: createdAccommodation.roomTypeId,
+    });
   } catch (error) {
     console.log(error);
     response.badRequest(res, error);
   }
 }
 
-async function getCategoriesInfo() {
+async function getHostelSpacesLeft(res: Response) {
+  try {
+    const allHostels = await prisma.accommodationCategory.findMany({
+      where: {
+        name: "HOSTEL",
+      },
+    });
+
+    if (allHostels.length < 1) {
+      throw new Error("Invalid category");
+    }
+
+    const aggregates = await prisma.accommodationFacilities.aggregate({
+      where: {
+        accommodationCategoryId: {
+          in: allHostels.map((item) => item.accommodationCategoryId),
+        },
+        eventRecord: {
+          eventStatus: "ACTIVE",
+        },
+      },
+      _sum: {
+        capacityOccupied: true,
+        totalCapacity: true,
+      },
+    });
+
+    const occupied = aggregates._sum.capacityOccupied ?? 0;
+    const total = aggregates._sum.totalCapacity ?? 0;
+
+    response.successResponse(res, {
+      capacityLeft: total - occupied,
+    });
+  } catch (error) {
+    response.badRequest(res, error);
+  }
+}
+async function getCategoriesInfo(eventId: string) {
   const allCategoriesInfo = await prisma.accommodationCategory.findMany({
+    where: {
+      eventId: eventId,
+    },
     include: {
       facilityRecord: {
         select: {
@@ -194,4 +244,5 @@ export {
   getCategoriesInfo,
   getFacilityInfo,
   getHotelRooms,
+  getHostelSpacesLeft,
 };

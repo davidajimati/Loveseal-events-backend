@@ -12,7 +12,7 @@ import auth from "../middleware/auth.js";
 
 export default function registerUserRoutes(app: Router) {
     const router = Router();
-
+    
     /**
      * @swagger
      * /user:
@@ -35,7 +35,7 @@ export default function registerUserRoutes(app: Router) {
 
     /**
      * @swagger
-     * /user/users-count:
+     * /user/admin/count-users:
      *   get:
      *     summary: Get total count of users (Admin)
      *     tags: [User Profile Management]
@@ -51,7 +51,7 @@ export default function registerUserRoutes(app: Router) {
      *       401:
      *         description: Unauthorized - Admin authentication required
      */
-    router.get("/users-count", adminAuth, controller.getUsersCount)
+    router.get("/admin/count-users", adminAuth, controller.getUsersCount)
 
     /**
      * @swagger

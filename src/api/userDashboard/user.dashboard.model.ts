@@ -4,6 +4,7 @@ interface dependantData {
     dependantId: string;
     dependantName: string;
     dependantAge: number;
+    dependantGender: string;
 }
 
 interface dashboardInterface {
@@ -16,20 +17,19 @@ interface dashboardInterface {
         eventId: string;
         eventTitle: string;
         date: Date;
-        venue: string;
+        venue?: string;
     };
     accommodation: {
         requiresAccommodation: boolean;
         paidForAccommodation: boolean;
-        amountPaidForAccommodation: bigint;
-        accommodationType: string;
+        amountPaidForAccommodation?: number;
+        accommodationType?: string;
         room: string;
-        bedSpace: string;
         accommodationImageUrl: string
     };
     dependants: {
         dependantCount: number;
-        dependantsData: [dependantData];
+        dependantsData: dependantData[];
     }
 }
 

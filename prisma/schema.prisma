@@ -84,6 +84,7 @@ model eventInformation {
   eventName               String
   startDate               DateTime
   endDate                 DateTime
+  venue                   String?
   eventStatus             eventStatus
   accommodationNeeded     Boolean
   registrationOpenAt      DateTime
@@ -96,6 +97,7 @@ model eventInformation {
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
   dependantInfo           dependantInfoTable[]
+  accomodationCategories  accommodationCategory[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -109,7 +111,7 @@ model eventRegistrationTable {
   status                regStatus?           @default(PENDING)
   registrationCompleted Boolean?
   participationMode     particpationMode
-  intiator              regInitiator         @default(USER)
+  initiator             regInitiator         @default(USER)
   accommodationType     accommodationType?   @default(NONE)
   accommodationAssigned Boolean
   accommodationDetails  String
@@ -253,7 +255,9 @@ model hotelAccommodation {
 model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
   name                    accommodationType
+  eventId                 String
   facilityRecord          accommodationFacilities[]
+  eventRecord             eventInformation          @relation(fields: [eventId], references: [eventId])
 
   @@map("accommodation_categories")
 }
@@ -293,6 +297,7 @@ enum accommodationType {
   HOSTEL
   HOTEL
   NONE
+  SHARED_APARTMENT
 }
 
 enum regStatus {
