@@ -16,6 +16,7 @@ COPY package.json package-lock.json ./
 
 # Copy Prisma schema BEFORE install and generate client
 COPY prisma ./prisma
+RUN npm i -g npm@10
 RUN npm ci
 RUN npx prisma generate
 
