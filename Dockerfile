@@ -3,7 +3,7 @@
 ############################
 # Build stage
 ############################
-ARG NODE_VERSION=20.17.0
+ARG NODE_VERSION=20.19.0
 FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /usr/src/app
@@ -40,7 +40,6 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/prisma ./prisma
-COPY --from=builder /usr/src/app/src/public ./public
 COPY package.json ./
 
 EXPOSE 3004
