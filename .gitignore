@@ -40,7 +40,6 @@ prisma/generated/
 Thumbs.db
 
 # Optional npm package lock files if using yarn
-package-lock.json
 yarn.lock
 
 # Test coverage
