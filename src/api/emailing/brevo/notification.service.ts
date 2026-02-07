@@ -1,10 +1,7 @@
-import type {
-  BrevoRequest,
-  HtmlNotifyRequest,
-  TextNotifyRequest,
-} from "../model/notification.model.js";
+import type {BrevoRequest, HtmlNotifyRequest, TextNotifyRequest,} from "../model/notification.model.js";
 import * as response from "../../ApiResponseContract.js";
-import type { Response } from "express";
+import type {Response} from "express";
+import {HttpError} from "../../exceptions/HttpError.js";
 
 export class EmailingService {
   public async sendTextContent(res: Response, emailData: TextNotifyRequest) {
@@ -24,9 +21,9 @@ export class EmailingService {
         textContent: emailData.textContent,
       };
 
-      await this.sendBrevoEmail(res, body);
+      return await this.sendBrevoEmail(res, body);
     } catch (error) {
-      response.badRequest(res, "An error occurred while sending email");
+      throw new HttpError("error sending email", 500);
     }
   }
 
@@ -47,7 +44,7 @@ export class EmailingService {
         htmlContent: emailData.htmlContent,
       };
 
-      await this.sendBrevoEmail(res, body);
+      return await this.sendBrevoEmail(res, body);
     } catch (error) {
       response.badRequest(res, "An error occurred while sending email");
     }
@@ -68,13 +65,16 @@ export class EmailingService {
       });
 
       const result = await response.json();
-
+      console.log("Brevo response: " + result);
       if (!response.ok) {
-        throw new Error(`Brevo error: ${JSON.stringify(result)}`);
+        console.log("Brevo email sending failed");
+        return false;
       }
-
-      return result;
+      return true;
     } catch (error) {
+      if (error instanceof HttpError) {
+        throw error;
+      }
       response.badRequest(res, "Unable to send email");
     }
   }

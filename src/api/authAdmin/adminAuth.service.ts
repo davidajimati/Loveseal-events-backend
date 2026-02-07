@@ -115,7 +115,10 @@ async function generateOtp(res: Response, email: string, otpReason: string) {
       textContent: `Your Confirmation OTP is ${otp}`,
     };
 
-    await emailService.sendTextContent(res, emailData);
+    const emailSent = await emailService.sendTextContent(res, emailData);
+    if (!emailSent) {
+      return response.internalServerError(res, "Error sending OTP. Please try again");
+    }
 
     const otpResponse = {
       reference: otpReference,
