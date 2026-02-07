@@ -4,7 +4,7 @@
 # Build stage
 ############################
 ARG NODE_VERSION=25.0.9
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
 
