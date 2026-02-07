@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as controller from "../controller/accommodation.controller.js";
 import auth from "../../middleware/auth.js";
+import adminAuth from "../../middleware/adminAuth.js";
 
 /**
  * @swagger
@@ -16,8 +17,10 @@ export default function registerAccommodationRoutes(app: Router) {
    * @swagger
    * /accommodation/facility:
    *   post:
-   *     summary: Create a facility
+   *     summary: Create a facility (Admin)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -34,14 +37,16 @@ export default function registerAccommodationRoutes(app: Router) {
    *       400:
    *         description: Invalid request payload
    */
-  router.post("/facility", controller.createFacility);
+  router.post("/facility", adminAuth, controller.createFacility);
 
   /**
    * @swagger
    * /accommodation/facility/{categoryId}:
    *   get:
-   *     summary: Get facilities by category ID
+   *     summary: Get facilities by category ID(user)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: categoryId
@@ -54,14 +59,38 @@ export default function registerAccommodationRoutes(app: Router) {
    *       404:
    *         description: Category not found
    */
-  router.get("/facility/:categoryId", controller.getFacility);
+  router.get("/facility/:categoryId", auth, controller.getFacility);
+
+  /**
+   * @swagger
+   * /accommodation/admin/facility/{categoryId}:
+   *   get:
+   *     summary: Get facilities by category ID(admin)
+   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: categoryId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Facilities retrieved successfully
+   *       404:
+   *         description: Category not found
+   */
+  router.get("/admin/facility/:categoryId", adminAuth, controller.getFacility);
 
   /**
    * @swagger
    * /accommodation/hotels/{facilityId}:
    *   get:
-   *     summary: Get hotel rooms by facility ID
+   *     summary: Get hotel rooms by facility ID (user)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: facilityId
@@ -74,14 +103,38 @@ export default function registerAccommodationRoutes(app: Router) {
    *       404:
    *         description: Facility not found
    */
-  router.get("/hotels/:facilityId", controller.getHotelRooms);
+  router.get("/hotels/:facilityId", auth, controller.getHotelRooms);
+
+  /**
+   * @swagger
+   * /accommodation/admin/hotels/{facilityId}:
+   *   get:
+   *     summary: Get hotel rooms by facility ID (Admin)
+   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: facilityId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Hotel rooms retrieved successfully
+   *       404:
+   *         description: Facility not found
+   */
+  router.get("/admin/hotels/:facilityId", adminAuth, controller.getHotelRooms);
 
   /**
    * @swagger
    * /accommodation/category:
    *   post:
-   *     summary: Create accommodation categories
+   *     summary: Create accommodation categories (Admin)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -96,14 +149,16 @@ export default function registerAccommodationRoutes(app: Router) {
    *             schema:
    *               $ref: '#/components/schemas/ApiResponse'
    */
-  router.post("/category", controller.createCategories);
+  router.post("/category", adminAuth, controller.createCategories);
 
   /**
    * @swagger
    * /accommodation/hostel:
    *   post:
-   *     summary: Create hostel accommodation
+   *     summary: Create hostel accommodation (Admin)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -118,14 +173,16 @@ export default function registerAccommodationRoutes(app: Router) {
    *             schema:
    *               $ref: '#/components/schemas/ApiResponse'
    */
-  router.post("/hostel", controller.createHostelAccommodation);
+  router.post("/hostel", adminAuth, controller.createHostelAccommodation);
 
   /**
    * @swagger
    * /accommodation/hotel:
    *   post:
-   *     summary: Create hotel accommodation
+   *     summary: Create hotel accommodation (Admin)
    *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -140,26 +197,16 @@ export default function registerAccommodationRoutes(app: Router) {
    *             schema:
    *               $ref: '#/components/schemas/ApiResponse'
    */
-  router.post("/hotel", controller.createHotelAccommodation);
+  router.post("/hotel", adminAuth, controller.createHotelAccommodation);
 
   /**
    * @swagger
-   * /accommodation/categories:
+   * /accommodation/categories/{eventId}:
    *   get:
-   *     summary: Get all accommodation categories
+   *     summary: Get all accommodation categories (user)
    *     tags: [Accommodation]
-   *     responses:
-   *       200:
-   *         description: Categories retrieved successfully
-   */
-  router.get("/categories", controller.getAllCategoriesInfo);
-
-  /**
-   * @swagger
-   * /accommodation/delete-accommodation/{accommodationId}:
-   *   delete:
-   *     summary: Delete an accommodation
-   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: accommodationId
@@ -168,16 +215,54 @@ export default function registerAccommodationRoutes(app: Router) {
    *           type: string
    *     responses:
    *       200:
-   *         description: Accommodation deleted successfully
-   *       404:
-   *         description: Accommodation not found
+   *         description: Categories retrieved successfully
    */
+  router.get("/categories/:eventId", auth, controller.getAllCategoriesInfo);
+
+  /**
+   * @swagger
+   * /accommodation/admin/categories/{eventId}:
+   *   get:
+   *     summary: Get all accommodation categories (Admin)
+   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: accommodationId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Categories retrieved successfully
+   */
+  router.get(
+    "/admin/categories/:eventId",
+    adminAuth,
+    controller.getAllCategoriesInfo,
+  );
+
+  /**
+   * @swagger
+   * /accommodation/hostel/unoccupied:
+   *   get:
+   *     summary: Get all hostel spaces left (All)
+   *     tags: [Accommodation]
+   *     responses:
+   *       200:
+   *         description:  Successfully
+   */
+  router.get(
+    "/hostel/unoccupied",
+    controller.getHostelSpacesLeft,
+  );
 
   /**
    * @swagger
    * /accommodation/initialize:
    *   post:
-   *     summary: Initialize payment for accommodation booking
+   *     summary: Initialize payment for accommodation booking (User)
    *     tags: [Accommodation]
    *     security:
    *       - bearerAuth: []
@@ -208,8 +293,30 @@ export default function registerAccommodationRoutes(app: Router) {
    */
   router.post("/initialize", auth, controller.createAccommodationRequest);
 
+  /**
+   * @swagger
+   * /accommodation/delete-accommodation/{accommodationId}:
+   *   delete:
+   *     summary: Delete an accommodation
+   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: accommodationId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Accommodation deleted successfully
+   *       404:
+   *         description: Accommodation not found
+   */
   router.delete("/delete-accommodation/:accommodationId", (_req, res) => {
-    res.status(501).json({ code: "99", message: "Not Implemented", data: null });
+    res
+      .status(501)
+      .json({ code: "99", message: "Not Implemented", data: null });
   });
 
   app.use("/accommodation", router);

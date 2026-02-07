@@ -11,12 +11,17 @@ import {
 
 
 async function dashboard(req: AuthenticatedUser, res: Response) {
-    const userID = req.userId;
-    if (!userID) {
+    const userId = req.userId;
+    const eventId = req.params.eventId;
+    if (!userId) {
         console.log("unauthenticated request to fetch dashboard content")
         return unauthorizedRequest(res, "You must be logged in")
-    } else
-        return await services.fetchDashboard(res, userID);
+    }
+    if (!eventId) {
+        console.log("Event Id not supplied for dashboard fetch")
+        return badRequest(res, "eventId is required")
+    }
+    return await services.fetchDashboard(res, userId, eventId);
 }
 
 async function addDependant(req: AuthenticatedUser, res: Response) {

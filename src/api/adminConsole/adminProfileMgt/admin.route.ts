@@ -16,7 +16,7 @@ export default function registerAdminRoutes(app: Router) {
      * @swagger
      * /admin-user-x:
      *   post:
-     *     summary: Create a new admin user profile
+     *     summary: Create a new admin user profile (Admin)
      *     tags: [Admin Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -44,7 +44,7 @@ export default function registerAdminRoutes(app: Router) {
      * @swagger
      * /admin-user-x:
      *   get:
-     *     summary: Get current admin user profile
+     *     summary: Get current admin user profile (Admin)
      *     tags: [Admin Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -64,7 +64,7 @@ export default function registerAdminRoutes(app: Router) {
      * @swagger
      * /admin-user-x/{id}:
      *   put:
-     *     summary: Update an admin user profile
+     *     summary: Update an admin user profile (Admin)
      *     tags: [Admin Profile Management]
      *     security:
      *       - bearerAuth: []
@@ -101,7 +101,7 @@ export default function registerAdminRoutes(app: Router) {
      * @swagger
      * /admin-user-x/{id}:
      *   delete:
-     *     summary: Delete an admin user profile
+     *     summary: Delete an admin user profile (Admin)
      *     tags: [Admin Profile Management]
      *     security:
      *       - bearerAuth: []

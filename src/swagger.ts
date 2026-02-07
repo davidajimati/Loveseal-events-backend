@@ -24,7 +24,8 @@ const options: swaggerJSDoc.Options = {
             },
             {
                 name: "User Dashboard",
-                description: "User dashboard operations including dependants and accommodation booking",
+                description:
+                    "User dashboard operations including dependants and accommodation booking",
             },
             {
                 name: "AdminAuth",
@@ -44,7 +45,8 @@ const options: swaggerJSDoc.Options = {
             },
             {
                 name: "Accommodation",
-                description: "Accommodation, facilities, hotels, and hostels management",
+                description:
+                    "Accommodation, facilities, hotels, and hostels management",
             },
             {
                 name: "Accommodation Allocation",
@@ -78,13 +80,23 @@ const options: swaggerJSDoc.Options = {
                 GenerateOtpRequest: {
                     type: "object",
                     required: ["email"],
-                    properties: {email: {type: "string", format: "email", example: "user@example.com"}},
+                    properties: {
+                        email: {
+                            type: "string",
+                            format: "email",
+                            example: "user@example.com",
+                        },
+                    },
                 },
                 ValidateOtpRequest: {
                     type: "object",
                     required: ["email", "otp", "otpReference"],
                     properties: {
-                        email: {type: "string", format: "email", example: "user@example.com"},
+                        email: {
+                            type: "string",
+                            format: "email",
+                            example: "user@example.com",
+                        },
                         otp: {type: "string", example: "123456"},
                         otpReference: {type: "string", example: "ref_abc123"},
                     },
@@ -92,7 +104,13 @@ const options: swaggerJSDoc.Options = {
                 RegistrantOtpRequest: {
                     type: "object",
                     required: ["email"],
-                    properties: {email: {type: "string", format: "email", example: "registrant@example.com"}},
+                    properties: {
+                        email: {
+                            type: "string",
+                            format: "email",
+                            example: "registrant@example.com",
+                        },
+                    },
                 },
 
                 // User profile
@@ -110,12 +128,12 @@ const options: swaggerJSDoc.Options = {
                         maritalStatus: {
                             type: "string",
                             enum: ["SINGLE", "MARRIED", "SEPARATED", "DIVORCED", "WIDOWED"],
-                            nullable: true
+                            nullable: true,
                         },
                         employmentStatus: {
                             type: "string",
                             enum: ["EMPLOYED", "UNEMPLOYED", "SELF_EMPLOYED"],
-                            nullable: true
+                            nullable: true,
                         },
                         stateOfResidence: {type: "string", nullable: true},
                     },
@@ -136,9 +154,12 @@ const options: swaggerJSDoc.Options = {
                         localAssembly: {type: "string"},
                         maritalStatus: {
                             type: "string",
-                            enum: ["SINGLE", "MARRIED", "SEPARATED", "DIVORCED", "WIDOWED"]
+                            enum: ["SINGLE", "MARRIED", "SEPARATED", "DIVORCED", "WIDOWED"],
                         },
-                        employmentStatus: {type: "string", enum: ["EMPLOYED", "UNEMPLOYED", "SELF_EMPLOYED"]},
+                        employmentStatus: {
+                            type: "string",
+                            enum: ["EMPLOYED", "UNEMPLOYED", "SELF_EMPLOYED"],
+                        },
                         createdAt: {type: "string", format: "date-time"},
                         updatedAt: {type: "string", format: "date-time"},
                         stateOfResidence: {type: "string"},
@@ -156,7 +177,13 @@ const options: swaggerJSDoc.Options = {
                         email: {type: "string", format: "email"},
                         role: {
                             type: "string",
-                            enum: ["ADMIN", "SPECTATOR", "EVENT_MANAGER", "FINANCE_ADMIN", "ACCOMMODATION_ADMIN"]
+                            enum: [
+                                "ADMIN",
+                                "SPECTATOR",
+                                "EVENT_MANAGER",
+                                "FINANCE_ADMIN",
+                                "ACCOMMODATION_ADMIN",
+                            ],
                         },
                         userName: {type: "string", minLength: 3},
                     },
@@ -168,7 +195,13 @@ const options: swaggerJSDoc.Options = {
                         lastName: {type: "string", minLength: 1},
                         role: {
                             type: "string",
-                            enum: ["ADMIN", "SPECTATOR", "EVENT_MANAGER", "FINANCE_ADMIN", "ACCOMMODATION_ADMIN"]
+                            enum: [
+                                "ADMIN",
+                                "SPECTATOR",
+                                "EVENT_MANAGER",
+                                "FINANCE_ADMIN",
+                                "ACCOMMODATION_ADMIN",
+                            ],
                         },
                         userName: {type: "string", minLength: 3},
                     },
@@ -182,6 +215,7 @@ const options: swaggerJSDoc.Options = {
                         "eventOwnerId",
                         "eventYear",
                         "eventName",
+                        "venue",
                         "startDate",
                         "endDate",
                         "eventStatus",
@@ -195,7 +229,10 @@ const options: swaggerJSDoc.Options = {
                         eventName: {type: "string", minLength: 3},
                         startDate: {type: "string", format: "date-time"},
                         endDate: {type: "string", format: "date-time"},
-                        eventStatus: {type: "string", enum: ["DRAFT", "ACTIVE", "CLOSED"]},
+                        eventStatus: {
+                            type: "string",
+                            enum: ["DRAFT", "ACTIVE", "CLOSED"],
+                        },
                         accommodationNeeded: {type: "boolean", default: false},
                         registrationOpenAt: {type: "string", format: "date-time"},
                         registrationCloseAt: {type: "string", format: "date-time"},
@@ -207,7 +244,10 @@ const options: swaggerJSDoc.Options = {
                         eventName: {type: "string", minLength: 3},
                         startDate: {type: "string", format: "date-time"},
                         endDate: {type: "string", format: "date-time"},
-                        eventStatus: {type: "string", enum: ["DRAFT", "ACTIVE", "CLOSED"]},
+                        eventStatus: {
+                            type: "string",
+                            enum: ["DRAFT", "ACTIVE", "CLOSED"],
+                        },
                         accommodationNeeded: {type: "boolean"},
                         registrationOpenAt: {type: "string", format: "date-time"},
                         registrationCloseAt: {type: "string", format: "date-time"},
@@ -220,18 +260,35 @@ const options: swaggerJSDoc.Options = {
                     required: ["eventId", "participationMode", "accommodationType"],
                     properties: {
                         eventId: {type: "string", format: "uuid"},
-                        participationMode: {type: "string", enum: ["CAMPER", "ATTENDEE", "ONLINE"]},
-                        accommodationType: {type: "string", enum: ["HOSTEL", "HOTEL", "NONE"]},
+                        participationMode: {
+                            type: "string",
+                            enum: ["CAMPER", "ATTENDEE", "ONLINE"],
+                        },
+                        accommodationType: {
+                            type: "string",
+                            enum: ["HOSTEL", "HOTEL", "NONE"],
+                        },
                     },
                 },
                 CreateEventRegistrationRequestAdmin: {
                     type: "object",
-                    required: ["userId", "eventId", "participationMode", "accommodationType"],
+                    required: [
+                        "userId",
+                        "eventId",
+                        "participationMode",
+                        "accommodationType",
+                    ],
                     properties: {
                         userId: {type: "string", format: "uuid"},
                         eventId: {type: "string", format: "uuid"},
-                        participationMode: {type: "string", enum: ["CAMPER", "ATTENDEE", "ONLINE"]},
-                        accommodationType: {type: "string", enum: ["HOSTEL", "HOTEL", "NONE"]},
+                        participationMode: {
+                            type: "string",
+                            enum: ["CAMPER", "ATTENDEE", "ONLINE"],
+                        },
+                        accommodationType: {
+                            type: "string",
+                            enum: ["HOSTEL", "HOTEL", "NONE"],
+                        },
                     },
                 },
                 UpdateEventRegistrationRequest: {
@@ -239,9 +296,15 @@ const options: swaggerJSDoc.Options = {
                     properties: {
                         userId: {type: "string", format: "uuid"},
                         eventId: {type: "string", format: "uuid"},
-                        participationMode: {type: "string", enum: ["CAMPER", "ATTENDEE", "ONLINE"]},
+                        participationMode: {
+                            type: "string",
+                            enum: ["CAMPER", "ATTENDEE", "ONLINE"],
+                        },
                         initiator: {type: "string", enum: ["USER", "ADMIN"]},
-                        accommodationType: {type: "string", enum: ["HOSTEL", "HOTEL", "NONE"]},
+                        accommodationType: {
+                            type: "string",
+                            enum: ["HOSTEL", "HOTEL", "NONE"],
+                        },
                     },
                 },
 
@@ -279,7 +342,14 @@ const options: swaggerJSDoc.Options = {
                 },
                 CreateHostelAccommodationRequest: {
                     type: "object",
-                    required: ["facilityId", "roomCode", "roomIdentifier", "capacity", "genderRestriction", "adminReserved"],
+                    required: [
+                        "facilityId",
+                        "roomCode",
+                        "roomIdentifier",
+                        "capacity",
+                        "genderRestriction",
+                        "adminReserved",
+                    ],
                     properties: {
                         facilityId: {type: "string"},
                         roomCode: {type: "string"},
@@ -349,13 +419,24 @@ const options: swaggerJSDoc.Options = {
                         event: {type: "string", example: "charge.success"},
                         data: {
                             type: "object",
-                            required: ["reference", "currency", "amount", "fee", "status", "payment_method"],
+                            required: [
+                                "reference",
+                                "currency",
+                                "amount",
+                                "fee",
+                                "status",
+                                "payment_method",
+                            ],
                             properties: {
                                 reference: {type: "string", example: "ref_abc123"},
                                 currency: {type: "string", example: "NGN"},
                                 amount: {type: "number", example: 5000},
                                 fee: {type: "number", example: 100},
-                                status: {type: "string", enum: ["success", "failed"], example: "success"},
+                                status: {
+                                    type: "string",
+                                    enum: ["success", "failed"],
+                                    example: "success",
+                                },
                                 payment_method: {type: "string", example: "card"},
                                 payment_reference: {type: "string"},
                             },
@@ -386,11 +467,30 @@ const options: swaggerJSDoc.Options = {
                 // Allocation
                 InitiateAccommodationAllocationRequest: {
                     type: "object",
-                    required: ["eventId", "userId", "facilityid"],
+                    required: ["registrationId", "eventId", "userId", "facilityid"],
                     properties: {
+                        registrationId: {type: "string"},
                         eventId: {type: "string"},
                         userId: {type: "string"},
                         facilityid: {type: "string"},
+                    },
+                },
+
+                InitiateHotelAllocationRequest: {
+                    type: "object",
+                    required: [
+                        "registrationId",
+                        "roomTypeId",
+                        "eventId",
+                        "userId",
+                        "facilityId",
+                    ],
+                    properties: {
+                        registrationId: {type: "string"},
+                        roomTypeId: {type: "string"},
+                        eventId: {type: "string"},
+                        userId: {type: "string"},
+                        facilityId: {type: "string"},
                     },
                 },
             },
@@ -412,14 +512,16 @@ const options: swaggerJSDoc.Options = {
     ],
 };
 
-
 export const swaggerSpec = swaggerJSDoc(options);
 
 export const swaggerUiOptions = {
     swaggerOptions: {
         operationsSorter: (a: any, b: any) => {
             const order = ["get", "post", "put", "patch", "delete"];
-            return order.indexOf(a.get("method").toLowerCase()) - order.indexOf(b.get("method").toLowerCase());
+            return (
+                order.indexOf(a.get("method").toLowerCase()) -
+                order.indexOf(b.get("method").toLowerCase())
+            );
         },
     },
 };

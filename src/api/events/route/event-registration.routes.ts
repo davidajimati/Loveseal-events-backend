@@ -17,7 +17,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/my-registrations:
      *   get:
-     *     summary: Get current user's event registrations
+     *     summary: Get current user's event registrations (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -64,7 +64,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations:
      *   post:
-     *     summary: Create a new event registration (user-initiated)
+     *     summary: Create a new event registration (user-initiated) (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -90,9 +90,9 @@ export default function registerEventRegistrationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /registrations:
+     * /registrations/all:
      *   get:
-     *     summary: Get all event registrations (admin only)
+     *     summary: Get all event registrations for all events (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -133,13 +133,13 @@ export default function registerEventRegistrationRoutes(app: Router) {
      *       401:
      *         description: Unauthorized - Admin authentication required
      */
-    router.get("/", adminAuth, (req, res) => eventRegistrationController.getAllRegistrations(req, res));
+    router.get("/all", adminAuth, (req, res) => eventRegistrationController.getAllRegistrations(req, res));
 
     /**
      * @swagger
      * /registrations/event/{eventId}:
      *   get:
-     *     summary: Get all registrations for a specific event (admin only)
+     *     summary: Get all registrations for a specific event (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -195,7 +195,7 @@ export default function registerEventRegistrationRoutes(app: Router) {
      * @swagger
      * /registrations/{id}:
      *   get:
-     *     summary: Get registration by ID
+     *     summary: Get registration by ID (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -225,9 +225,9 @@ export default function registerEventRegistrationRoutes(app: Router) {
 
     /**
      * @swagger
-     * /registrations/admin:
+     * /registrations/admin/create:
      *   post:
-     *     summary: Create a new event registration (admin-initiated)
+     *     summary: Create a new event registration (Admin)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -249,13 +249,13 @@ export default function registerEventRegistrationRoutes(app: Router) {
      *       401:
      *         description: Unauthorized - Admin authentication required
      */
-    router.post("/admin", adminAuth, (req, res) => eventRegistrationController.adminCreateRegistration(req, res));
+    router.post("/admin/create", adminAuth, (req, res) => eventRegistrationController.adminCreateRegistration(req, res));
 
     /**
      * @swagger
      * /registrations/{id}:
      *   put:
-     *     summary: Update an event registration (admin only)
+     *     summary: Update an event registration (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -287,13 +287,52 @@ export default function registerEventRegistrationRoutes(app: Router) {
      *       404:
      *         description: Registration not found
      */
-    router.put("/:id", adminAuth, (req, res) => eventRegistrationController.updateRegistration(req, res));
+    router.put("/:id", auth, (req, res) => eventRegistrationController.updateRegistration(req, res));
+
+
+  /**
+     * @swagger
+     * /admin/registrations/{id}:
+     *   put:
+     *     summary: Update an event registration for user(Admin)
+     *     tags: [Event Registrations]
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *         description: Registration ID
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/UpdateEventRegistrationRequest'
+     *     responses:
+     *       200:
+     *         description: Registration updated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       400:
+     *         description: Invalid request payload or registration ID
+     *       401:
+     *         description: Unauthorized - Admin authentication required
+     *       404:
+     *         description: Registration not found
+     */
+    router.put("/admin/:id", adminAuth, (req, res) => eventRegistrationController.updateRegistration(req, res));
 
     /**
      * @swagger
      * /registrations/{id}:
      *   delete:
-     *     summary: Delete an event registration (admin only)
+     *     summary: Delete an event registration (User)
      *     tags: [Event Registrations]
      *     security:
      *       - bearerAuth: []
@@ -319,7 +358,40 @@ export default function registerEventRegistrationRoutes(app: Router) {
      *       404:
      *         description: Registration not found
      */
-    router.delete("/:id", adminAuth, (req, res) => eventRegistrationController.deleteRegistration(req, res));
+    router.delete("/:id", auth, (req, res) => eventRegistrationController.deleteRegistration(req, res));
+
+
+    /**
+     * @swagger
+     * /registrations/admin/:regId:
+     *   delete:
+     *     summary: Delete an event registration for user (Admin)
+     *     tags: [Event Registrations]
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *         description: Registration ID
+     *     responses:
+     *       200:
+     *         description: Registration deleted successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       400:
+     *         description: Invalid registration ID
+     *       401:
+     *         description: Unauthorized - Admin authentication required
+     *       404:
+     *         description: Registration not found
+     */
+    router.delete("/admin/:id", adminAuth, (req, res) => eventRegistrationController.adminDeleteRegistration(req, res));
 
     app.use("/registrations", router);
 }

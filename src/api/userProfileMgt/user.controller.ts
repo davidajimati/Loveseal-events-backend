@@ -6,7 +6,7 @@ import type {AuthenticatedAdminUser} from "../middleware/adminAuth.js";
 import {createUserSchema, updateUserSchema} from "./user.model.js";
 import {handleZodError} from "../exceptions/exceptionsHandler.js";
 import {updateProfile} from "./user.service.js";
-import {badRequest, forbiddenRequest, unauthorizedRequest} from "../ApiResponseContract.js";
+import {forbiddenRequest} from "../ApiResponseContract.js";
 
 
 async function getUsersCount(req: AuthenticatedAdminUser, res: Response) {

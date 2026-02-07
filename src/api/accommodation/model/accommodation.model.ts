@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const categoryEnum = z.enum(["HOSTEL", "HOTEL", "NONE"]);
+const categoryEnum = z.enum(["HOSTEL", "HOTEL", "NONE", "SHARED_APARTMENT"]);
 
 const createAccommodationFacilitySchema = z.object({
   eventId: z.string().trim(),
@@ -13,11 +13,14 @@ const createAccommodationFacilitySchema = z.object({
   totalCapacity: z.number().min(0),
 });
 
-const createAccommodationCategorySchema = z.array(
-  z.object({
-    name: categoryEnum,
-  }),
-);
+const createAccommodationCategorySchema = z.object({
+  eventId: z.string().trim(),
+  categories: z.array(
+    z.object({
+      name: categoryEnum,
+    }),
+  ),
+});
 
 const createHostelAccommodationSchema = z.object({
   facilityId: z.string().trim(),
@@ -30,8 +33,7 @@ const createHostelAccommodationSchema = z.object({
 
 const createHotelAccommodationSchema = z.object({
   facilityId: z.string().trim(),
-  hotelCode: z.string().trim(),
-  hotelIdentifier: z.string().trim(),
+  roomType: z.string().trim(),
   address: z.string(),
   description: z.string().trim(),
   available: z.boolean(),

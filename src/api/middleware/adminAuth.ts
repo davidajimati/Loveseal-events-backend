@@ -2,6 +2,7 @@ import jwt, {type JwtPayload} from "jsonwebtoken";
 import * as response from "../ApiResponseContract.js";
 import type {NextFunction, Request, Response} from 'express';
 import {unauthorizedRequest} from "../ApiResponseContract.js";
+import * as service from "../authAdmin/adminAuth.service.js";
 
 
 export interface AuthenticatedAdminUser extends Request {
@@ -10,7 +11,13 @@ export interface AuthenticatedAdminUser extends Request {
 }
 
 export default async function adminLogin(req: AuthenticatedAdminUser, res: Response, next: NextFunction) {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
+    if (!token) {
+        console.log("login error: missing token")
+        return unauthorizedRequest(res, "missing or invalid token")
+    }
+    token = token.replace("Bearer ", "");
+
     if (token != null) {
 
         const SECRET = process.env.ADMIN_JWT_SECRET as string;
