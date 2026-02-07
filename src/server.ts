@@ -49,7 +49,26 @@ app.use(compression());
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 dns.setDefaultResultOrder("ipv4first");
+app.set("trust proxy", true);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+    let ip = req.headers["x-forwarded-for"] as string | undefined;
+    if (!ip) {
+        console.log("==> x-forwarded-for not present")
+    }
+    if (ip) {
+        // @ts-ignore
+        ip = ip.split(",")[0].trim();
+        console.log("==> client IP address: " + ip);
+    } else {
+        ip = req.socket.remoteAddress || "";
+        console.log("==> client IP address: " + ip);
+    }
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - IP: ${ip}`);
+    next();
+});
+
 
 registerUserRoutes(app);
 registerAdminRoutes(app);
