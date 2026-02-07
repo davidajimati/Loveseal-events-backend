@@ -48,13 +48,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug repo files
-        run: |
-         ls -la
-         test -f package.json
-         test -f package-lock.json
-         test -f Dockerfile
-
       - name: Checkout source
         uses: actions/checkout@v4
 
