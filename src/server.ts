@@ -2,7 +2,7 @@ import dns from "dns";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { swaggerSpec, swaggerUiOptions } from "./swagger.js"
+import {swaggerSpec, swaggerUiOptions} from "./swagger.js"
 import swaggerUi from "swagger-ui-express";
 import compression from "compression";
 import registerBillingRoutes from "./api/billing/route/billing.routes.js";
@@ -13,15 +13,16 @@ import registerUserAuthRoutes from "./api/authUser/userAuth.route.js";
 import registerAdminAuthRoutes from "./api/authAdmin/adminAuth.route.js";
 import registerAccommodationRoutes from "./api/accommodation/route/accommodation.routes.js";
 import type {
-  Request,
-  Response,
-  NextFunction,
-  ErrorRequestHandler,
+    Request,
+    Response,
+    NextFunction,
+    ErrorRequestHandler,
 } from "express";
 import registerEventRoutes from "./api/events/route/events.routes.js";
 import registerEventRegistrationRoutes from "./api/events/route/event-registration.routes.js";
 import registerAllocationRoutes from "./api/accommodation/route/allocation.routes.js";
 import userDashboardRoutes from "./api/userDashboard/user.dashboard.route.js";
+import registerAdminDashboardRoutes from "./api/adminConsole/adminDashboard/admin.dashboard.route.js";
 
 
 dotenv.config();
@@ -59,8 +60,9 @@ registerBillingRoutes(app);
 registerUserAuthRoutes(app);
 registerEmailingRoutes(app);
 registerAdminAuthRoutes(app);
-registerAccommodationRoutes(app);
 registerAllocationRoutes(app)
+registerAccommodationRoutes(app);
+registerAdminDashboardRoutes(app)
 registerEventRegistrationRoutes(app);
 
 app.use(handleInvalidPayload);

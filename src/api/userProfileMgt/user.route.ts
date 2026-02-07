@@ -12,27 +12,7 @@ import auth from "../middleware/auth.js";
 
 export default function registerUserRoutes(app: Router) {
     const router = Router();
-
-    /**
-     * @swagger
-     * /user/{userId}:
-     *   get:
-     *     summary: Get user profile (Admin)
-     *     tags: [User Profile Management]
-     *     security:
-     *       - bearerAuth: []
-     *     responses:
-     *       200:
-     *         description: User profile retrieved successfully
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/ApiResponse'
-     *       401:
-     *         description: Unauthorized - Authentication required
-     */
-    router.get("/:userId", adminAuth, controller.getUserProfileForAdmin)
-
+    
     /**
      * @swagger
      * /user:

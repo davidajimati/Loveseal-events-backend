@@ -6,7 +6,7 @@ import type {AuthenticatedAdminUser} from "../middleware/adminAuth.js";
 import {createUserSchema, updateUserSchema} from "./user.model.js";
 import {handleZodError} from "../exceptions/exceptionsHandler.js";
 import {updateProfile} from "./user.service.js";
-import {badRequest, forbiddenRequest, unauthorizedRequest} from "../ApiResponseContract.js";
+import {forbiddenRequest} from "../ApiResponseContract.js";
 
 
 async function getUsersCount(req: AuthenticatedAdminUser, res: Response) {
@@ -21,18 +21,6 @@ async function getUserProfile(req: AuthenticatedUser, res: Response) {
         return response.unauthorizedRequest(res, "Request not authorized. please try again later");
     }
     return await service.getUserProfileInfo(res, req.userId);
-}
-
-async function getUserProfileForAdmin(req: AuthenticatedAdminUser, res: Response) {
-    if (!req.adminId) {
-        return response.unauthorizedRequest(res, "Request not authorized. please try again later");
-    }
-    const userId =  req.params.userId;
-    if (!userId) {
-        console.log("getUserProfileForAdmin: no userId provided");
-        return response.badRequest(res, "No userId provided");
-    }
-    return await service.getUserProfileInfo(res, userId);
 }
 
 async function createUserProfile(req: AuthenticatedUser, res: Response) {
@@ -69,6 +57,5 @@ export {
     getUserProfile,
     createUserProfile,
     updateUserProfile,
-    deleteUserProfile,
-    getUserProfileForAdmin
+    deleteUserProfile
 }

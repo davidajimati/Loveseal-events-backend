@@ -72,7 +72,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
             accommodation: {
                 requiresAccommodation: (regRecord.accommodationType ?? "NONE") !== "NONE",
                 paidForAccommodation: paymentSuccessful,
-                ...(paymentRecord?.amount !== undefined && {amountPaidForAccommodation: paymentRecord.amount}),
+                ...(((paymentRecord?.amount !== undefined && paymentSuccessful) ? {amountPaidForAccommodation: paymentRecord.amount} : {amountPaidForAccommodation: 0})),
                 ...(regRecord.accommodationType != null && {accommodationType: regRecord.accommodationType.toString()}),
                 room: regRecord.accommodationDetails,
                 accommodationImageUrl: "",
