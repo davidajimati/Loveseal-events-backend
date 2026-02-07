@@ -9,10 +9,16 @@ import {
     payForDependantSchema
 } from "./user.dashboard.model.js";
 
+function asSingleString(value: unknown): string | undefined {
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) return typeof value[0] === "string" ? value[0] : undefined;
+    return undefined;
+}
+
 
 async function dashboard(req: AuthenticatedUser, res: Response) {
     const userId = req.userId;
-    const eventId = req.params.eventId;
+    const eventId = asSingleString((req.params as any).eventId);
     if (!userId) {
         console.log("unauthenticated request to fetch dashboard content")
         return unauthorizedRequest(res, "You must be logged in")
@@ -37,7 +43,7 @@ async function addDependant(req: AuthenticatedUser, res: Response) {
 
 async function removeDependant(req: AuthenticatedUser, res: Response) {
     const userID = req.userId;
-    const dependantId = req.params.id;
+    const dependantId = asSingleString((req.params as any).id);
     if (!userID) {
         console.log("unauthenticated request to fetch dashboard content")
         return unauthorizedRequest(res, "You must be logged in")
