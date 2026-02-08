@@ -40,7 +40,6 @@ env:
   ECS_CLUSTER: smflxBackendCluster
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: SmflxBackend
-  IMAGE_TAG: 361995293294.dkr.ecr.us-east-1.amazonaws.com/loveseal-events-backend:latest
 
 jobs:
   deploy:
@@ -65,10 +64,16 @@ jobs:
       - name: Build, tag, and push image to ECR
         id: build-image
         run: |
-          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          docker build -t $IMAGE_URI .
-          docker push $IMAGE_URI
-          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+          # Tag with immutable commit SHA for deployments + also keep a moving `latest` tag
+          IMAGE_URI_SHA=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          IMAGE_URI_LATEST=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+          docker build -t $IMAGE_URI_SHA -t $IMAGE_URI_LATEST .
+          docker push $IMAGE_URI_SHA
+          docker push $IMAGE_URI_LATEST
+
+          # Deploy the immutable image tag (SHA) to avoid surprise rollbacks
+          echo "image=$IMAGE_URI_SHA" >> $GITHUB_OUTPUT
 
       - name: Fill in new image ID in task definition
         id: task-def
