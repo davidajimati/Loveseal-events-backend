@@ -40,7 +40,7 @@ env:
   ECS_CLUSTER: smflxBackendCluster
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: SmflxBackend
-  IMAGE_TAG: latest
+  IMAGE_TAG: 361995293294.dkr.ecr.us-east-1.amazonaws.com/loveseal-events-backend:latest
 
 jobs:
   deploy:
