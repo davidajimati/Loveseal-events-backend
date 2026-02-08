@@ -27,6 +27,16 @@ COPY tsconfig.json ./
 # Build the app (creates /dist)
 RUN npm run build
 
+# Debug output
+RUN echo "===== CURRENT DIR =====" \
+ && pwd \
+ && echo "===== ROOT CONTENT =====" \
+ && ls -la \
+ && echo "===== DIST CONTENT =====" \
+ && ls -la dist || true \
+ && echo "===== DIST TREE =====" \
+ && find dist -maxdepth 3 -type f || true
+
 
 ############################
 # Runtime stage
