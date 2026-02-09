@@ -39,9 +39,10 @@ const handleInvalidPayload: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 const corsOptions = {
-    origin: "*",
-    method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    origin: ["https://smflx.org", "https://events.smflx.org", "https://admin.smflx.org", "https://api.smflx.org"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }
 
 app.use(express.json());
