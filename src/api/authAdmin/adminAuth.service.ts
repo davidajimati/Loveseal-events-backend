@@ -7,7 +7,18 @@ import { sendEmailViaSes } from "../emailing/comms.service.js";
 import { type otpValidationType } from "../authUser/userAuth.model.js";
 import { type adminUserInformationInterface } from "./adminAuth.model.js";
 import { EmailingService } from "../emailing/brevo/notification.service.js";
-import type { TextNotifyRequest } from "../emailing/model/notification.model.js";
+import type { HtmlNotifyRequest } from "../emailing/model/notification.model.js";
+import { fileURLToPath } from "url";
+import fs from "fs";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const htmlContent = fs.readFileSync(
+  path.join(__dirname, "../../static/templates/otp.html"),
+  "utf8",
+);
 
 const prisma = new PrismaClient();
 
@@ -109,15 +120,27 @@ async function generateOtp(res: Response, email: string, otpReason: string) {
     const otpReference: string = randomUUID();
     const emailService = new EmailingService();
 
-    const emailData: TextNotifyRequest = {
+    const emailData: HtmlNotifyRequest = {
       email: email,
       subject: "EMAIL CONFIRMATION",
-      textContent: `Your Confirmation OTP is ${otp}`,
+      params: {
+        loginDate: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        userName: "User",
+        otpCode: `${otp}`,
+      },
+      htmlContent: htmlContent,
     };
 
-    const emailSent = await emailService.sendTextContent(res, emailData);
+    const emailSent = await emailService.sendHtmlContent(res, emailData);
     if (!emailSent) {
-      return response.internalServerError(res, "Error sending OTP. Please try again");
+      return response.internalServerError(
+        res,
+        "Error sending OTP. Please try again",
+      );
     }
 
     const otpResponse = {

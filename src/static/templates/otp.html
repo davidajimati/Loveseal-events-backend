@@ -18,7 +18,7 @@
           <tr>
             <td align="center" style="background-color:#8B2E00; padding:20px;">
               <img 
-                src="../images//smflx_logo.png" 
+                src="https://smflx-image-buck.s3.us-east-1.amazonaws.com/smflx_logo.png" 
                 alt="SMFLX" 
                 width="120"
                 style="display:block;"
@@ -30,7 +30,7 @@
           <tr>
             <td align="center" style="padding:0;">
               <img
-                src="../images//noise_texture.png"
+                src="https://smflx-image-buck.s3.us-east-1.amazonaws.com/noise_texture.png"
                 alt="Account Verification"
                 width="600"
                 style="width:100%; max-width:600px; display:block;"
@@ -43,11 +43,11 @@
             <td style="padding:30px; color:#333333; font-size:15px; line-height:1.6;">
 
               <p style="margin-top:0;">
-                Dearly Beloved {{user_name}},
+                Dearly Beloved {{params.userName}},
               </p>
 
               <p>
-                We refer to your login request initiated on {{login_date_time}}.
+                We refer to your login request initiated on {{params.loginDate}}.
                 To verify your account, please use the following one-time password (OTP) code:
               </p>
 
@@ -67,7 +67,7 @@
                         border-radius:6px;
                         border:1px solid #f2caca;
                       ">
-                      {{otp_code}}
+                      {{params.otpCode}}
                     </div>
                   </td>
                 </tr>
