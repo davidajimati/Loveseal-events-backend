@@ -39,9 +39,10 @@ const handleInvalidPayload: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 const corsOptions = {
-    origin: "*",
-    method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    origin: ["https://smflx.org", "https://events.smflx.org", "https://admin.smflx.org", "https://api.smflx.org"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }
 
 app.use(express.json());
@@ -54,17 +55,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOpti
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     let ip = req.headers["x-forwarded-for"] as string | undefined;
-    if (!ip) {
-        console.log("==> x-forwarded-for not present")
-    }
-    if (ip) {
-        // @ts-ignore
-        ip = ip.split(",")[0].trim();
-        console.log("==> client IP address: " + ip);
-    } else {
-        ip = req.socket.remoteAddress || "";
-        console.log("==> client IP address: " + ip);
-    }
+
+    // @ts-ignore
+    if (ip) ip = ip.split(",")[0].trim();
+    else ip = req.socket.remoteAddress || "";
+
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - IP: ${ip}`);
     next();
 });
