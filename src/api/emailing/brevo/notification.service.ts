@@ -44,6 +44,7 @@ export class EmailingService {
           },
         ],
         subject: emailData.subject,
+        params: emailData.params,
         htmlContent: emailData.htmlContent,
       };
 

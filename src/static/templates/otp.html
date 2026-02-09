@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Account Verification</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- Main Container -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:6px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background-color:#8B2E00; padding:20px;">
+              <img 
+                src="../images//smflx_logo.png" 
+                alt="SMFLX" 
+                width="120"
+                style="display:block;"
+              />
+            </td>
+          </tr>
+
+          <!-- Banner Image -->
+          <tr>
+            <td align="center" style="padding:0;">
+              <img
+                src="../images//noise_texture.png"
+                alt="Account Verification"
+                width="600"
+                style="width:100%; max-width:600px; display:block;"
+              />
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:30px; color:#333333; font-size:15px; line-height:1.6;">
+
+              <p style="margin-top:0;">
+                Dearly Beloved {{user_name}},
+              </p>
+
+              <p>
+                We refer to your login request initiated on {{login_date_time}}.
+                To verify your account, please use the following one-time password (OTP) code:
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin:25px 0;">
+                <tr>
+                  <td align="center">
+                    <div
+                      style="
+                        display:inline-block;
+                        background-color:#fff3f3;
+                        color:#d60000;
+                        font-size:32px;
+                        letter-spacing:4px;
+                        font-weight:bold;
+                        padding:15px 30px;
+                        border-radius:6px;
+                        border:1px solid #f2caca;
+                      ">
+                      {{otp_code}}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <p>
+                You can now log in to your profile to update your bio-data anytime and anywhere
+                (changes might include: changing your location, relationship status, new dependants, etc.).
+              </p>
+
+              <p>
+                We hope now onward, registering for <strong>WOTHSMFLX</strong> events will be seamless.
+                Welcome once again.
+              </p>
+
+              <p style="margin-bottom:0;">
+                <strong>Keep Journeying,</strong><br/>
+                The Registrar
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb; padding:20px; text-align:center; font-size:12px; color:#777777;">
+              <img 
+                src="{{footer_logo_url}}" 
+                alt="Lively Meetings"
+                width="80"
+                style="display:block; margin:0 auto 10px;"
+              />
+
+              <p style="margin:10px 0;">
+                ©️ {{year}} WayoftheHeartSMFLX. All rights reserved.
+              </p>
+
+              <p style="margin:0;">
+                <a href="{{terms_url}}" style="color:#777777; text-decoration:none;">Terms</a> |
+                <a href="{{privacy_url}}" style="color:#777777; text-decoration:none;">Privacy</a> |
+                <a href="{{cookies_url}}" style="color:#777777; text-decoration:none;">Cookies</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- End Container -->
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
