@@ -45,6 +45,12 @@ export class BillingService {
       },
     });
 
+    const dependent = await prisma.dependantInfoTable.findFirst({
+      where: {
+        paymentReference: req.data.reference,
+      },
+    });
+
     try {
       const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
 
@@ -56,6 +62,17 @@ export class BillingService {
             },
             data: {
               allocationStatus: "ACTIVE",
+            },
+          });
+        }
+
+        if (dependent != null) {
+          await prisma.dependantInfoTable.update({
+            where: {
+              paymentReference: req.data.reference,
+            },
+            data: {
+              paymentStatus: "SUCCESSFUL",
             },
           });
         }
@@ -150,7 +167,7 @@ export class BillingService {
     }
   }
 
-  async populateTable(paymentRequest: InitiatePaymentRequest) {
+  private async populateTable(paymentRequest: InitiatePaymentRequest) {
     await prisma.paymentRecords.create({
       data: {
         amount: paymentRequest.amount,
@@ -165,7 +182,7 @@ export class BillingService {
     });
   }
 
-  mapPaymentResponse(
+  private mapPaymentResponse(
     res: Response,
     koraPayResponse: KoraPayInitiatePaymentResponse,
   ) {
@@ -177,7 +194,7 @@ export class BillingService {
     return response.successResponse(res, paymentResponse);
   }
 
-  async hitThirdPartyEndpoint(
+  private async hitThirdPartyEndpoint(
     res: Response,
     paymentRequest: InitiatePaymentRequest,
   ) {
@@ -207,7 +224,7 @@ export class BillingService {
     }
   }
 
-  async mapKoraPayRequest(
+  private async mapKoraPayRequest(
     res: Response,
     paymentRequest: InitiatePaymentRequest,
   ) {
