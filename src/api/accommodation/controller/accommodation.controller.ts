@@ -20,8 +20,7 @@ async function createFacility(req: Request, res: Response) {
 }
 
 async function createCategories(req: Request, res: Response) {
-   
-
+  
     const result = createAccommodationCategorySchema.safeParse(req.body);
 
     if (!result.success) {

@@ -1,11 +1,11 @@
 import {z} from "zod";
 
 const generateOtpSchema = z.object({
-    email: z.email("invalid email").trim().lowercase()
+    email: z.string().email("invalid email").trim().toLowerCase()
 })
 
 const validateOtpSchema = z.object({
-    email: z.email("A valid email must be provided").trim().lowercase(),
+    email: z.string().email("A valid email must be provided").trim().toLowerCase(),
     otp: z.string().trim(),
     otpReference: z.string().trim(),
 })

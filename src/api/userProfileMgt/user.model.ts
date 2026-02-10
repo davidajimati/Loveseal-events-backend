@@ -20,7 +20,7 @@ const EmploymentStatusEnum = z.enum([
 ]);
 
 const createUserSchema = z.object({
-    email: z.string().email(),
+    email: z.email().toLowerCase(),
     firstName: z.string().min(3),
     lastName: z.string().min(3),
     phoneNumber: z.string(),
@@ -33,7 +33,7 @@ const createUserSchema = z.object({
 });
 
 const updateUserSchema = z.object({
-    email: z.string().email(),
+    email: z.email().toLowerCase(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     emailVerified: z.boolean().optional(),
