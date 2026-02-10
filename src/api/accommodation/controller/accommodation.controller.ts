@@ -20,11 +20,7 @@ async function createFacility(req: Request, res: Response) {
 }
 
 async function createCategories(req: Request, res: Response) {
-    const eventId = asSingleString((req.params as any).eventId);
-
-    if (!eventId) {
-        return response.badRequest(res, "eventId is required");
-    }
+   
 
     const result = createAccommodationCategorySchema.safeParse(req.body);
 

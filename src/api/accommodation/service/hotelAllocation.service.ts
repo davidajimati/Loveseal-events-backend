@@ -93,8 +93,8 @@ export class HotelAllocationService {
       const availableRoom = await tx.$queryRaw<hotelAccommodation[]>`
       SELECT *
       FROM hotel_accommodation_table
-      WHERE "roomTypeId" = ${initiateHotelAllocationRequest.roomTypeId}
-        AND "noOfRoomsOccupied" < "noOfRoomsAvailable"
+      WHERE roomTypeId = ${initiateHotelAllocationRequest.roomTypeId}
+        AND noOfRoomsOccupied < noOfRoomsAvailable
       LIMIT 1
       FOR UPDATE
     `;

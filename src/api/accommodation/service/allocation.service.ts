@@ -71,7 +71,7 @@ export class AllocationService {
       }
       const accType = mapAccommodationType(facility?.categoryRecord.name);
 
-      if (!registeredUser ) {
+      if (!registeredUser) {
         throw new Error("User not registered for this event!");
       }
 
@@ -198,120 +198,124 @@ export class AllocationService {
   //   }
   // }
 
-    private async processHostelAccommodation(
-        res: Response,
-        registeredUser: { regId: string },
-        facility: accommodationFacilities,
-        initiateAllocationRequest: InitiateAccommodationAllocationType,
-    ) {
-        // Run reservation + allocation atomically.
-        // Payment happens AFTER commit. If it fails, compensate.
+  private async processHostelAccommodation(
+    res: Response,
+    registeredUser: { regId: string },
+    facility: accommodationFacilities,
+    initiateAllocationRequest: InitiateAccommodationAllocationType,
+  ) {
+    // Run reservation + allocation atomically.
+    // Payment happens AFTER commit. If it fails, compensate.
 
-        const txnResult = await prisma.$transaction(async (tx) => {
-            // Lock one available room
-            const availableRooms = await tx.$queryRaw<hostelAccommodation[]>`
+    const txnResult = await prisma.$transaction(async (tx) => {
+      // Lock one available room
+      const availableRooms = await tx.$queryRaw<hostelAccommodation[]>`
                 SELECT *
                 FROM hostel_accommodation_table
-                WHERE "facilityId" = ${facility.facilityId}
-                  AND "capacityOccupied" < "capacity"
+                WHERE facilityId = ${facility.facilityId}
+                  AND capacityOccupied < capacity
                 ORDER BY "capacityOccupied" ASC, "roomId" ASC LIMIT 1
                 FOR
                 UPDATE
             `;
+      console.log(availableRooms ,facility.facilityId, "available rooms");
 
-            const room = availableRooms?.[0];
-            if (!room) {
-                throw new HttpError("Accommodation exhausted", 404);
-            }
+      const room = availableRooms?.[0];
+      if (!room) {
+        throw new HttpError("Accommodation exhausted", 404);
+      }
 
-            const user = await tx.userInformation.findFirst({
-                where: { userId: initiateAllocationRequest.userId },
-                select: { employmentStatus: true },
-            });
+      const user = await tx.userInformation.findFirst({
+        where: { userId: initiateAllocationRequest.userId },
+        select: { employmentStatus: true },
+      });
 
-            if (!user) {
-                throw new HttpError("User not found", 404);
-            }
+      if (!user) {
+        throw new HttpError("User not found", 404);
+      }
 
-            // Compute payable amount
-            let amountToBePaid: number | string | null | undefined;
+      // Compute payable amount
+      let amountToBePaid: number | string | null | undefined;
 
-            if (user.employmentStatus === "SELF_EMPLOYED") {
-                amountToBePaid = facility.selfEmployedUserPrice;
-            } else if (user.employmentStatus === "UNEMPLOYED") {
-                amountToBePaid = facility.unemployedUserPrice;
-            } else {
-                amountToBePaid = facility.employedUserPrice;
-            }
+      if (user.employmentStatus === "SELF_EMPLOYED") {
+        amountToBePaid = facility.selfEmployedUserPrice;
+      } else if (user.employmentStatus === "UNEMPLOYED") {
+        amountToBePaid = facility.unemployedUserPrice;
+      } else {
+        amountToBePaid = facility.employedUserPrice;
+      }
 
-            if (amountToBePaid == null) {
-                throw new HttpError("Accommodation pricing is not configured", 400);
-            }
+      if (amountToBePaid == null) {
+        throw new HttpError("Accommodation pricing is not configured", 400);
+      }
 
-            const paymentReference = this.generatePaymentReference();
+      const paymentReference = this.generatePaymentReference();
 
-            const allocation = await tx.hostelAllocations.create({
-                data: {
-                    eventId: facility.eventId,
-                    roomId: room.roomId,
-                    paymentReference,
-                    registrationId: registeredUser.regId,
-                    allocator: "ALGORITHM",
-                    allocatedAt: new Date(),
-                    allocationStatus: mapRoomAllocationStatus("PENDING"),
-                },
-            });
+      const allocation = await tx.hostelAllocations.create({
+        data: {
+          eventId: facility.eventId,
+          roomId: room.roomId,
+          paymentReference,
+          registrationId: registeredUser.regId,
+          allocator: "ALGORITHM",
+          allocatedAt: new Date(),
+          allocationStatus: mapRoomAllocationStatus("PENDING"),
+        },
+      });
 
-            // Increment occupancy
-            await tx.hostelAccommodation.update({
-                where: { roomId: room.roomId },
-                data: { capacityOccupied: { increment: 1 } },
-            });
+      // Increment occupancy
+      await tx.hostelAccommodation.update({
+        where: { roomId: room.roomId },
+        data: { capacityOccupied: { increment: 1 } },
+      });
 
-            await tx.accommodationFacilities.update({
-                where: { facilityId: facility.facilityId },
-                data: { capacityOccupied: { increment: 1 } },
-            });
+      await tx.accommodationFacilities.update({
+        where: { facilityId: facility.facilityId },
+        data: { capacityOccupied: { increment: 1 } },
+      });
 
-            const paymentRequest: InitiatePaymentRequest = {
-                amount: amountToBePaid as any,
-                eventId: initiateAllocationRequest.eventId,
-                reference: paymentReference,
-                userId: initiateAllocationRequest.userId,
-                narration: "HOSTEL PAYMENT",
-            };
+      const paymentRequest: InitiatePaymentRequest = {
+        amount: amountToBePaid as any,
+        eventId: initiateAllocationRequest.eventId,
+        reference: paymentReference,
+        userId: initiateAllocationRequest.userId,
+        narration: "HOSTEL PAYMENT",
+      };
 
-            return {
-                allocationId: allocation.id,
-                roomId: room.roomId,
-                paymentRequest,
-            };
+      return {
+        allocationId: allocation.id,
+        roomId: room.roomId,
+        paymentRequest,
+      };
+    });
+
+    try {
+      await this.billingService.initializePayment(
+        res,
+        txnResult.paymentRequest,
+      );
+    } catch (error) {
+      // Compensation transaction
+      await prisma.$transaction(async (tx) => {
+        await tx.hostelAllocations.update({
+          where: { id: txnResult.allocationId },
+          data: { allocationStatus: mapRoomAllocationStatus("REVOKED") },
         });
 
-        try {
-            await this.billingService.initializePayment(res, txnResult.paymentRequest);
-        } catch (error) {
-            // Compensation transaction
-            await prisma.$transaction(async (tx) => {
-                await tx.hostelAllocations.update({
-                    where: { id: txnResult.allocationId },
-                    data: { allocationStatus: mapRoomAllocationStatus("REVOKED") },
-                });
+        await tx.hostelAccommodation.update({
+          where: { roomId: txnResult.roomId },
+          data: { capacityOccupied: { decrement: 1 } },
+        });
 
-                await tx.hostelAccommodation.update({
-                    where: { roomId: txnResult.roomId },
-                    data: { capacityOccupied: { decrement: 1 } },
-                });
+        await tx.accommodationFacilities.update({
+          where: { facilityId: facility.facilityId },
+          data: { capacityOccupied: { decrement: 1 } },
+        });
+      });
 
-                await tx.accommodationFacilities.update({
-                    where: { facilityId: facility.facilityId },
-                    data: { capacityOccupied: { decrement: 1 } },
-                });
-            });
-
-            throw error;
-        }
+      throw error;
     }
+  }
 
   private async computeHostelAmountToBePaid(
     res: any,
