@@ -76,6 +76,7 @@ CREATE TABLE `loveseal_events_table` (
     `eventName` VARCHAR(191) NOT NULL,
     `startDate` DATETIME(3) NOT NULL,
     `endDate` DATETIME(3) NOT NULL,
+    `venue` VARCHAR(191) NULL,
     `eventStatus` ENUM('DRAFT', 'ACTIVE', 'CLOSED') NOT NULL,
     `accommodationNeeded` BOOLEAN NOT NULL,
     `registrationOpenAt` DATETIME(3) NOT NULL,
@@ -96,8 +97,8 @@ CREATE TABLE `event_registrations_table` (
     `status` ENUM('PENDING', 'CONFIRMED', 'CANCELLED') NULL DEFAULT 'PENDING',
     `registrationCompleted` BOOLEAN NULL,
     `participationMode` ENUM('CAMPER', 'ATTENDEE', 'ONLINE') NOT NULL,
-    `intiator` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
-    `accommodationType` ENUM('HOSTEL', 'HOTEL', 'NONE') NULL DEFAULT 'NONE',
+    `initiator` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `accommodationType` ENUM('HOSTEL', 'HOTEL', 'NONE', 'SHARED_APARTMENT') NULL DEFAULT 'NONE',
     `accommodationAssigned` BOOLEAN NOT NULL,
     `accommodationDetails` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -122,8 +123,8 @@ CREATE TABLE `registrant_dependants_table` (
     `dateCreated` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
 
-    INDEX `registrant_dependants_table_eventId_fkey`(`eventId`),
-    INDEX `registrant_dependants_table_parentRegId_fkey`(`parentRegId`),
+    INDEX `idx_registrant_dependants_table_eventId_fkey`(`eventId`),
+    INDEX `idx_registrant_dependants_table_parentRegId_fkey`(`parentRegId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -193,7 +194,7 @@ CREATE TABLE `hostel_allocations_table` (
     `allocationStatus` ENUM('ACTIVE', 'PENDING', 'REVOKED') NOT NULL,
 
     UNIQUE INDEX `hostel_allocations_table_paymentReference_key`(`paymentReference`),
-    INDEX `paymentReferenceIndex`(`paymentReference`),
+    INDEX `idx_paymentReferenceIndex`(`paymentReference`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -209,8 +210,8 @@ CREATE TABLE `hotel_allocations_table` (
     `allocationStatus` ENUM('ACTIVE', 'PENDING', 'REVOKED') NOT NULL,
 
     UNIQUE INDEX `hotel_allocations_table_paymentReference_key`(`paymentReference`),
-    INDEX `paymentReferenceIndex`(`paymentReference`),
-    INDEX `hotel_allocations_table_hotelRoomId_fkey`(`hotelRoomId`),
+    INDEX `idx_hotel_allocaton_paymentReferenceIndex`(`paymentReference`),
+    INDEX `idx_hotel_allocations_table_hotelRoomId_fkey`(`hotelRoomId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -235,7 +236,8 @@ CREATE TABLE `hotel_accommodation_table` (
 -- CreateTable
 CREATE TABLE `accommodation_categories` (
     `accommodationCategoryId` VARCHAR(191) NOT NULL,
-    `name` ENUM('HOSTEL', 'HOTEL', 'NONE') NOT NULL,
+    `name` ENUM('HOSTEL', 'HOTEL', 'NONE', 'SHARED_APARTMENT') NOT NULL,
+    `eventId` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`accommodationCategoryId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -281,3 +283,6 @@ ALTER TABLE `hotel_allocations_table` ADD CONSTRAINT `hotel_allocations_table_ho
 
 -- AddForeignKey
 ALTER TABLE `hotel_accommodation_table` ADD CONSTRAINT `hotel_accommodation_table_facilityId_fkey` FOREIGN KEY (`facilityId`) REFERENCES `accomodation_facilities`(`facilityId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `accommodation_categories` ADD CONSTRAINT `accommodation_categories_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `loveseal_events_table`(`eventId`) ON DELETE RESTRICT ON UPDATE CASCADE;
