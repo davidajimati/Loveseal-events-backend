@@ -14,6 +14,7 @@ import prisma from "../../../../prisma/Prisma.js";
 import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
 import { HttpError } from "../../exceptions/HttpError.js";
+import type { hostelAccommodation } from "@prisma/client";
 
 export class BillingService {
   async initializePayment(res: Response, req: InitiatePaymentRequest) {
@@ -43,6 +44,9 @@ export class BillingService {
       where: {
         paymentReference: req.data.reference,
       },
+      include: {
+        hotelRoomRecord: true,
+      },
     });
 
     const dependent = await prisma.dependantInfoTable.findFirst({
@@ -62,6 +66,32 @@ export class BillingService {
             },
             data: {
               allocationStatus: "ACTIVE",
+            },
+          });
+
+          const roomAllocated = await prisma.hostelAccommodation.findFirst({
+            where: {
+              roomId: hostelAllocation.roomId,
+            },
+            include: {
+              facilityRecord: true,
+            },
+          });
+
+          const accommodationDetails = {
+            roomCode: roomAllocated?.roomCode,
+            roomIdentifier: roomAllocated?.roomIdentifier,
+            facilityName: roomAllocated?.facilityRecord.facilityName,
+          };
+
+          await prisma.eventRegistrationTable.update({
+            where: {
+              regId: hostelAllocation.registrationId,
+            },
+            data: {
+              accommodationAssigned: true,
+              status: "CONFIRMED",
+              accommodationDetails: JSON.stringify(accommodationDetails),
             },
           });
         }
@@ -84,6 +114,33 @@ export class BillingService {
             },
             data: {
               allocationStatus: "ACTIVE",
+            },
+          });
+
+          const roomAllocated = await prisma.hotelAccommodation.findFirst({
+            where: {
+              roomTypeId: hotelAllocation.hotelRoomId,
+            },
+            include: {
+              facilityRecord: true,
+            },
+          });
+
+          const accommodationDetails = {
+            roomCode: roomAllocated?.roomType,
+            address: roomAllocated?.address,
+            facilityName: roomAllocated?.facilityRecord.facilityName,
+            price: roomAllocated?.price,
+          };
+
+          await prisma.eventRegistrationTable.update({
+            where: {
+              regId: hotelAllocation.registrationId,
+            },
+            data: {
+              accommodationAssigned: true,
+              status: "CONFIRMED",
+              accommodationDetails: JSON.stringify(accommodationDetails),
             },
           });
         }

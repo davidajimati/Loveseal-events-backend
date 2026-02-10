@@ -46,6 +46,27 @@ export class HotelAllocationService {
         },
       });
 
+        const existingHostelRecord = await prisma.hostelAllocations.findFirst({
+              where: {
+                registrationId: initiateHotelAllocationRequest.registrationId,
+                allocationStatus: "ACTIVE",
+                eventId: initiateHotelAllocationRequest.eventId,
+              },
+            });
+      
+            const existingHotelRecord = await prisma.hotelAllocations.findFirst({
+              where: {
+                registrationId: initiateHotelAllocationRequest.registrationId,
+                allocationStatus: "ACTIVE",
+                eventId: initiateHotelAllocationRequest.eventId,
+              },
+            });
+      
+            if (existingHostelRecord || existingHotelRecord) {
+              throw new Error("User have secured accommodation for this event");
+            }
+      
+
       if (facility == null) {
         throw new HttpError("Facility not found", 404);
       }

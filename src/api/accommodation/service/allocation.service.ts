@@ -57,6 +57,26 @@ export class AllocationService {
         },
       });
 
+      const existingHostelRecord = await prisma.hostelAllocations.findFirst({
+        where: {
+          registrationId: initiateAllocationRequest.registrationId,
+          allocationStatus: "ACTIVE",
+          eventId: initiateAllocationRequest.eventId,
+        },
+      });
+
+      const existingHotelRecord = await prisma.hotelAllocations.findFirst({
+        where: {
+          registrationId: initiateAllocationRequest.registrationId,
+          allocationStatus: "ACTIVE",
+          eventId: initiateAllocationRequest.eventId,
+        },
+      });
+
+      if (existingHostelRecord || existingHotelRecord) {
+        throw new Error("User have secured accommodation for this event");
+      }
+
       const facility = await prisma.accommodationFacilities.findFirst({
         where: {
           facilityId: initiateAllocationRequest.facilityid,
@@ -213,12 +233,11 @@ export class AllocationService {
                 SELECT *
                 FROM hostel_accommodation_table
                 WHERE facilityId = ${facility.facilityId}
-                  AND capacityOccupied < capacity
+                  AND capacityOccupied < capacity AND adminReserved = FALSE
                 ORDER BY "capacityOccupied" ASC, "roomId" ASC LIMIT 1
                 FOR
                 UPDATE
             `;
-      console.log(availableRooms ,facility.facilityId, "available rooms");
 
       const room = availableRooms?.[0];
       if (!room) {

@@ -89,7 +89,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
         ...(regRecord.accommodationType != null && {
           accommodationType: regRecord.accommodationType.toString(),
         }),
-        room: regRecord.accommodationDetails,
+        room: JSON.parse(regRecord.accommodationDetails),
         accommodationImageUrl: "",
       },
       dependants: {
