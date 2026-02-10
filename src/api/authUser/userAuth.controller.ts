@@ -34,7 +34,7 @@ async function generateOtp(req: Request, res: Response) {
     return handleZodError(res, data.error);
   }
   const user = await prisma.userInformation.findUnique({
-    where: { email: data.data.email },
+    where: { email: data.data.email.toLowerCase() },
   });
   if (!user || !user.email) {
     return badRequest(
@@ -42,7 +42,7 @@ async function generateOtp(req: Request, res: Response) {
       "You do not have a profile. create one to continue.",
     );
   }
-  await service.generateOtp(res, data.data.email, "Login");
+  await service.generateOtp(res, data.data.email.toLowerCase(), "Login");
 }
 
 async function validateOtp(req: Request, res: Response) {
