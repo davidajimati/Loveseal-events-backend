@@ -90,7 +90,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       404:
    *         description: Facilities not found
    */
-  router.get("/facilities/:eventId", adminAuth, controller.getAllEventFacility);
+  router.get("/admin/facilities/:eventId", adminAuth, controller.getAllEventFacility);
 
   /**
    * @swagger
