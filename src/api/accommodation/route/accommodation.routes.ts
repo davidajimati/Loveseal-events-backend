@@ -65,7 +65,7 @@ export default function registerAccommodationRoutes(app: Router) {
    * @swagger
    * /accommodation/admin/facilities/{eventId}:
    *   get:
-   *     summary: Get facilities by event ID(Admin)
+   *     summary: Get facilities by event ID (Admin)
    *     tags: [Accommodation]
    *     security:
    *       - bearerAuth: []
@@ -75,6 +75,15 @@ export default function registerAccommodationRoutes(app: Router) {
    *         required: true
    *         schema:
    *           type: string
+   *         description: The ID of the event
+   *
+   *       - in: query
+   *         name: categoryId
+   *         required: false
+   *         schema:
+   *           type: string
+   *         description: Optional category ID to filter facilities
+   *
    *     responses:
    *       200:
    *         description: Facilities retrieved successfully

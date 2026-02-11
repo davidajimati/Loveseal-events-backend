@@ -226,10 +226,11 @@ async function getFacilityInfo(categoryId: string) {
   return facilityQuery;
 }
 
-async function getAllEventsFacility(eventId: string) {
+async function getAllEventsFacility(eventId: string, categoryId?: string) {
   const facilityQuery = await prisma.accommodationFacilities.findMany({
     where: {
       eventId: eventId,
+      ...(categoryId && { accommodationCategoryId: categoryId }),
     },
     select: {
       accommodationCategoryId: true,
@@ -242,6 +243,8 @@ async function getAllEventsFacility(eventId: string) {
       employedUserPrice: true,
     },
   });
+
+  return facilityQuery;
 }
 
 async function getHotelRooms(facilityId: string) {
