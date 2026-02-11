@@ -311,8 +311,8 @@ export class BillingService {
       merchant_bears_cost: false,
       narration: paymentRequest.narration,
       notification_url:
-        "https://loveseal-events-backend.onrender.com/billing/verify",
-      redirect_url: "https://smflx-front-office.vercel.app/dashboard",
+        `${process.env.API_URL}/billing/verify`,
+      redirect_url: `${process.env.CLIENT_BASE_URL}/dashboard`,
       reference: paymentRequest.reference,
     };
 

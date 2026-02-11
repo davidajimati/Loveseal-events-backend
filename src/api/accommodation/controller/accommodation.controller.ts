@@ -85,6 +85,21 @@ async function getFacility(req: Request, res: Response) {
     }
 }
 
+async function getAllEventFacility(req: Request, res: Response) {
+  try {
+    const eventId = asSingleString((req.params as any).eventId);
+
+    if (!eventId) {
+      return response.badRequest(res, "eventId is required");
+    }
+
+    const facilities = await service.getAllEventsFacility(eventId);
+    return response.successResponse(res, facilities);
+  } catch (error) {
+    return response.badRequest(res, error);
+  }
+}
+
 async function getHotelRooms(req: Request, res: Response) {
     try {
         const facilityId = asSingleString((req.params as any).facilityId);
@@ -128,4 +143,5 @@ export {
     getFacility,
     getHotelRooms,
     createAccommodationRequest,
+    getAllEventFacility
 };
