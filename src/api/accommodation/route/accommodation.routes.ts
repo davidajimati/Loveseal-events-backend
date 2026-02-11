@@ -63,6 +63,28 @@ export default function registerAccommodationRoutes(app: Router) {
 
   /**
    * @swagger
+   * /accommodation/admin/facilities/{eventId}:
+   *   get:
+   *     summary: Get facilities by event ID(Admin)
+   *     tags: [Accommodation]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: eventId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Facilities retrieved successfully
+   *       404:
+   *         description: Facilities not found
+   */
+  router.get("/facilities/:eventId", adminAuth, controller.getAllEventFacility);
+
+  /**
+   * @swagger
    * /accommodation/admin/facility/{categoryId}:
    *   get:
    *     summary: Get facilities by category ID(admin)
@@ -253,10 +275,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       200:
    *         description:  Successfully
    */
-  router.get(
-    "/hostel/unoccupied",
-    controller.getHostelSpacesLeft,
-  );
+  router.get("/hostel/unoccupied", controller.getHostelSpacesLeft);
 
   /**
    * @swagger

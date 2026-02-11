@@ -67,6 +67,10 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
       regRecord.registrationCompleted === true &&
       paymentSuccessful;
 
+    let roomInfo;
+    if (regRecord.accommodationDetails) roomInfo =  JSON.parse(regRecord.accommodationDetails)
+      else roomInfo = "";
+
     const dashboard: dashboardInterface = {
       userId,
       regId: regRecord.regId,
@@ -89,7 +93,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
         ...(regRecord.accommodationType != null && {
           accommodationType: regRecord.accommodationType.toString(),
         }),
-        room: JSON.parse(regRecord.accommodationDetails),
+        room: roomInfo,
         accommodationImageUrl: "",
       },
       dependants: {

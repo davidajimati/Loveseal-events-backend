@@ -51,8 +51,7 @@ async function validateOtp(req: Request, res: Response) {
     if (!result.success) {
       return handleZodError(res, result.error);
     }
-    await service.verifyOtp(res, result.data);
-    return await service.generateToken(res, result.data.email);
+    return await service.verifyOtp(res, result.data);
   } catch (error) {
     console.log("VALIDATE OTP ERROR", error);
     response.internalServerError(res, "An error occurred generating otp");

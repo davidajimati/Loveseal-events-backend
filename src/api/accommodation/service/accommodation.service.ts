@@ -226,6 +226,24 @@ async function getFacilityInfo(categoryId: string) {
   return facilityQuery;
 }
 
+async function getAllEventsFacility(eventId: string) {
+  const facilityQuery = await prisma.accommodationFacilities.findMany({
+    where: {
+      eventId: eventId,
+    },
+    select: {
+      accommodationCategoryId: true,
+      facilityId: true,
+      facilityName: true,
+      capacityOccupied: true,
+      totalCapacity: true,
+      selfEmployedUserPrice: true,
+      unemployedUserPrice: true,
+      employedUserPrice: true,
+    },
+  });
+}
+
 async function getHotelRooms(facilityId: string) {
   const allHotels = await prisma.hotelAccommodation.findMany({
     where: {
@@ -243,6 +261,7 @@ export {
   createHostelAccommodation,
   getCategoriesInfo,
   getFacilityInfo,
+  getAllEventsFacility,
   getHotelRooms,
   getHostelSpacesLeft,
 };
