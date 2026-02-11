@@ -241,6 +241,18 @@ async function getAllEventsFacility(eventId: string, categoryId?: string) {
       selfEmployedUserPrice: true,
       unemployedUserPrice: true,
       employedUserPrice: true,
+      eventRecord: {
+        select: {
+          eventName: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
+      categoryRecord: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
