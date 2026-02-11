@@ -14,6 +14,7 @@ import prisma from "../../../../prisma/Prisma.js";
 import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
 import { HttpError } from "../../exceptions/HttpError.js";
+import type { hostelAccommodation } from "@prisma/client";
 
 export class BillingService {
   async initializePayment(res: Response, req: InitiatePaymentRequest) {
@@ -43,6 +44,15 @@ export class BillingService {
       where: {
         paymentReference: req.data.reference,
       },
+      include: {
+        hotelRoomRecord: true,
+      },
+    });
+
+    const dependent = await prisma.dependantInfoTable.findFirst({
+      where: {
+        paymentReference: req.data.reference,
+      },
     });
 
     try {
@@ -58,6 +68,43 @@ export class BillingService {
               allocationStatus: "ACTIVE",
             },
           });
+
+          const roomAllocated = await prisma.hostelAccommodation.findFirst({
+            where: {
+              roomId: hostelAllocation.roomId,
+            },
+            include: {
+              facilityRecord: true,
+            },
+          });
+
+          const accommodationDetails = {
+            roomCode: roomAllocated?.roomCode,
+            roomIdentifier: roomAllocated?.roomIdentifier,
+            facilityName: roomAllocated?.facilityRecord.facilityName,
+          };
+
+          await prisma.eventRegistrationTable.update({
+            where: {
+              regId: hostelAllocation.registrationId,
+            },
+            data: {
+              accommodationAssigned: true,
+              status: "CONFIRMED",
+              accommodationDetails: JSON.stringify(accommodationDetails),
+            },
+          });
+        }
+
+        if (dependent != null) {
+          await prisma.dependantInfoTable.update({
+            where: {
+              paymentReference: req.data.reference,
+            },
+            data: {
+              paymentStatus: "SUCCESSFUL",
+            },
+          });
         }
 
         if (hotelAllocation != null) {
@@ -67,6 +114,33 @@ export class BillingService {
             },
             data: {
               allocationStatus: "ACTIVE",
+            },
+          });
+
+          const roomAllocated = await prisma.hotelAccommodation.findFirst({
+            where: {
+              roomTypeId: hotelAllocation.hotelRoomId,
+            },
+            include: {
+              facilityRecord: true,
+            },
+          });
+
+          const accommodationDetails = {
+            roomCode: roomAllocated?.roomType,
+            address: roomAllocated?.address,
+            facilityName: roomAllocated?.facilityRecord.facilityName,
+            price: roomAllocated?.price,
+          };
+
+          await prisma.eventRegistrationTable.update({
+            where: {
+              regId: hotelAllocation.registrationId,
+            },
+            data: {
+              accommodationAssigned: true,
+              status: "CONFIRMED",
+              accommodationDetails: JSON.stringify(accommodationDetails),
             },
           });
         }
@@ -150,7 +224,7 @@ export class BillingService {
     }
   }
 
-  async populateTable(paymentRequest: InitiatePaymentRequest) {
+  private async populateTable(paymentRequest: InitiatePaymentRequest) {
     await prisma.paymentRecords.create({
       data: {
         amount: paymentRequest.amount,
@@ -165,7 +239,7 @@ export class BillingService {
     });
   }
 
-  mapPaymentResponse(
+  private mapPaymentResponse(
     res: Response,
     koraPayResponse: KoraPayInitiatePaymentResponse,
   ) {
@@ -177,7 +251,7 @@ export class BillingService {
     return response.successResponse(res, paymentResponse);
   }
 
-  async hitThirdPartyEndpoint(
+  private async hitThirdPartyEndpoint(
     res: Response,
     paymentRequest: InitiatePaymentRequest,
   ) {
@@ -207,7 +281,7 @@ export class BillingService {
     }
   }
 
-  async mapKoraPayRequest(
+  private async mapKoraPayRequest(
     res: Response,
     paymentRequest: InitiatePaymentRequest,
   ) {

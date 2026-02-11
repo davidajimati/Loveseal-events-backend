@@ -23,11 +23,11 @@ async function generateOtp(req: Request, res: Response) {
         console.log("otp generation failed: email not supplied or invalid")
         return handleZodError(res, data.error)
     }
-    const adminUser = await prisma.adminUserRecords.findUnique({where: {email: data.data.email}})
+    const adminUser = await prisma.adminUserRecords.findUnique({where: {email: data.data.email.toLowerCase()}})
     if (!adminUser || !adminUser.email) {
         return unauthorizedRequest(res, "Sorry, this action is reserved only for admin users.")
     }
-    await service.generateOtp(res, data.data.email, "Login")
+    await service.generateOtp(res, data.data.email.toLowerCase(), "Login")
 }
 
 async function validateOtp(req: Request, res: Response) {
