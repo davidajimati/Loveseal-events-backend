@@ -29,7 +29,7 @@ build/
 # Prisma
 prisma/generated/
 .prisma/
-prisma/migrations/
+
 
 # IDE files (WebStorm)
 .idea/
