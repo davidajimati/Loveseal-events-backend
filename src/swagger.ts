@@ -336,10 +336,22 @@ const options: swaggerJSDoc.Options = {
           type: "object",
           required: ["eventId", "categories"],
           properties: {
-            eventId: { type: "string" },
+            eventId: {
+              type: "string",
+              format: "uuid",
+            },
             categories: {
               type: "array",
-              items: { type: "string" },
+              items: {
+                type: "object",
+                required: ["name"],
+                properties: {
+                  name: {
+                    type: "string",
+                    example: "HOSTEL",
+                  },
+                },
+              },
             },
           },
         },
