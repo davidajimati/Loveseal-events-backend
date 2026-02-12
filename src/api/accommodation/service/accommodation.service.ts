@@ -99,7 +99,6 @@ async function createHotelAccommodation(
         address: createHotelAccommodationPayload.address,
         description: createHotelAccommodationPayload.description,
         available: createHotelAccommodationPayload.available,
-        genderRestriction: createHotelAccommodationPayload.genderRestriction,
         adminReserved: createHotelAccommodationPayload.adminReserved,
         price: createHotelAccommodationPayload.price,
         noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
