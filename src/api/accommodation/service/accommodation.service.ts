@@ -5,10 +5,11 @@ import {
   type CreateHostelAccommodationType,
   type CreateHotelAccommodationType,
 } from "../model/accommodation.model.js";
-import prisma from "../../../../prisma/Prisma.js";
 import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
-import { Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function createAccommodationFacility(
   res: Response,
@@ -206,24 +207,38 @@ async function getFacilityInfo(categoryId: string) {
     },
   });
 
-  const hotelCheck = await prisma.hotelAccommodation.findFirst({
+  // If there are no facilities, return early
+  if (facilityQuery.length === 0) return facilityQuery;
+
+  // Fetch all hotel accommodations for these facilities in ONE query (avoid N+1)
+  const facilityIds = facilityQuery.map((f) => f.facilityId);
+  const hotelFacilities = await prisma.hotelAccommodation.findMany({
     where: {
-      facilityId: { in: facilityQuery.map((item) => item.facilityId) },
+      facilityId: {
+        in: facilityIds,
+      },
+    },
+    select: {
+      facilityId: true,
     },
   });
 
-  if (hotelCheck) {
-    return facilityQuery.map(
-      ({
-        selfEmployedUserPrice,
-        unemployedUserPrice,
-        employedUserPrice,
-        ...rest
-      }) => rest,
-    );
-  }
+  // Build a set of facilityIds that have at least one hotel room
+  const hotelFacilityIdSet = new Set(hotelFacilities.map((h) => h.facilityId));
 
-  return facilityQuery;
+  // Only strip the price fields for facilities that have hotel accommodation records
+  return facilityQuery.map((f) => {
+    if (!hotelFacilityIdSet.has(f.facilityId)) return f;
+
+    const {
+      selfEmployedUserPrice,
+      unemployedUserPrice,
+      employedUserPrice,
+      ...rest
+    } = f;
+
+    return rest;
+  });
 }
 
 async function getAllEventsFacility(eventId: string) {
@@ -245,10 +260,14 @@ async function getAllEventsFacility(eventId: string) {
 }
 
 async function getHotelRooms(facilityId: string) {
+  const id = (facilityId ?? "").trim();
+  if (!id) {
+    throw new Error("facilityId is required");
+  }
   const allHotels = await prisma.hotelAccommodation.findMany({
     where: {
-      facilityId: facilityId,
-    },
+      facilityId: id
+    }
   });
 
   return allHotels;

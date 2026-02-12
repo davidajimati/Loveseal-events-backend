@@ -133,7 +133,7 @@ model dependantInfoTable {
   eventId          String
   name             String
   age              Int
-  gender           gender
+  gender           gender?
   paymentStatus    paymentStatus?         @default(PENDING)
   amount           BigInt?                @default(7000)
   dateCreated      DateTime?              @default(now())
@@ -241,7 +241,6 @@ model hotelAccommodation {
   address            String
   description        String
   available          Boolean?
-  genderRestriction  gender
   adminReserved      Boolean
   noOfRoomsAvailable Int
   noOfRoomsOccupied  Int                     @default(0)
