@@ -13,6 +13,7 @@ import type { InitiatePaymentRequest } from "../../billing/model/billing.model.j
 import * as response from "../../ApiResponseContract.js";
 import { AccommodationType } from "../../../common/constants.js";
 import { roomAllocationStatus } from "@prisma/client";
+import cron from "node-cron";
 
 export function mapAccommodationType(
   categoryName?: string,
@@ -282,7 +283,6 @@ export class AllocationService {
         },
       });
 
-      // Increment occupancy
       await tx.hostelAccommodation.update({
         where: { roomId: room.roomId },
         data: { capacityOccupied: { increment: 1 } },
@@ -334,6 +334,103 @@ export class AllocationService {
 
       throw error;
     }
+  }
+
+  async revokeExpiredHostelAllocations() {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      
+
+      console.log("CKECKING ALLOCATIONS");
+
+      const expiredAllocations = await prisma.hostelAllocations.findMany({
+        where: {
+          allocationStatus: "PENDING",
+          allocatedAt: { lt: oneHourAgo },
+        },
+        select: {
+          id: true,
+          roomId: true,
+        },
+      });
+
+      const allocationIds = expiredAllocations.map((a) => a.id);
+      const roomIds = expiredAllocations.map((a) => a.roomId);
+
+      const facilityIds = [];
+
+      for (const roomId of roomIds) {
+        const room = await prisma.hostelAccommodation.findFirst({
+          where: {
+            roomId: roomId,
+          },
+        });
+
+        if (room) {
+          facilityIds.push(room.facilityId);
+        }
+      }
+
+      const roomCounts = expiredAllocations.reduce(
+        (acc, allocation) => {
+          if (allocation.roomId) {
+            acc[allocation.roomId] = (acc[allocation.roomId] || 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      const facilityCounts = facilityIds.reduce(
+        (acc, facilityId) => {
+          acc[facilityId] = (acc[facilityId] || 0) + 1;
+
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      await prisma.$transaction(async (tx) => {
+        // 1. Revoke allocations
+        await tx.hostelAllocations.updateMany({
+          where: { id: { in: expiredAllocations.map((a) => a.id) } },
+          data: { allocationStatus: "REVOKED" },
+        });
+
+        // 2. Update rooms
+        for (const [roomId, count] of Object.entries(roomCounts)) {
+          await tx.hostelAccommodation.update({
+            where: { roomId },
+            data: { capacityOccupied: { decrement: count } },
+          });
+        }
+
+        // 3. Update facilities
+        for (const [facilityId, count] of Object.entries(facilityCounts)) {
+          await tx.accommodationFacilities.update({
+            where: { facilityId },
+            data: { capacityOccupied: { decrement: count } },
+          });
+        }
+      });
+
+      return null;
+    } catch (error) {
+      console.error(
+        `[${new Date().toISOString()}] Error revoking allocations:`,
+        error,
+      );
+    }
+  }
+
+  startAllocationCronJob() {
+    const task = cron.schedule("*/5 * * * *", async () => {
+      try {
+        await this.revokeExpiredHostelAllocations();
+      } catch (error) {}
+    });
+
+    return task;
   }
 
   private async computeHostelAmountToBePaid(
