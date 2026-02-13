@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && copyfiles -u 1 src/static/**/* dist/src",
     "start": "node dist/src/index.js",
     "postinstall": "prisma generate"
   },
@@ -25,6 +25,7 @@
     "@prisma/adapter-mariadb": "^7.2.0",
     "@prisma/client": "^6.19.2",
     "express": "^4.22.1",
+    "node-cron": "^4.2.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "tsconfig-paths": "^4.2.0"
@@ -41,6 +42,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "compression": "^1.8.1",
+    "copyfiles": "^2.4.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.3",

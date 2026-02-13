@@ -46,6 +46,27 @@ export class HotelAllocationService {
         },
       });
 
+        const existingHostelRecord = await prisma.hostelAllocations.findFirst({
+              where: {
+                registrationId: initiateHotelAllocationRequest.registrationId,
+                allocationStatus: "ACTIVE",
+                eventId: initiateHotelAllocationRequest.eventId,
+              },
+            });
+      
+            const existingHotelRecord = await prisma.hotelAllocations.findFirst({
+              where: {
+                registrationId: initiateHotelAllocationRequest.registrationId,
+                allocationStatus: "ACTIVE",
+                eventId: initiateHotelAllocationRequest.eventId,
+              },
+            });
+      
+            if (existingHostelRecord || existingHotelRecord) {
+              throw new Error("User have secured accommodation for this event");
+            }
+      
+
       if (facility == null) {
         throw new HttpError("Facility not found", 404);
       }
@@ -93,8 +114,8 @@ export class HotelAllocationService {
       const availableRoom = await tx.$queryRaw<hotelAccommodation[]>`
       SELECT *
       FROM hotel_accommodation_table
-      WHERE "roomTypeId" = ${initiateHotelAllocationRequest.roomTypeId}
-        AND "noOfRoomsOccupied" < "noOfRoomsAvailable"
+      WHERE roomTypeId = ${initiateHotelAllocationRequest.roomTypeId}
+        AND noOfRoomsOccupied < noOfRoomsAvailable
       LIMIT 1
       FOR UPDATE
     `;

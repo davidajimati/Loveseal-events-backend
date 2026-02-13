@@ -9,6 +9,7 @@ export interface BrevoRequest {
   }>;
   subject: string;
   textContent?: string;
+  params?: any;
   htmlContent?: string;
 }
 
@@ -23,5 +24,6 @@ export interface HtmlNotifyRequest {
   subject: string;
   email: string;
   name?: string | undefined;
+  params?: any;
   htmlContent: string;
 }

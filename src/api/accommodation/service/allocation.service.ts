@@ -13,6 +13,7 @@ import type { InitiatePaymentRequest } from "../../billing/model/billing.model.j
 import * as response from "../../ApiResponseContract.js";
 import { AccommodationType } from "../../../common/constants.js";
 import { roomAllocationStatus } from "@prisma/client";
+import cron from "node-cron";
 
 export function mapAccommodationType(
   categoryName?: string,
@@ -57,6 +58,26 @@ export class AllocationService {
         },
       });
 
+      const existingHostelRecord = await prisma.hostelAllocations.findFirst({
+        where: {
+          registrationId: initiateAllocationRequest.registrationId,
+          allocationStatus: "ACTIVE",
+          eventId: initiateAllocationRequest.eventId,
+        },
+      });
+
+      const existingHotelRecord = await prisma.hotelAllocations.findFirst({
+        where: {
+          registrationId: initiateAllocationRequest.registrationId,
+          allocationStatus: "ACTIVE",
+          eventId: initiateAllocationRequest.eventId,
+        },
+      });
+
+      if (existingHostelRecord || existingHotelRecord) {
+        throw new Error("User have secured accommodation for this event");
+      }
+
       const facility = await prisma.accommodationFacilities.findFirst({
         where: {
           facilityId: initiateAllocationRequest.facilityid,
@@ -71,7 +92,7 @@ export class AllocationService {
       }
       const accType = mapAccommodationType(facility?.categoryRecord.name);
 
-      if (!registeredUser ) {
+      if (!registeredUser) {
         throw new Error("User not registered for this event!");
       }
 
@@ -198,120 +219,219 @@ export class AllocationService {
   //   }
   // }
 
-    private async processHostelAccommodation(
-        res: Response,
-        registeredUser: { regId: string },
-        facility: accommodationFacilities,
-        initiateAllocationRequest: InitiateAccommodationAllocationType,
-    ) {
-        // Run reservation + allocation atomically.
-        // Payment happens AFTER commit. If it fails, compensate.
+  private async processHostelAccommodation(
+    res: Response,
+    registeredUser: { regId: string },
+    facility: accommodationFacilities,
+    initiateAllocationRequest: InitiateAccommodationAllocationType,
+  ) {
+    // Run reservation + allocation atomically.
+    // Payment happens AFTER commit. If it fails, compensate.
 
-        const txnResult = await prisma.$transaction(async (tx) => {
-            // Lock one available room
-            const availableRooms = await tx.$queryRaw<hostelAccommodation[]>`
+    const txnResult = await prisma.$transaction(async (tx) => {
+      // Lock one available room
+      const availableRooms = await tx.$queryRaw<hostelAccommodation[]>`
                 SELECT *
                 FROM hostel_accommodation_table
-                WHERE "facilityId" = ${facility.facilityId}
-                  AND "capacityOccupied" < "capacity"
+                WHERE facilityId = ${facility.facilityId}
+                  AND capacityOccupied < capacity AND adminReserved = FALSE
                 ORDER BY "capacityOccupied" ASC, "roomId" ASC LIMIT 1
                 FOR
                 UPDATE
             `;
 
-            const room = availableRooms?.[0];
-            if (!room) {
-                throw new HttpError("Accommodation exhausted", 404);
-            }
+      const room = availableRooms?.[0];
+      if (!room) {
+        throw new HttpError("Accommodation exhausted", 404);
+      }
 
-            const user = await tx.userInformation.findFirst({
-                where: { userId: initiateAllocationRequest.userId },
-                select: { employmentStatus: true },
-            });
+      const user = await tx.userInformation.findFirst({
+        where: { userId: initiateAllocationRequest.userId },
+        select: { employmentStatus: true },
+      });
 
-            if (!user) {
-                throw new HttpError("User not found", 404);
-            }
+      if (!user) {
+        throw new HttpError("User not found", 404);
+      }
 
-            // Compute payable amount
-            let amountToBePaid: number | string | null | undefined;
+      // Compute payable amount
+      let amountToBePaid: number | string | null | undefined;
 
-            if (user.employmentStatus === "SELF_EMPLOYED") {
-                amountToBePaid = facility.selfEmployedUserPrice;
-            } else if (user.employmentStatus === "UNEMPLOYED") {
-                amountToBePaid = facility.unemployedUserPrice;
-            } else {
-                amountToBePaid = facility.employedUserPrice;
-            }
+      if (user.employmentStatus === "SELF_EMPLOYED") {
+        amountToBePaid = facility.selfEmployedUserPrice;
+      } else if (user.employmentStatus === "UNEMPLOYED") {
+        amountToBePaid = facility.unemployedUserPrice;
+      } else {
+        amountToBePaid = facility.employedUserPrice;
+      }
 
-            if (amountToBePaid == null) {
-                throw new HttpError("Accommodation pricing is not configured", 400);
-            }
+      if (amountToBePaid == null) {
+        throw new HttpError("Accommodation pricing is not configured", 400);
+      }
 
-            const paymentReference = this.generatePaymentReference();
+      const paymentReference = this.generatePaymentReference();
 
-            const allocation = await tx.hostelAllocations.create({
-                data: {
-                    eventId: facility.eventId,
-                    roomId: room.roomId,
-                    paymentReference,
-                    registrationId: registeredUser.regId,
-                    allocator: "ALGORITHM",
-                    allocatedAt: new Date(),
-                    allocationStatus: mapRoomAllocationStatus("PENDING"),
-                },
-            });
+      const allocation = await tx.hostelAllocations.create({
+        data: {
+          eventId: facility.eventId,
+          roomId: room.roomId,
+          paymentReference,
+          registrationId: registeredUser.regId,
+          allocator: "ALGORITHM",
+          allocatedAt: new Date(),
+          allocationStatus: mapRoomAllocationStatus("PENDING"),
+        },
+      });
 
-            // Increment occupancy
-            await tx.hostelAccommodation.update({
-                where: { roomId: room.roomId },
-                data: { capacityOccupied: { increment: 1 } },
-            });
+      await tx.hostelAccommodation.update({
+        where: { roomId: room.roomId },
+        data: { capacityOccupied: { increment: 1 } },
+      });
 
-            await tx.accommodationFacilities.update({
-                where: { facilityId: facility.facilityId },
-                data: { capacityOccupied: { increment: 1 } },
-            });
+      await tx.accommodationFacilities.update({
+        where: { facilityId: facility.facilityId },
+        data: { capacityOccupied: { increment: 1 } },
+      });
 
-            const paymentRequest: InitiatePaymentRequest = {
-                amount: amountToBePaid as any,
-                eventId: initiateAllocationRequest.eventId,
-                reference: paymentReference,
-                userId: initiateAllocationRequest.userId,
-                narration: "HOSTEL PAYMENT",
-            };
+      const paymentRequest: InitiatePaymentRequest = {
+        amount: amountToBePaid as any,
+        eventId: initiateAllocationRequest.eventId,
+        reference: paymentReference,
+        userId: initiateAllocationRequest.userId,
+        narration: "HOSTEL PAYMENT",
+      };
 
-            return {
-                allocationId: allocation.id,
-                roomId: room.roomId,
-                paymentRequest,
-            };
+      return {
+        allocationId: allocation.id,
+        roomId: room.roomId,
+        paymentRequest,
+      };
+    });
+
+    try {
+      await this.billingService.initializePayment(
+        res,
+        txnResult.paymentRequest,
+      );
+    } catch (error) {
+      // Compensation transaction
+      await prisma.$transaction(async (tx) => {
+        await tx.hostelAllocations.update({
+          where: { id: txnResult.allocationId },
+          data: { allocationStatus: mapRoomAllocationStatus("REVOKED") },
         });
 
-        try {
-            await this.billingService.initializePayment(res, txnResult.paymentRequest);
-        } catch (error) {
-            // Compensation transaction
-            await prisma.$transaction(async (tx) => {
-                await tx.hostelAllocations.update({
-                    where: { id: txnResult.allocationId },
-                    data: { allocationStatus: mapRoomAllocationStatus("REVOKED") },
-                });
+        await tx.hostelAccommodation.update({
+          where: { roomId: txnResult.roomId },
+          data: { capacityOccupied: { decrement: 1 } },
+        });
 
-                await tx.hostelAccommodation.update({
-                    where: { roomId: txnResult.roomId },
-                    data: { capacityOccupied: { decrement: 1 } },
-                });
+        await tx.accommodationFacilities.update({
+          where: { facilityId: facility.facilityId },
+          data: { capacityOccupied: { decrement: 1 } },
+        });
+      });
 
-                await tx.accommodationFacilities.update({
-                    where: { facilityId: facility.facilityId },
-                    data: { capacityOccupied: { decrement: 1 } },
-                });
-            });
-
-            throw error;
-        }
+      throw error;
     }
+  }
+
+  async revokeExpiredHostelAllocations() {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      
+
+      console.log("CKECKING ALLOCATIONS");
+
+      const expiredAllocations = await prisma.hostelAllocations.findMany({
+        where: {
+          allocationStatus: "PENDING",
+          allocatedAt: { lt: oneHourAgo },
+        },
+        select: {
+          id: true,
+          roomId: true,
+        },
+      });
+
+      const allocationIds = expiredAllocations.map((a) => a.id);
+      const roomIds = expiredAllocations.map((a) => a.roomId);
+
+      const facilityIds = [];
+
+      for (const roomId of roomIds) {
+        const room = await prisma.hostelAccommodation.findFirst({
+          where: {
+            roomId: roomId,
+          },
+        });
+
+        if (room) {
+          facilityIds.push(room.facilityId);
+        }
+      }
+
+      const roomCounts = expiredAllocations.reduce(
+        (acc, allocation) => {
+          if (allocation.roomId) {
+            acc[allocation.roomId] = (acc[allocation.roomId] || 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      const facilityCounts = facilityIds.reduce(
+        (acc, facilityId) => {
+          acc[facilityId] = (acc[facilityId] || 0) + 1;
+
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      await prisma.$transaction(async (tx) => {
+        // 1. Revoke allocations
+        await tx.hostelAllocations.updateMany({
+          where: { id: { in: expiredAllocations.map((a) => a.id) } },
+          data: { allocationStatus: "REVOKED" },
+        });
+
+        // 2. Update rooms
+        for (const [roomId, count] of Object.entries(roomCounts)) {
+          await tx.hostelAccommodation.update({
+            where: { roomId },
+            data: { capacityOccupied: { decrement: count } },
+          });
+        }
+
+        // 3. Update facilities
+        for (const [facilityId, count] of Object.entries(facilityCounts)) {
+          await tx.accommodationFacilities.update({
+            where: { facilityId },
+            data: { capacityOccupied: { decrement: count } },
+          });
+        }
+      });
+
+      return null;
+    } catch (error) {
+      console.error(
+        `[${new Date().toISOString()}] Error revoking allocations:`,
+        error,
+      );
+    }
+  }
+
+  startAllocationCronJob() {
+    const task = cron.schedule("*/5 * * * *", async () => {
+      try {
+        await this.revokeExpiredHostelAllocations();
+      } catch (error) {}
+    });
+
+    return task;
+  }
 
   private async computeHostelAmountToBePaid(
     res: any,

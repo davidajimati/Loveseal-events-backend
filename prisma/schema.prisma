@@ -128,18 +128,19 @@ model eventRegistrationTable {
 }
 
 model dependantInfoTable {
-  id            String                 @id @default(uuid())
-  parentRegId   String
-  eventId       String
-  name          String
-  age           Int
-  gender        gender
-  paymentStatus paymentStatus?         @default(PENDING)
-  amount        BigInt?                @default(5000)
-  dateCreated   DateTime?              @default(now())
-  updatedAt     DateTime?
-  eventInfo     eventInformation       @relation(fields: [eventId], references: [eventId])
-  parentRegInfo eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
+  id               String                 @id @default(uuid())
+  parentRegId      String
+  eventId          String
+  name             String
+  age              Int
+  gender           gender?
+  paymentStatus    paymentStatus?         @default(PENDING)
+  amount           BigInt?                @default(7000)
+  dateCreated      DateTime?              @default(now())
+  updatedAt        DateTime?
+  paymentReference String?                @unique
+  eventInfo        eventInformation       @relation(fields: [eventId], references: [eventId])
+  parentRegInfo    eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
 
   @@index([eventId], map: "idx_registrant_dependants_table_eventId_fkey")
   @@index([parentRegId], map: "idx_registrant_dependants_table_parentRegId_fkey")
@@ -241,7 +242,6 @@ model hotelAccommodation {
   address            String
   description        String
   available          Boolean?
-  genderRestriction  gender
   adminReserved      Boolean
   noOfRoomsAvailable Int
   noOfRoomsOccupied  Int                     @default(0)

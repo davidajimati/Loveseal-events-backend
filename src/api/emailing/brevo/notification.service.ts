@@ -41,6 +41,7 @@ export class EmailingService {
           },
         ],
         subject: emailData.subject,
+        params: emailData.params,
         htmlContent: emailData.htmlContent,
       };
 
@@ -64,7 +65,8 @@ export class EmailingService {
         body: JSON.stringify(emailData),
       });
 
-      const result = await response.json();
+      console.log("email sending successful:", response.ok? "true" : "false");
+      const result = await response.text();
       console.log("Brevo response: " + result);
       if (!response.ok) {
         console.log("Brevo email sending failed");

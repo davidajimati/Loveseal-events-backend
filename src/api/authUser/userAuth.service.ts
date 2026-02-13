@@ -8,7 +8,23 @@ import {
 import {randomInt, randomUUID} from "node:crypto";
 import {Prisma, PrismaClient} from "@prisma/client";
 import {EmailingService} from "../emailing/brevo/notification.service.js";
-import type {TextNotifyRequest} from "../emailing/model/notification.model.js";
+import type {
+    HtmlNotifyRequest,
+} from "../emailing/model/notification.model.js";
+
+import fs from "fs";
+import path from "path";
+import {fileURLToPath} from "url";
+import {HttpError} from "../exceptions/HttpError.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const htmlContent = fs.readFileSync(
+    path.join(__dirname, "../../static/templates/otp.html"),
+    "utf8",
+);
+
 
 async function getOtpForRegistrant(res: Response, email: string) {
     const user = await prisma.userInformation.findFirst({where: {email}});
@@ -117,23 +133,34 @@ async function generateOtp(res: Response, email: string, otpReason: string) {
 
         const emailService = new EmailingService();
 
-        const emailData: TextNotifyRequest = {
+        // const emailData: TextNotifyRequest = {
+        //   email: email,
+        //   subject: "EMAIL CONFIRMATION",
+        //   textContent: `Your Confirmation OTP is ${otp}`,
+        // };
+
+        const emailData: HtmlNotifyRequest = {
             email: email,
             subject: "EMAIL CONFIRMATION",
-            textContent: `Your Confirmation OTP is ${otp}`,
+            params: {
+                loginDate: new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                }),
+                userName: "User",
+                otpCode: `${otp}`,
+            },
+            htmlContent: htmlContent,
         };
 
-        const emailSent = await emailService.sendTextContent(res, emailData);
-
-        // const emailSent = await sendEmailViaSes(
-        //   email,
-        //   "Dev test user login",
-        //   otp,
-        //   res,
-        // );
+        const emailSent = await emailService.sendHtmlContent(res, emailData);
 
         if (!emailSent) {
-            return response.internalServerError(res, "Error sending OTP. Please try again later",);
+            return response.internalServerError(
+                res,
+                "Error sending OTP. Please try again later",
+            );
         }
 
         const otpResponse = {
@@ -179,7 +206,7 @@ async function verifyOtp(res: Response, validationPayload: otpValidationType) {
             );
         }
         if (validationPayload.otp !== otpRecord.otp) {
-            return response.badRequest(res, "Invalid OTP supplied.");
+            return response.badRequest(res, "Invalid OTP supplied")
         }
 
         await prisma.otpLogTable.update({
@@ -189,6 +216,7 @@ async function verifyOtp(res: Response, validationPayload: otpValidationType) {
                 timeUsed: new Date(),
             },
         });
+        return await generateToken(res, validationPayload.email);
     } catch (err) {
         console.log("Exception: " + err);
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
