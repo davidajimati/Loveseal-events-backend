@@ -41,7 +41,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
   /**
    * @swagger
-   * /accommodation/facility/{categoryId}:
+   * /accommodation/facilities:
    *   get:
    *     summary: Get facilities by category ID(user)
    *     tags: [Accommodation]
@@ -253,10 +253,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       200:
    *         description:  Successfully
    */
-  router.get(
-    "/hostel/unoccupied",
-    controller.getHostelSpacesLeft,
-  );
+  router.get("/hostel/unoccupied", controller.getHostelSpacesLeft);
 
   /**
    * @swagger
