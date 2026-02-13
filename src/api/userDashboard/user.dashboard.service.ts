@@ -102,7 +102,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
           dependantId: d.id,
           dependantName: d.name,
           dependantAge: d.age,
-          dependantGender: d.gender,
+          dependantGender: d.gender ?? "MALE",
         })),
       },
     };
