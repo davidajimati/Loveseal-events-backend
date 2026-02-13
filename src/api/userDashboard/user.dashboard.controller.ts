@@ -31,12 +31,12 @@ async function dashboard(req: AuthenticatedUser, res: Response) {
 }
 
 async function addDependant(req: AuthenticatedUser, res: Response) {
-  const userID = req.userId;
-
-  if (!userID) {
-    console.log("unauthenticated request to fetch dashboard content");
-    return unauthorizedRequest(res, "You must be logged in");
-  }
+  // const userID = req.userId;
+  //
+  // if (!userID) {
+  //   console.log("unauthenticated request to fetch dashboard content");
+  //   return unauthorizedRequest(res, "You must be logged in");
+  // }
   const result = dependantSchema.safeParse(req.body);
   if (!result.success) return handleZodError(res, result.error);
   return await services.addDependants(res, result.data);

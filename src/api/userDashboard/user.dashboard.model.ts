@@ -34,8 +34,8 @@ interface dashboardInterface {
 }
 
 const dependantSchema = z.object({
-  eventId: z.uuid("eventId must be provided"),
-  regId: z.uuid("regId must be provided"),
+  eventId: z.string("eventId must be provided"),
+  regId: z.string("regId must be provided"),
   name: z.string().min(3, "name too short"),
   age: z.int("age is required"),
   gender: z.enum(["MALE", "FEMALE"], "gender can either be 'FEMALE' or 'MALE'"),
@@ -49,8 +49,8 @@ type bookAccommodationType = z.infer<typeof bookAccommodationSchema>;
 
 
 const payForDependantSchema = z.object({
-    dependantId: z.uuid("dependantId cannot be null"),
-    parentRegId: z.uuid("parentRegId cannot be null"),
+    dependantId: z.string("dependantId cannot be null"),
+    parentRegId: z.string("parentRegId cannot be null"),
 })
 type payForDependantType = z.infer<typeof payForDependantSchema>;
 

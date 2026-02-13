@@ -119,6 +119,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
 
 async function addDependants(res: Response, data: dependantType) {
   try {
+    console.log("operation to add dependants for user");
     const gender = mapGender(data.gender);
     const prismaData = {
       name: data.name,
@@ -131,8 +132,10 @@ async function addDependants(res: Response, data: dependantType) {
     await prisma.dependantInfoTable.create({
       data: prismaData,
     });
+    console.log("Dependants added successfully.");
     return response.successResponse(res, "Dependants added successfully.");
   } catch (err) {
+    console.log("Error occurred adding dependants for user", err);
     console.log(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2021") {
@@ -140,6 +143,12 @@ async function addDependants(res: Response, data: dependantType) {
           res,
           "operation failed. Please contact admin",
         );
+      } else if (err.code === "P2023") {
+          let issue = "Error adding dependant. Please contact admin";
+          if (err.message.includes("eventId")) issue =  "Invalid eventId supplied";
+          else if (err.message.includes("parentRegId")) issue =  "Invalid parent's regId";
+          console.log("Error adding dependant: "+ issue);
+        return response.badRequest(res, issue);
       }
     }
     return response.internalServerError(

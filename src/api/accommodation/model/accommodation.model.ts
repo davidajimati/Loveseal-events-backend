@@ -44,7 +44,7 @@ const createHotelAccommodationSchema = z.object({
 });
 
 const getFacilityObject =  z.object({
-  categoryId: z.uuid("invalid categoryId").trim(),
+  categoryId: z.string().trim(),
   gender: z.enum(["MALE", "FEMALE"]),
   ageRange: z.enum(["0-12", "13-19", "20-22", "23-29", "30-39", "40+"]),
 })

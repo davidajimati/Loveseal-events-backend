@@ -66,7 +66,7 @@ export default function userDashboardRoutes(app: Router) {
    *       401:
    *         description: Unauthorized - Authentication required
    */
-  router.post("/add-dependant", auth, controller.addDependant);
+  router.post("/add-dependant", controller.addDependant);
 
   /**
    * @swagger
