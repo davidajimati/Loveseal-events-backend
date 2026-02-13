@@ -59,7 +59,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       404:
    *         description: Category not found
    */
-  router.get("/facility/:categoryId", auth, controller.getFacility);
+  router.post("/facilities", auth, controller.getFacility);
 
   /**
    * @swagger

@@ -194,6 +194,7 @@ model hostelAccommodation {
   roomCode          String                  @default(uuid())
   roomIdentifier    String
   capacity          Int
+  teenagersRoom     Boolean?
   genderRestriction gender
   adminReserved     Boolean
   capacityOccupied  Int                     @default(0)

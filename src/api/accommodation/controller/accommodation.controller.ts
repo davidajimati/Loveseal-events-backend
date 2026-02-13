@@ -5,10 +5,12 @@ import {
     createAccommodationFacilitySchema,
     createHostelAccommodationSchema,
     createHotelAccommodationSchema,
+    getFacilityObject
 } from "../model/accommodation.model.js";
 import * as service from "../service/accommodation.service.js";
 import * as response from "../../ApiResponseContract.js";
 import {BillingService} from "../../billing/service/billing.service.js";
+import prisma from "../../../../prisma/Prisma.js";
 
 async function createFacility(req: Request, res: Response) {
     const result = createAccommodationFacilitySchema.safeParse(req.body);
@@ -77,14 +79,22 @@ async function getAllCategoriesInfo(req: Request, res: Response) {
 
 async function getFacility(req: Request, res: Response) {
     try {
-        const categoryId = asSingleString((req.params as any).categoryId);
+        const result = getFacilityObject.safeParse(req.body);
 
-        if (!categoryId) {
-            return response.badRequest(res, "categoryId is required");
+        if (!result.success) {
+            console.log("invalid request to fetch facility")
+            return handleZodError(res, result.error);
         }
 
-        const facilities = await service.getFacilityInfo(categoryId);
-        return response.successResponse(res, facilities);
+        const category = await prisma.accommodationCategory.findUnique
+        ({where: {accommodationCategoryId: result.data.categoryId}})
+        if (!category)
+            return response.badRequest(res, "invalid accommodation category");
+
+        if (category.name === "HOSTEL") {
+            return service.getHostelFacilityInfo(res, result.data)
+        }
+        return service.getFacilityInfo(res, result.data.categoryId);
     } catch (error) {
         return response.badRequest(res, error);
     }
