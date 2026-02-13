@@ -41,7 +41,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
   /**
    * @swagger
-   * /accommodation/facility/{categoryId}:
+   * /accommodation/facilities:
    *   get:
    *     summary: Get facilities by category ID(user)
    *     tags: [Accommodation]
@@ -59,38 +59,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       404:
    *         description: Category not found
    */
-  router.get("/facility/:categoryId", auth, controller.getFacility);
-
-  /**
-   * @swagger
-   * /accommodation/admin/facilities/{eventId}:
-   *   get:
-   *     summary: Get facilities by event ID (Admin)
-   *     tags: [Accommodation]
-   *     security:
-   *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: eventId
-   *         required: true
-   *         schema:
-   *           type: string
-   *         description: The ID of the event
-   *
-   *       - in: query
-   *         name: categoryId
-   *         required: false
-   *         schema:
-   *           type: string
-   *         description: Optional category ID to filter facilities
-   *
-   *     responses:
-   *       200:
-   *         description: Facilities retrieved successfully
-   *       404:
-   *         description: Facilities not found
-   */
-  router.get("/admin/facilities/:eventId", adminAuth, controller.getAllEventFacility);
+  router.post("/facilities", auth, controller.getFacility);
 
   /**
    * @swagger
