@@ -338,6 +338,15 @@ async function getHotelRooms(facilityId: string) {
     return allHotels;
 }
 
+export async function getHostels(facilityId: string) {
+    const allHostels = await prisma.hostelAccommodation.findMany({
+        where: {
+            facilityId: facilityId,
+        },
+    });
+    return allHostels;
+}
+
 export {
     createAccommodationFacility,
     createAccommodationCategory,
