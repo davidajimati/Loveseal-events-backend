@@ -196,7 +196,7 @@ model hostelAccommodation {
   roomIdentifier    String
   capacity          Int
   teenagersRoom     Boolean?
-  genderRestriction gender
+  genderRestriction gender?
   adminReserved     Boolean
   capacityOccupied  Int                     @default(0)
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
