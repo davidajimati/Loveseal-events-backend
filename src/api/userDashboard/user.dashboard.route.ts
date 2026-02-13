@@ -42,7 +42,7 @@ export default function userDashboardRoutes(app: Router) {
 
   /**
    * @swagger
-   * /user-dashboard/add-dependent:
+   * /user-dashboard/add-dependant:
    *   post:
    *     summary: Add a dependant to user's registration (User)
    *     tags: [User Dashboard]
@@ -66,11 +66,11 @@ export default function userDashboardRoutes(app: Router) {
    *       401:
    *         description: Unauthorized - Authentication required
    */
-  router.post("/add-dependent", auth, controller.addDependant);
+  router.post("/add-dependant", auth, controller.addDependant);
 
   /**
    * @swagger
-   * /user-dashboard/remove-dependent/{id}:
+   * /user-dashboard/remove-dependant/{id}:
    *   delete:
    *     summary: Remove a dependant from user's registration (User)
    *     tags: [User Dashboard]
@@ -98,7 +98,7 @@ export default function userDashboardRoutes(app: Router) {
    *       404:
    *         description: Dependant not found
    */
-  router.delete("/remove-dependent/:id", auth, controller.removeDependant);
+  router.delete("/remove-dependant/:id", auth, controller.removeDependant);
 
   /**
    * @swagger
