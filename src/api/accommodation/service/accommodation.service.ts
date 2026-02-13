@@ -98,7 +98,6 @@ async function createHotelAccommodation(
                 address: createHotelAccommodationPayload.address,
                 description: createHotelAccommodationPayload.description,
                 available: createHotelAccommodationPayload.available,
-                genderRestriction: createHotelAccommodationPayload.genderRestriction,
                 adminReserved: createHotelAccommodationPayload.adminReserved,
                 price: createHotelAccommodationPayload.price,
                 noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
@@ -337,6 +336,15 @@ async function getHotelRooms(facilityId: string) {
     });
 
     return allHotels;
+}
+
+export async function getHostels(facilityId: string) {
+    const allHostels = await prisma.hostelAccommodation.findMany({
+        where: {
+            facilityId: facilityId,
+        },
+    });
+    return allHostels;
 }
 
 export {

@@ -115,6 +115,21 @@ async function getHotelRooms(req: Request, res: Response) {
     }
 }
 
+async function getHostels(req: Request, res: Response) {
+    try {
+        const facilityId = asSingleString((req.params as any).facilityId);
+
+        if (!facilityId) {
+            return response.badRequest(res, "facilityId is required");
+        }
+
+        const hotelRooms = await service.getHostels(facilityId);
+        return response.successResponse(res, hotelRooms);
+    } catch (error) {
+        return response.badRequest(res, error);
+    }
+}
+
 async function getHostelSpacesLeft(req: Request, res: Response) {
     try {
         await service.getHostelSpacesLeft(res);
@@ -142,5 +157,6 @@ export {
     getAllCategoriesInfo,
     getFacility,
     getHotelRooms,
+    getHostels,
     createAccommodationRequest,
 };
