@@ -25,6 +25,7 @@
     "@prisma/adapter-mariadb": "^7.2.0",
     "@prisma/client": "^6.19.2",
     "express": "^4.22.1",
+    "node-cron": "^4.2.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "tsconfig-paths": "^4.2.0"

@@ -43,6 +43,12 @@ const createHotelAccommodationSchema = z.object({
   noOfRoomsAvailable: z.number().min(0),
 });
 
+const getFacilityObject =  z.object({
+  categoryId: z.string().trim(),
+  gender: z.enum(["MALE", "FEMALE"]),
+  ageRange: z.enum(["0-12", "13-19", "20-22", "23-29", "30-39", "40+"]),
+})
+
 type CreateAccommodationFacilityType = z.infer<
   typeof createAccommodationFacilitySchema
 >;
@@ -56,11 +62,15 @@ type CreateHostelAccommodationType = z.infer<
 type CreateHotelAccommodationType = z.infer<
   typeof createHotelAccommodationSchema
 >;
+
+type getFacilityType =  z.infer<typeof getFacilityObject>;
+
 export type {
   CreateAccommodationFacilityType,
   CreateAccommodationCategoryType,
   CreateHostelAccommodationType,
   CreateHotelAccommodationType,
+  getFacilityType
 };
 
 export {
@@ -68,4 +78,5 @@ export {
   createAccommodationCategorySchema,
   createHostelAccommodationSchema,
   createHotelAccommodationSchema,
+  getFacilityObject
 };

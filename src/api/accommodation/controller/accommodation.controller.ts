@@ -5,10 +5,12 @@ import {
     createAccommodationFacilitySchema,
     createHostelAccommodationSchema,
     createHotelAccommodationSchema,
+    getFacilityObject
 } from "../model/accommodation.model.js";
 import * as service from "../service/accommodation.service.js";
 import * as response from "../../ApiResponseContract.js";
 import {BillingService} from "../../billing/service/billing.service.js";
+import prisma from "../../../../prisma/Prisma.js";
 
 async function createFacility(req: Request, res: Response) {
     const result = createAccommodationFacilitySchema.safeParse(req.body);
@@ -20,7 +22,12 @@ async function createFacility(req: Request, res: Response) {
 }
 
 async function createCategories(req: Request, res: Response) {
-  
+    const eventId = asSingleString((req.params as any).eventId);
+
+    if (!eventId) {
+        return response.badRequest(res, "eventId is required");
+    }
+
     const result = createAccommodationCategorySchema.safeParse(req.body);
 
     if (!result.success) {
@@ -70,34 +77,45 @@ async function getAllCategoriesInfo(req: Request, res: Response) {
     }
 }
 
-async function getFacility(req: Request, res: Response) {
+export async function getAllEventFacility(req: Request, res: Response) {
     try {
-        const categoryId = asSingleString((req.params as any).categoryId);
+        const eventId = asSingleString((req.params as any).eventId);
+        const categoryId = req.query.categoryId as string | undefined;
 
-        if (!categoryId) {
-            return response.badRequest(res, "categoryId is required");
+        console.log(eventId);
+
+        if (!eventId) {
+            return response.badRequest(res, "eventId is required");
         }
 
-        const facilities = await service.getFacilityInfo(categoryId);
+        const facilities = await service.getAllEventsFacility(eventId, categoryId);
         return response.successResponse(res, facilities);
     } catch (error) {
         return response.badRequest(res, error);
     }
 }
 
-async function getAllEventFacility(req: Request, res: Response) {
-  try {
-    const eventId = asSingleString((req.params as any).eventId);
+async function getFacility(req: Request, res: Response) {
+    try {
+        const result = getFacilityObject.safeParse(req.body);
 
-    if (!eventId) {
-      return response.badRequest(res, "eventId is required");
+        if (!result.success) {
+            console.log("invalid request to fetch facility")
+            return handleZodError(res, result.error);
+        }
+
+        const category = await prisma.accommodationCategory.findUnique
+        ({where: {accommodationCategoryId: result.data.categoryId}})
+        if (!category)
+            return response.badRequest(res, "invalid accommodation category");
+
+        if (category.name === "HOSTEL") {
+            return service.getHostelFacilityInfo(res, result.data)
+        }
+        return service.getFacilityInfo(res, result.data.categoryId);
+    } catch (error) {
+        return response.badRequest(res, error);
     }
-
-    const facilities = await service.getAllEventsFacility(eventId);
-    return response.successResponse(res, facilities);
-  } catch (error) {
-    return response.badRequest(res, error);
-  }
 }
 
 async function getHotelRooms(req: Request, res: Response) {
@@ -109,6 +127,21 @@ async function getHotelRooms(req: Request, res: Response) {
         }
 
         const hotelRooms = await service.getHotelRooms(facilityId);
+        return response.successResponse(res, hotelRooms);
+    } catch (error) {
+        return response.badRequest(res, error);
+    }
+}
+
+async function getHostels(req: Request, res: Response) {
+    try {
+        const facilityId = asSingleString((req.params as any).facilityId);
+
+        if (!facilityId) {
+            return response.badRequest(res, "facilityId is required");
+        }
+
+        const hotelRooms = await service.getHostels(facilityId);
         return response.successResponse(res, hotelRooms);
     } catch (error) {
         return response.badRequest(res, error);
@@ -142,6 +175,6 @@ export {
     getAllCategoriesInfo,
     getFacility,
     getHotelRooms,
+    getHostels,
     createAccommodationRequest,
-    getAllEventFacility
 };
