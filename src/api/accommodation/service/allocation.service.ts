@@ -339,7 +339,6 @@ export class AllocationService {
   async revokeExpiredHostelAllocations() {
     try {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      
 
       console.log("CKECKING ALLOCATIONS");
 
@@ -354,7 +353,6 @@ export class AllocationService {
         },
       });
 
-      const allocationIds = expiredAllocations.map((a) => a.id);
       const roomIds = expiredAllocations.map((a) => a.roomId);
 
       const facilityIds = [];
