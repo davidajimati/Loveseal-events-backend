@@ -77,6 +77,24 @@ async function getAllCategoriesInfo(req: Request, res: Response) {
     }
 }
 
+export async function getAllEventFacility(req: Request, res: Response) {
+    try {
+        const eventId = asSingleString((req.params as any).eventId);
+        const categoryId = req.query.categoryId as string | undefined;
+
+        console.log(eventId);
+
+        if (!eventId) {
+            return response.badRequest(res, "eventId is required");
+        }
+
+        const facilities = await service.getAllEventsFacility(eventId, categoryId);
+        return response.successResponse(res, facilities);
+    } catch (error) {
+        return response.badRequest(res, error);
+    }
+}
+
 async function getFacility(req: Request, res: Response) {
     try {
         const result = getFacilityObject.safeParse(req.body);

@@ -63,6 +63,38 @@ export default function registerAccommodationRoutes(app: Router) {
 
     /**
      * @swagger
+     * /accommodation/admin/facilities/{eventId}:
+     *   get:
+     *     summary: Get facilities by event ID (Admin)
+     *     tags: [Accommodation]
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: eventId
+     *         required: true
+     *         schema:
+     *           type: string
+     *         description: The ID of the event
+     *
+     *       - in: query
+     *         name: categoryId
+     *         required: false
+     *         schema:
+     *           type: string
+     *         description: Optional category ID to filter facilities
+     *
+     *     responses:
+     *       200:
+     *         description: Facilities retrieved successfully
+     *       404:
+     *         description: Facilities not found
+     */
+    router.get("/facilities/:eventId", adminAuth, controller.getAllEventFacility);
+
+
+    /**
+     * @swagger
      * /accommodation/admin/facility/{categoryId}:
      *   get:
      *     summary: Get facilities by category ID(admin)
