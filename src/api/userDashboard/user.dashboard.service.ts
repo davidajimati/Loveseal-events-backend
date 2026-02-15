@@ -144,19 +144,26 @@ export async function addDependant(res: Response, data: dependantType) {
                     res,
                     "operation failed. Please contact admin",
                 );
+
             } else if (err.code === "P2023") {
                 let issue = "Error adding dependant. Please contact admin";
                 if (err.message.includes("eventId")) issue = "Invalid eventId supplied";
                 else if (err.message.includes("parentRegId")) issue = "Invalid parent's regId";
                 console.log("Error adding dependant: " + issue);
                 return response.badRequest(res, issue);
+
+            } else if (err.code === "P2003") {
+                return response.badRequest(res, "Invalid regId: parent registration not found");
+            }
+            if (err.code === "P2002") {
+                return response.badRequest(res, "Duplicate record");
             }
         }
-        return response.internalServerError(
-            res,
-            "Error occurred adding a dependant. please try again",
-        );
     }
+    return response.internalServerError(
+        res,
+        "Error occurred adding a dependant. please try again",
+    );
 }
 
 async function addDependants(res: Response, request: dependantsType) {
