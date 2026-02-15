@@ -88,8 +88,7 @@ export async function getAllEventFacility(req: Request, res: Response) {
             return response.badRequest(res, "eventId is required");
         }
 
-        const facilities = await service.getAllEventsFacility(eventId, categoryId);
-        return response.successResponse(res, facilities);
+        return await service.getAllEventsFacility(res, eventId, categoryId);
     } catch (error) {
         return response.badRequest(res, error);
     }
