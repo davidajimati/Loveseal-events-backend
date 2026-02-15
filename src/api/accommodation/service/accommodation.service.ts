@@ -113,25 +113,59 @@ async function createHotelAccommodation(
     }
 }
 
-export async function getAllEventsFacility(eventId: string, categoryId?: string) {
-    const facilityQuery = await prisma.accommodationFacilities.findMany({
-        where: {
-            eventId: eventId,
-            ...(categoryId && {accommodationCategoryId: categoryId}),
-        },
-        select: {
-            accommodationCategoryId: true,
-            facilityId: true,
-            facilityName: true,
-            capacityOccupied: true,
-            totalCapacity: true,
-            selfEmployedUserPrice: true,
-            unemployedUserPrice: true,
-            employedUserPrice: true,
-        },
-    });
+interface fetchFacilities {
+    accommodationCategoryId: string,
+    facilityId: string,
+    facilityName: string,
+    capacityOccupied: number,
+    totalCapacity: number,
+    selfEmployedUserPrice: number | null,
+    unemployedUserPrice: number | null,
+    employedUserPrice: number | null,
+    eventName: String,
+    categoryName: String,
+}
 
-    return facilityQuery;
+export async function getAllEventsFacility(res: Response, eventId: string, categoryId?: string) {
+    try {
+        const facilityQuery = await prisma.accommodationFacilities.findMany({
+            where: {
+                eventId: eventId,
+                ...(categoryId && {accommodationCategoryId: categoryId}),
+            },
+            select: {
+                accommodationCategoryId: true,
+                facilityId: true,
+                facilityName: true,
+                capacityOccupied: true,
+                totalCapacity: true,
+                selfEmployedUserPrice: true,
+                unemployedUserPrice: true,
+                employedUserPrice: true,
+                eventRecord: {select: {eventName: true}},
+                categoryRecord: {select: {name: true}}
+            },
+            orderBy: [{facilityName: "asc"}],
+        });
+
+        const facilityList: fetchFacilities[] = facilityQuery.map((f => ({
+            facilityName: f.facilityName,
+            facilityId: f.facilityId,
+            accommodationCategoryId: f.accommodationCategoryId,
+            capacityOccupied: f.capacityOccupied,
+            totalCapacity: f.totalCapacity,
+            selfEmployedUserPrice: f.selfEmployedUserPrice,
+            unemployedUserPrice: f.unemployedUserPrice,
+            employedUserPrice: f.employedUserPrice,
+            eventName: f.eventRecord?.eventName ?? "",
+            categoryName: f.categoryRecord?.name ?? "",
+        })));
+
+        return response.successResponse(res, facilityList);
+    } catch (error) {
+        console.log(`Error occurred fetching facilities for event: ${eventId}: ==> ` + error);
+        return response.internalServerError(res, error);
+    }
 }
 
 async function getHostelSpacesLeft(res: Response) {
