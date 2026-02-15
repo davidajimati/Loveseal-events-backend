@@ -374,6 +374,31 @@ const options: swaggerJSDoc.Options = {
             adminReserved: { type: "boolean" },
           },
         },
+
+        GetFacilityRequest: {
+          type: "object",
+          required: ["categoryId", "gender", "ageRange"],
+          properties: {
+            categoryId: {
+              type: "string",
+              description: "The facility category identifier",
+              example: "cat_123456",
+            },
+            gender: {
+              type: "string",
+              enum: ["MALE", "FEMALE"],
+              description: "Gender specification for the facility",
+              example: "MALE",
+            },
+            ageRange: {
+              type: "string",
+              enum: ["0-12", "13-19", "20-22", "23-29", "30-39", "40+"],
+              description: "Age range category",
+              example: "20-22",
+            },
+          },
+        },
+
         CreateHotelAccommodationRequest: {
           type: "object",
           required: [
