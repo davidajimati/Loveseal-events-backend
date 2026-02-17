@@ -85,6 +85,7 @@ model eventInformation {
   startDate               DateTime
   endDate                 DateTime
   venue                   String?
+  forTeenagers            Boolean?
   eventStatus             eventStatus
   accommodationNeeded     Boolean
   registrationOpenAt      DateTime
