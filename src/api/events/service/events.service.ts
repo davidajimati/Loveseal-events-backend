@@ -25,7 +25,17 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
         }
     }
 
-    async retrieveActiveEvents(res: Response) {
+    async retrieveActiveEvents(res: Response, forTeenagers: boolean) {
+        if (forTeenagers) {
+            const activeEvents = await prisma.eventInformation.findMany({
+                where: {
+                    eventStatus: "ACTIVE",
+                    forTeenagers: true
+                }
+            });
+            return response.successResponse(res, {activeEvents});
+        }
+
         const activeEvents = await prisma.eventInformation.findMany({
             where: {
                 eventStatus: "ACTIVE"
