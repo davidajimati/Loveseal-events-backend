@@ -27,8 +27,8 @@ class EventsController {
     }
 
     async getActiveEvents(req: AuthenticatedUser, res: Response) {
-        const forTeenagers = req.params.forTeenagers;
-        if (forTeenagers) {
+        const teens = req.query.teens;
+        if (teens == "true") {
             return await this.eventsService.retrieveActiveEvents(res, true);
         }
         return await this.eventsService.retrieveActiveEvents(res, false);
