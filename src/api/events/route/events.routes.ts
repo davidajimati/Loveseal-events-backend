@@ -78,7 +78,7 @@ export default function registerEventRoutes(app: Router) {
      *       401:
      *         description: Unauthorized - Admin authentication required
      */
-    router.get("/user/active", (req, res) => eventsController.getActiveEvents(req, res));
+    router.get("/user/active", auth, (req, res) => eventsController.getActiveEvents(req, res));
 
 
   /**
