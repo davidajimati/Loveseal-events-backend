@@ -139,7 +139,7 @@ model dependantInfoTable {
   amount           BigInt?                @default(7000)
   dateCreated      DateTime?              @default(now())
   updatedAt        DateTime?
-  paymentReference String?                @unique
+  paymentReference String?
   eventInfo        eventInformation       @relation(fields: [eventId], references: [eventId])
   parentRegInfo    eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
 
