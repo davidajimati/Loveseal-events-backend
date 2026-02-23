@@ -1,289 +1,336 @@
-import {PrismaClient, Prisma} from "@prisma/client";
-import {type Response} from "express";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { type Response } from "express";
 import type {
-    dependantType,
-    dependantsType,
-    bookAccommodationType,
-    payForDependantType,
-    dashboardInterface,
+  dependantType,
+  dependantsType,
+  bookAccommodationType,
+  payForDependantType,
+  dashboardInterface,
+  payForAllDependantType,
 } from "./user.dashboard.model.js";
 import * as response from "../ApiResponseContract.js";
-import {gender} from "@prisma/client";
-import {BillingService} from "../billing/service/billing.service.js";
-import type {InitiatePaymentRequest} from "../billing/model/billing.model.js";
-import {dependantPrice} from "../../common/constants.js";
-import {generatePaymentReference} from "../../common/utils.js";
+import { gender } from "@prisma/client";
+import { BillingService } from "../billing/service/billing.service.js";
+import type { InitiatePaymentRequest } from "../billing/model/billing.model.js";
+import { dependantPrice } from "../../common/constants.js";
+import { generatePaymentReference } from "../../common/utils.js";
 
 function mapGender(gender: string): gender {
-    switch (gender) {
-        case "MALE":
-            return "MALE";
-        case "FEMALE":
-            return "FEMALE";
-        default:
-            return "MALE";
-    }
+  switch (gender) {
+    case "MALE":
+      return "MALE";
+    case "FEMALE":
+      return "FEMALE";
+    default:
+      return "MALE";
+  }
 }
 
 const prisma = new PrismaClient();
 
 async function fetchDashboard(res: Response, userId: string, eventId: string) {
-    try {
-        // Fetch core records in parallel
-        const [user, event, regRecord, paymentRecord] = await Promise.all([
-            prisma.userInformation.findUnique({where: {userId}}),
-            prisma.eventInformation.findUnique({where: {eventId}}),
-            prisma.eventRegistrationTable.findFirst({where: {userId, eventId}}),
-            prisma.paymentRecords.findFirst({where: {userId, eventId}}),
-        ]);
+  try {
+    // Fetch core records in parallel
+    const [user, event, regRecord, paymentRecord] = await Promise.all([
+      prisma.userInformation.findUnique({ where: { userId } }),
+      prisma.eventInformation.findUnique({ where: { eventId } }),
+      prisma.eventRegistrationTable.findFirst({ where: { userId, eventId } }),
+      prisma.paymentRecords.findFirst({ where: { userId, eventId } }),
+    ]);
 
-        if (!user) {
-            console.log(`record for user ${userId} not found.`);
-            return response.badRequest(res, "Create an account to begin");
-        }
-
-        if (!event) {
-            console.log(`event ${eventId} not found.`);
-            return response.badRequest(
-                res,
-                "Cannot get dashboard content for an inexistent event",
-            );
-        }
-
-        if (!regRecord) {
-            console.log(`Registration record for user ${userId} not found.`);
-            return response.badRequest(res, "You're not registered for this event");
-        }
-
-        const paymentSuccessful = paymentRecord?.paymentStatus === "SUCCESSFUL";
-
-        const dependants = await prisma.dependantInfoTable.findMany({
-            where: {parentRegId: regRecord.regId, eventId},
-            select: {id: true, name: true, age: true, gender: true},
-            orderBy: {dateCreated: "desc"},
-        });
-
-        const mealTicket =
-            regRecord.participationMode === "CAMPER" &&
-            regRecord.registrationCompleted === true &&
-            paymentSuccessful;
-
-        let roomInfo;
-        if (regRecord.accommodationDetails) roomInfo = JSON.parse(regRecord.accommodationDetails)
-        else roomInfo = "";
-
-        const dashboard: dashboardInterface = {
-            userId,
-            regId: regRecord.regId,
-            firstName: user.firstName ?? "",
-            attendanceType: regRecord.participationMode,
-            mealTicket,
-            eventData: {
-                eventId,
-                eventTitle: event.eventName,
-                date: event.startDate,
-                ...(event.venue != null && {venue: event.venue}),
-            },
-            accommodation: {
-                requiresAccommodation:
-                    (regRecord.accommodationType ?? "NONE") !== "NONE",
-                paidForAccommodation: paymentSuccessful,
-                ...(paymentRecord?.amount !== undefined && paymentSuccessful
-                    ? {amountPaidForAccommodation: paymentRecord.amount}
-                    : {amountPaidForAccommodation: 0}),
-                ...(regRecord.accommodationType != null && {
-                    accommodationType: regRecord.accommodationType.toString(),
-                }),
-                room: roomInfo,
-                accommodationImageUrl: "",
-            },
-            dependants: {
-                dependantCount: dependants.length,
-                dependantsData: dependants.map((d) => ({
-                    dependantId: d.id,
-                    dependantName: d.name,
-                    dependantAge: d.age,
-                    dependantGender: d.gender ?? "MALE",
-                })),
-            },
-        };
-
-        return response.successResponse(res, dashboard);
-    } catch (err) {
-        console.log("Error occurred fetching dashboard", err);
-        return response.internalServerError(
-            res,
-            "Error occurred fetching dashboard. please try again",
-        );
+    if (!user) {
+      console.log(`record for user ${userId} not found.`);
+      return response.badRequest(res, "Create an account to begin");
     }
+
+    if (!event) {
+      console.log(`event ${eventId} not found.`);
+      return response.badRequest(
+        res,
+        "Cannot get dashboard content for an inexistent event",
+      );
+    }
+
+    if (!regRecord) {
+      console.log(`Registration record for user ${userId} not found.`);
+      return response.badRequest(res, "You're not registered for this event");
+    }
+
+    const paymentSuccessful = paymentRecord?.paymentStatus === "SUCCESSFUL";
+
+    const dependants = await prisma.dependantInfoTable.findMany({
+      where: { parentRegId: regRecord.regId, eventId },
+      select: { id: true, name: true, age: true, gender: true },
+      orderBy: { dateCreated: "desc" },
+    });
+
+    const mealTicket =
+      regRecord.participationMode === "CAMPER" &&
+      regRecord.registrationCompleted === true &&
+      paymentSuccessful;
+
+    let roomInfo;
+    if (regRecord.accommodationDetails)
+      roomInfo = JSON.parse(regRecord.accommodationDetails);
+    else roomInfo = "";
+
+    const dashboard: dashboardInterface = {
+      userId,
+      regId: regRecord.regId,
+      firstName: user.firstName ?? "",
+      attendanceType: regRecord.participationMode,
+      mealTicket,
+      eventData: {
+        eventId,
+        eventTitle: event.eventName,
+        date: event.startDate,
+        ...(event.venue != null && { venue: event.venue }),
+      },
+      accommodation: {
+        requiresAccommodation:
+          (regRecord.accommodationType ?? "NONE") !== "NONE",
+        paidForAccommodation: paymentSuccessful,
+        ...(paymentRecord?.amount !== undefined && paymentSuccessful
+          ? { amountPaidForAccommodation: paymentRecord.amount }
+          : { amountPaidForAccommodation: 0 }),
+        ...(regRecord.accommodationType != null && {
+          accommodationType: regRecord.accommodationType.toString(),
+        }),
+        room: roomInfo,
+        accommodationImageUrl: "",
+      },
+      dependants: {
+        dependantCount: dependants.length,
+        dependantsData: dependants.map((d) => ({
+          dependantId: d.id,
+          dependantName: d.name,
+          dependantAge: d.age,
+          dependantGender: d.gender ?? "MALE",
+        })),
+      },
+    };
+
+    return response.successResponse(res, dashboard);
+  } catch (err) {
+    console.log("Error occurred fetching dashboard", err);
+    return response.internalServerError(
+      res,
+      "Error occurred fetching dashboard. please try again",
+    );
+  }
 }
 
 export async function addDependant(res: Response, data: dependantType) {
-    try {
-        console.log("operation to add dependants for user");
-        const gender = mapGender(data.gender);
-        const prismaData = {
-            name: data.name,
-            age: data.age,
-            gender: gender,
-            parentRegId: data.regId,
-            eventId: data.eventId,
-        };
+  try {
+    console.log("operation to add dependants for user");
+    const gender = mapGender(data.gender);
+    const prismaData = {
+      name: data.name,
+      age: data.age,
+      gender: gender,
+      parentRegId: data.regId,
+      eventId: data.eventId,
+    };
 
-        await prisma.dependantInfoTable.create({
-            data: prismaData,
-        });
-        console.log("Dependants added successfully.");
-        return response.successResponse(res, "Dependants added successfully.");
-    } catch (err) {
-        console.log("Error occurred adding dependants for user", err);
-        console.log(err);
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-            if (err.code === "P2021") {
-                return response.internalServerError(
-                    res,
-                    "operation failed. Please contact admin",
-                );
-
-            } else if (err.code === "P2023") {
-                let issue = "Error adding dependant. Please contact admin";
-                if (err.message.includes("eventId")) issue = "Invalid eventId supplied";
-                else if (err.message.includes("parentRegId")) issue = "Invalid parent's regId";
-                console.log("Error adding dependant: " + issue);
-                return response.badRequest(res, issue);
-
-            } else if (err.code === "P2003") {
-                return response.badRequest(res, "Invalid regId: parent registration not found");
-            }
-            if (err.code === "P2002") {
-                return response.badRequest(res, "Duplicate record");
-            }
-        }
+    await prisma.dependantInfoTable.create({
+      data: prismaData,
+    });
+    console.log("Dependants added successfully.");
+    return response.successResponse(res, "Dependants added successfully.");
+  } catch (err) {
+    console.log("Error occurred adding dependants for user", err);
+    console.log(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2021") {
+        return response.internalServerError(
+          res,
+          "operation failed. Please contact admin",
+        );
+      } else if (err.code === "P2023") {
+        let issue = "Error adding dependant. Please contact admin";
+        if (err.message.includes("eventId")) issue = "Invalid eventId supplied";
+        else if (err.message.includes("parentRegId"))
+          issue = "Invalid parent's regId";
+        console.log("Error adding dependant: " + issue);
+        return response.badRequest(res, issue);
+      } else if (err.code === "P2003") {
+        return response.badRequest(
+          res,
+          "Invalid regId: parent registration not found",
+        );
+      }
+      if (err.code === "P2002") {
+        return response.badRequest(res, "Duplicate record");
+      }
     }
-    return response.internalServerError(
-        res,
-        "Error occurred adding a dependant. please try again",
-    );
+  }
+  return response.internalServerError(
+    res,
+    "Error occurred adding a dependant. please try again",
+  );
 }
 
 async function addDependants(res: Response, request: dependantsType) {
-    try {
-        console.log("operation to add dependants for user");
+  try {
+    console.log("operation to add dependants for user");
 
-        const prismaData = request.map(d => ({
-            name: d.name,
-            age: d.age,
-            gender: mapGender(d.gender),
-            parentRegId: d.regId,
-            eventId: d.eventId
-        }));
+    const prismaData = request.map((d) => ({
+      name: d.name,
+      age: d.age,
+      gender: mapGender(d.gender),
+      parentRegId: d.regId,
+      eventId: d.eventId,
+    }));
 
-        await prisma.dependantInfoTable.createMany({
-            data: prismaData,
-        });
-        console.log("Dependants added successfully.");
-        return response.successResponse(res, "Dependants added successfully.");
-
-    } catch (err) {
-        console.log("Error occurred adding dependants for user", err);
-        console.log(err);
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
-            if (err.code === "P2021") {
-                return response.internalServerError(
-                    res,
-                    "operation failed. Please contact admin",
-                );
-            } else if (err.code === "P2023") {
-                let issue = "Error adding dependant. Please contact admin";
-                if (err.message.includes("eventId")) issue = "Invalid eventId supplied";
-                else if (err.message.includes("parentRegId")) issue = "Invalid parent's regId";
-                console.log("Error adding dependant: " + issue);
-                return response.badRequest(res, issue);
-            }
-        }
+    await prisma.dependantInfoTable.createMany({
+      data: prismaData,
+    });
+    console.log("Dependants added successfully.");
+    return response.successResponse(res, "Dependants added successfully.");
+  } catch (err) {
+    console.log("Error occurred adding dependants for user", err);
+    console.log(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2021") {
         return response.internalServerError(
-            res,
-            "Error occurred adding a dependant. please try again",
+          res,
+          "operation failed. Please contact admin",
         );
+      } else if (err.code === "P2023") {
+        let issue = "Error adding dependant. Please contact admin";
+        if (err.message.includes("eventId")) issue = "Invalid eventId supplied";
+        else if (err.message.includes("parentRegId"))
+          issue = "Invalid parent's regId";
+        console.log("Error adding dependant: " + issue);
+        return response.badRequest(res, issue);
+      }
     }
+    return response.internalServerError(
+      res,
+      "Error occurred adding a dependant. please try again",
+    );
+  }
 }
 
 async function removeDependant(res: Response, dependantId: string) {
-    try {
-        await prisma.dependantInfoTable.delete({where: {id: dependantId}});
-        return response.successResponse(res, "dependant removed");
-    } catch (error) {
-        console.log("Exception: " + error);
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code == "P2025") {
-                return response.badRequest(
-                    res,
-                    "Inexistent dependant Cannot be removed",
-                );
-            }
-        }
+  try {
+    await prisma.dependantInfoTable.delete({ where: { id: dependantId } });
+    return response.successResponse(res, "dependant removed");
+  } catch (error) {
+    console.log("Exception: " + error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code == "P2025") {
+        return response.badRequest(
+          res,
+          "Inexistent dependant Cannot be removed",
+        );
+      }
     }
+  }
 }
 
 /**
  * add semilore's work the following two endpoints
  */
 async function bookAccommodation(
-    res: Response,
-    userId: string,
-    data: bookAccommodationType,
-) {
-}
+  res: Response,
+  userId: string,
+  data: bookAccommodationType,
+) {}
 
 async function payForDependants(
-    res: Response,
-    userId: string,
-    data: payForDependantType,
+  res: Response,
+  userId: string,
+  data: payForDependantType,
 ) {
-    try {
-        const billingService = new BillingService();
+  try {
+    const billingService = new BillingService();
 
-        const dependant = await prisma.dependantInfoTable.findFirst({
-            where: {
-                id: data.dependantId,
-                parentRegId: data.parentRegId,
-            },
-        });
+    const dependant = await prisma.dependantInfoTable.findFirst({
+      where: {
+        id: data.dependantId,
+        parentRegId: data.parentRegId,
+      },
+    });
 
-        if (dependant == null) {
-            throw new Error("Dependant not found");
-        }
-
-        const paymentRequest: InitiatePaymentRequest = {
-            amount: dependantPrice,
-            eventId: dependant.eventId,
-            reference: generatePaymentReference(),
-            userId: userId,
-            narration: "PAYMENT FOR DEPENDENT",
-            reason: "DEPENDENT",
-        };
-
-        await prisma.dependantInfoTable.update({
-            where: {
-                id: data.dependantId,
-                parentRegId: data.parentRegId,
-            },
-            data: {
-                paymentReference: paymentRequest.reference,
-            },
-        });
-
-        return await billingService.initializePayment(res, paymentRequest);
-    } catch (error) {
-        console.log(error);
-        return response.badRequest(res, "Error completing payment");
+    if (dependant == null) {
+      throw new Error("Dependant not found");
     }
+
+    const paymentRequest: InitiatePaymentRequest = {
+      amount: dependantPrice,
+      eventId: dependant.eventId,
+      reference: generatePaymentReference(),
+      userId: userId,
+      narration: "PAYMENT FOR DEPENDENT",
+      reason: "DEPENDENT",
+    };
+
+    await prisma.dependantInfoTable.update({
+      where: {
+        id: data.dependantId,
+        parentRegId: data.parentRegId,
+      },
+      data: {
+        paymentReference: paymentRequest.reference,
+      },
+    });
+
+    return await billingService.initializePayment(res, paymentRequest);
+  } catch (error) {
+    console.log(error);
+    return response.badRequest(res, "Error completing payment");
+  }
+}
+
+async function payForAllDependants(
+  res: Response,
+  userId: string,
+  data: payForAllDependantType,
+) {
+  try {
+    const billingService = new BillingService();
+
+    const dependants = await prisma.dependantInfoTable.findMany({
+      where: {
+        parentRegId: data.parentRegId,
+      },
+    });
+
+    if (!dependants || dependants.length == 0) {
+      throw new Error("Dependant not found");
+    }
+
+    const paymentRequest: InitiatePaymentRequest = {
+      amount: dependantPrice * dependants.length,
+      eventId: dependants[0]!.eventId,
+      reference: generatePaymentReference(),
+      userId: userId,
+      narration: "PAYMENT FOR DEPENDENTS",
+      reason: "DEPENDENT",
+    };
+
+    await prisma.dependantInfoTable.updateMany({
+      where: {
+        parentRegId: data.parentRegId,
+      },
+      data: {
+        paymentReference: paymentRequest.reference,
+      },
+    });
+
+    return await billingService.initializePayment(res, paymentRequest);
+  } catch (error) {
+    console.log(error);
+    return response.badRequest(res, "Error completing payment");
+  }
 }
 
 export {
-    fetchDashboard,
-    addDependants,
-    removeDependant,
-    bookAccommodation,
-    payForDependants,
+  fetchDashboard,
+  addDependants,
+  removeDependant,
+  bookAccommodation,
+  payForAllDependants,
+  payForDependants,
 };

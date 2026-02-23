@@ -55,14 +55,21 @@ const payForDependantSchema = z.object({
     dependantId: z.string("dependantId cannot be null"),
     parentRegId: z.string("parentRegId cannot be null"),
 })
+
+const payForAllDependantSchema = z.object({
+  parentRegId: z.string("parentRegId cannot be null"),
+});
 type payForDependantType = z.infer<typeof payForDependantSchema>;
+type payForAllDependantType = z.infer<typeof payForAllDependantSchema>;
 
 export {
     dependantSchema,
     bookAccommodationSchema,
+    payForAllDependantSchema,
     payForDependantSchema,
     dependantsSchema,
     type dependantType,
+    type payForAllDependantType,
     type dependantsType,
     type bookAccommodationType,
     type payForDependantType,

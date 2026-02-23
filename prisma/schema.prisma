@@ -144,6 +144,7 @@ model dependantInfoTable {
   parentRegInfo    eventRegistrationTable @relation(fields: [parentRegId], references: [regId])
 
   @@index([eventId], map: "idx_registrant_dependants_table_eventId_fkey")
+  @@index([paymentReference])
   @@index([parentRegId], map: "idx_registrant_dependants_table_parentRegId_fkey")
   @@map("registrant_dependants_table")
 }
