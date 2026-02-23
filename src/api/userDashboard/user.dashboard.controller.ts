@@ -8,6 +8,7 @@ import {
   dependantsSchema,
   bookAccommodationSchema,
   payForDependantSchema,
+  payForAllDependantSchema,
 } from "./user.dashboard.model.js";
 
 function asSingleString(value: unknown): string | undefined {
@@ -79,6 +80,17 @@ async function payForDependants(req: AuthenticatedUser, res: Response) {
   return await services.payForDependants(res, userID, result.data);
 }
 
+async function payForAllDependants(req: AuthenticatedUser, res: Response) {
+  const userID = req.userId;
+  if (!userID) {
+    console.log("unauthenticated request to fetch dashboard content");
+    return unauthorizedRequest(res, "You must be logged in");
+  }
+  const result = payForAllDependantSchema.safeParse(req.body);
+  if (!result.success) return handleZodError(res, result.error);
+  return await services.payForAllDependants(res, userID, result.data);
+}
+
 async function bookAccommodation(req: AuthenticatedUser, res: Response) {
   const userID = req.userId;
   if (!userID) {
@@ -95,5 +107,6 @@ export {
   addDependant,
   bookAccommodation,
   payForDependants,
+  payForAllDependants,
   removeDependant,
 };

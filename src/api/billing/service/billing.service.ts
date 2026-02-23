@@ -49,7 +49,7 @@ export class BillingService {
       },
     });
 
-    const dependent = await prisma.dependantInfoTable.findFirst({
+    const dependants = await prisma.dependantInfoTable.findMany({
       where: {
         paymentReference: req.data.reference,
       },
@@ -96,8 +96,8 @@ export class BillingService {
           });
         }
 
-        if (dependent != null) {
-          await prisma.dependantInfoTable.update({
+        if (dependants != null) {
+          await prisma.dependantInfoTable.updateMany({
             where: {
               paymentReference: req.data.reference,
             },
