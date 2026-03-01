@@ -221,7 +221,7 @@ export class AllocationService {
 
   private async processHostelAccommodation(
     res: Response,
-    registeredUser: { regId: string },
+    registeredUser: { regId: string, userId: string },
     facility: accommodationFacilities,
     initiateAllocationRequest: InitiateAccommodationAllocationType,
   ) {
@@ -292,6 +292,16 @@ export class AllocationService {
         where: { facilityId: facility.facilityId },
         data: { capacityOccupied: { increment: 1 } },
       });
+
+      await tx.eventRegistrationTable.update({
+        where: {
+          regId: registeredUser.regId
+        },
+        data: {
+          accommodationType: "HOSTEL",
+          status: "PENDING"
+        }
+      })
 
       const paymentRequest: InitiatePaymentRequest = {
         amount: amountToBePaid as any,
