@@ -342,81 +342,81 @@ export class AllocationService {
 
       console.log("CKECKING HOSTEL ALLOCATIONS");
 
-      const expiredAllocations = await prisma.hostelAllocations.findMany({
-        where: {
-          allocationStatus: "PENDING",
-          allocatedAt: { lt: oneHourAgo },
-        },
-        select: {
-          id: true,
-          roomId: true,
-        },
-      });
-
-      const roomIds = expiredAllocations.map((a) => a.roomId);
-
-      const facilityIds = [];
-
-      for (const roomId of roomIds) {
-        const room = await prisma.hostelAccommodation.findFirst({
+      return await prisma.$transaction(async (tx) => {
+        // 1) Read expired allocations INSIDE the transaction
+        const expiredAllocations = await tx.hostelAllocations.findMany({
           where: {
-            roomId: roomId,
+            allocationStatus: "PENDING",
+            allocatedAt: { lt: oneHourAgo },
+          },
+          select: {
+            id: true,
+            roomId: true,
           },
         });
 
-        if (room) {
-          facilityIds.push(room.facilityId);
-        }
-      }
+        if (expiredAllocations.length === 0) return null;
 
-      const roomCounts = expiredAllocations.reduce(
-        (acc, allocation) => {
-          if (allocation.roomId) {
-            acc[allocation.roomId] = (acc[allocation.roomId] || 0) + 1;
-          }
+        // 2) Build roomCounts from allocations
+        const roomCounts = expiredAllocations.reduce((acc, a) => {
+          if (!a.roomId) return acc;
+          acc[a.roomId] = (acc[a.roomId] ?? 0) + 1;
           return acc;
-        },
-        {} as Record<string, number>,
-      );
+        }, {} as Record<string, number>);
 
-      const facilityCounts = facilityIds.reduce(
-        (acc, facilityId) => {
-          acc[facilityId] = (acc[facilityId] || 0) + 1;
+        const roomIds = Object.keys(roomCounts);
+        if (roomIds.length === 0) return null;
 
+        // 3) Fetch all rooms in ONE query (kills N+1)
+        const rooms = await tx.hostelAccommodation.findMany({
+          where: { roomId: { in: roomIds } },
+          select: { roomId: true, facilityId: true },
+        });
+
+        const roomToFacility = new Map(rooms.map((r) => [r.roomId, r.facilityId]));
+
+        // 4) Facility counts should be derived from roomCounts
+        const facilityCounts = roomIds.reduce((acc, roomId) => {
+          const facilityId = roomToFacility.get(roomId);
+          if (!facilityId) return acc;
+          acc[facilityId] = (acc[facilityId] ?? 0) + (roomCounts[roomId] ?? 0);
           return acc;
-        },
-        {} as Record<string, number>,
-      );
+        }, {} as Record<string, number>);
 
-      await prisma.$transaction(async (tx) => {
-        // 1. Revoke allocations
+        // 5) Revoke allocations (guard ensures idempotence if called twice)
         await tx.hostelAllocations.updateMany({
-          where: { id: { in: expiredAllocations.map((a) => a.id) } },
+          where: {
+            id: { in: expiredAllocations.map((a) => a.id) },
+            allocationStatus: "PENDING",
+          },
           data: { allocationStatus: "REVOKED" },
         });
 
-        // 2. Update rooms
-        for (const [roomId, count] of Object.entries(roomCounts)) {
-          await tx.hostelAccommodation.update({
-            where: { roomId },
-            data: { capacityOccupied: { decrement: count } },
-          });
-        }
+        // 6) Apply decrements (run in parallel inside tx)
+        await Promise.all(
+            Object.entries(roomCounts).map(([roomId, count]) =>
+                tx.hostelAccommodation.update({
+                  where: { roomId },
+                  data: { capacityOccupied: { decrement: count } },
+                }),
+            ),
+        );
 
-        // 3. Update facilities
-        for (const [facilityId, count] of Object.entries(facilityCounts)) {
-          await tx.accommodationFacilities.update({
-            where: { facilityId },
-            data: { capacityOccupied: { decrement: count } },
-          });
-        }
+        await Promise.all(
+            Object.entries(facilityCounts).map(([facilityId, count]) =>
+                tx.accommodationFacilities.update({
+                  where: { facilityId },
+                  data: { capacityOccupied: { decrement: count } },
+                }),
+            ),
+        );
+
+        return null;
       });
-
-      return null;
     } catch (error) {
       console.error(
-        `[${new Date().toISOString()}] Error revoking allocations:`,
-        error,
+          `[${new Date().toISOString()}] Error revoking allocations:`,
+          error,
       );
     }
   }
@@ -437,71 +437,72 @@ export class AllocationService {
         },
       });
 
-      const hotelRoomIds = expiredAllocations.map((a) => a.hotelRoomId);
+      if (expiredAllocations.length === 0) return null;
 
-      const facilityIds = [];
+      // Count how many allocations per roomTypeId
+      const roomCounts = expiredAllocations.reduce((acc, a) => {
+        if (a.hotelRoomId) acc[a.hotelRoomId] = (acc[a.hotelRoomId] ?? 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
 
-      for (const roomId of hotelRoomIds) {
-        const room = await prisma.hotelAccommodation.findFirst({
-          where: {
-            roomTypeId: roomId,
-          },
-        });
+      const roomTypeIds = Object.keys(roomCounts);
+      if (roomTypeIds.length === 0) return null;
 
-        if (room) {
-          facilityIds.push(room.facilityId);
-        }
+      // Fetch room -> facility mapping in ONE query (no N+1)
+      const rooms = await prisma.hotelAccommodation.findMany({
+        where: { roomTypeId: { in: roomTypeIds } },
+        select: { roomTypeId: true, facilityId: true },
+      });
+
+      const roomToFacility = new Map<string, string>();
+      for (const r of rooms) roomToFacility.set(r.roomTypeId, r.facilityId);
+
+      // Facility counts derived from roomCounts * mapping
+      const facilityCounts: Record<string, number> = {};
+      for (const [roomTypeId, count] of Object.entries(roomCounts)) {
+        const facilityId = roomToFacility.get(roomTypeId);
+        if (!facilityId) continue; // skip if mapping missing
+        facilityCounts[facilityId] = (facilityCounts[facilityId] ?? 0) + count;
       }
 
-      const roomCounts = expiredAllocations.reduce(
-        (acc, allocation) => {
-          if (allocation.hotelRoomId) {
-            acc[allocation.hotelRoomId] =
-              (acc[allocation.hotelRoomId] || 0) + 1;
-          }
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
-
-      const facilityCounts = facilityIds.reduce(
-        (acc, facilityId) => {
-          acc[facilityId] = (acc[facilityId] || 0) + 1;
-
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
+      const allocationIds = expiredAllocations.map((a) => a.id);
 
       await prisma.$transaction(async (tx) => {
-        // 1. Revoke allocations
+        // 1. Revoke allocations (idempotent-ish safety: keep status filter)
         await tx.hotelAllocations.updateMany({
-          where: { id: { in: expiredAllocations.map((a) => a.id) } },
+          where: {
+            id: { in: allocationIds },
+            allocationStatus: "PENDING",
+          },
           data: { allocationStatus: "REVOKED" },
         });
 
-        // 2. Update rooms
-        for (const [roomTypeId, count] of Object.entries(roomCounts)) {
-          await tx.hotelAccommodation.update({
-            where: { roomTypeId },
-            data: { noOfRoomsOccupied: { decrement: count } },
-          });
-        }
+        // 2. Update rooms (parallel inside the transaction)
+        await Promise.all(
+            Object.entries(roomCounts).map(([roomTypeId, count]) =>
+                tx.hotelAccommodation.update({
+                  where: { roomTypeId },
+                  data: { noOfRoomsOccupied: { decrement: count } },
+                }),
+            ),
+        );
 
-        // 3. Update facilities
-        for (const [facilityId, count] of Object.entries(facilityCounts)) {
-          await tx.accommodationFacilities.update({
-            where: { facilityId },
-            data: { capacityOccupied: { decrement: count } },
-          });
-        }
+        // 3. Update facilities (parallel inside the transaction)
+        await Promise.all(
+            Object.entries(facilityCounts).map(([facilityId, count]) =>
+                tx.accommodationFacilities.update({
+                  where: { facilityId },
+                  data: { capacityOccupied: { decrement: count } },
+                }),
+            ),
+        );
       });
 
       return null;
     } catch (error) {
       console.error(
-        `[${new Date().toISOString()}] Error revoking allocations:`,
-        error,
+          `[${new Date().toISOString()}] Error revoking allocations:`,
+          error,
       );
     }
   }
