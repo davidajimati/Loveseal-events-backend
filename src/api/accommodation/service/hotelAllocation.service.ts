@@ -154,6 +154,7 @@ export class HotelAllocationService {
         },
       });
 
+      console.log("changing accommodation choice to HOTEL")
       await tx.eventRegistrationTable.update({
         where: {
           regId: registeredUser.regId

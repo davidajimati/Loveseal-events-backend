@@ -293,6 +293,7 @@ export class AllocationService {
         data: { capacityOccupied: { increment: 1 } },
       });
 
+      console.log("update accommodation choice to HOSTEL");
       await tx.eventRegistrationTable.update({
         where: {
           regId: registeredUser.regId
