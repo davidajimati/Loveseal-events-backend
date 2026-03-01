@@ -159,7 +159,7 @@ export class HotelAllocationService {
           regId: registeredUser.regId
         },
         data: {
-          accommodationType: "HOSTEL",
+          accommodationType: "HOTEL",
           status: "PENDING"
         }
       })
