@@ -38,7 +38,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/", (_req, res) => {
-  res.redirect(`https://wothsmflx.org`);
+  res.redirect(`https://www.smflx.org`);
 });
 
 const PORT = process.env.SERVER_PORT || 8080;

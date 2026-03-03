@@ -154,6 +154,17 @@ export class HotelAllocationService {
         },
       });
 
+      console.log("changing accommodation choice to HOTEL")
+      await tx.eventRegistrationTable.update({
+        where: {
+          regId: registeredUser.regId
+        },
+        data: {
+          accommodationType: "HOTEL",
+          status: "PENDING"
+        }
+      })
+
       paymentRequest = {
         //@ts-ignore
         amount: availableRoom[0].price,
