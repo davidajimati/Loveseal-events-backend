@@ -340,7 +340,7 @@ export class AllocationService {
     try {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-      console.log("CKECKING HOSTEL ALLOCATIONS");
+      console.log("CHECKING HOSTEL ALLOCATIONS");
 
       const expiredAllocations = await prisma.hostelAllocations.findMany({
         where: {
@@ -424,7 +424,7 @@ export class AllocationService {
     try {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-      console.log("CKECKING HOTEL ALLOCATIONS");
+      console.log("CHECKING HOTEL ALLOCATIONS");
 
       const expiredAllocations = await prisma.hotelAllocations.findMany({
         where: {
