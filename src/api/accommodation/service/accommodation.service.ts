@@ -329,11 +329,11 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
         },
     });
 
-    const hostelInfoByFacilityId = new Map(
-        hostelInfos.map((h) => [h.facilityId, h]),
-    );
+    // const hostelInfoByFacilityId = new Map(
+    //     hostelInfos.map((h) => [h.facilityId, h]),
+    // );
 
-    const isTeenagerRange = data.ageRange === "13-19";
+    // const isTeenagerRange = data.ageRange === "13-19";
     const requestedGender = data.gender;
 
     type Totals = { totalCapacity: number; totalOccupied: number };
@@ -341,20 +341,27 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
     const totalsByFacilityId = new Map<string, Totals>();
 
     for (const h of hostelInfos) {
-        const isTeenRoom = h.teenagersRoom === true;
+        // const isTeenRoom = h.teenagersRoom === true;
 
         // If gender doesn't match, skip
-        if (h.genderRestriction !== requestedGender) continue;
+        if (h.genderRestriction != requestedGender) {
+            continue;
+        }
+        totalsByFacilityId.set(h.facilityId, {
+            totalCapacity: 0,
+            totalOccupied: 0,
+        });
+
 
         // If age range does NOT match the room reservation type,
         // explicitly store zero totals for that facility
-        if (isTeenagerRange !== isTeenRoom) {
-            totalsByFacilityId.set(h.facilityId, {
-                totalCapacity: 0,
-                totalOccupied: 0,
-            });
-            continue;
-        }
+        // if (isTeenagerRange !== isTeenRoom) {
+        //     totalsByFacilityId.set(h.facilityId, {
+        //         totalCapacity: 0,
+        //         totalOccupied: 0,
+        //     });
+        //     continue;
+        // }
 
         const current = totalsByFacilityId.get(h.facilityId) ?? {
             totalCapacity: 0,
