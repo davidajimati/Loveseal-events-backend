@@ -127,7 +127,7 @@ export async function addDependant(res: Response, data: dependantType) {
     const prismaData = {
       name: data.name,
       age: data.age,
-      paymentRequired: data.age > 3,
+      paymentRequired: data.age > 2,
       gender: gender,
       parentRegId: data.regId,
       eventId: data.eventId,
@@ -178,7 +178,7 @@ async function addDependants(res: Response, request: dependantsType) {
     const prismaData = request.map((d) => ({
       name: d.name,
       age: d.age,
-      paymentRequired: d.age > 3,
+      paymentRequired: d.age > 2,
       gender: mapGender(d.gender),
       parentRegId: d.regId,
       eventId: d.eventId,
@@ -256,9 +256,9 @@ async function payForDependants(
     });
 
     if (dependant == null) {
-      throw new Error("Dependant not found");
-    } else if (dependant.age <= 3) {
-      throw new Error("No payment required for dependants aged 3 and below")
+      return response.badRequest(res, "Dependant not found");
+    } else if (dependant.age < 3) {
+      return response.badRequest(res, "No payment required for dependants aged 3 and below")
     }
 
     const paymentRequest: InitiatePaymentRequest = {
@@ -299,13 +299,13 @@ async function payForAllDependants(
       where: {
         parentRegId: data.parentRegId,
           age: {
-            gt: 3
+            gt: 2
           }
       },
     });
 
     if (!dependants || dependants.length == 0) {
-      throw new Error("Dependant not found");
+      return response.badRequest(res, "Dependant not found");
     }
 
     const paymentRequest: InitiatePaymentRequest = {
