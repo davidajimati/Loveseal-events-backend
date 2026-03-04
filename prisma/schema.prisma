@@ -134,9 +134,10 @@ model dependantInfoTable {
   eventId          String
   name             String
   age              Int
+  paymentRequired  Boolean?
   gender           gender?
   paymentStatus    paymentStatus?         @default(PENDING)
-  amount           BigInt?                @default(7000)
+  amount           BigInt?                @default(0)
   dateCreated      DateTime?              @default(now())
   updatedAt        DateTime?
   paymentReference String?
