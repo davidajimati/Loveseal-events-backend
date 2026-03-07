@@ -39,25 +39,25 @@ async function createAccommodationCategory(
   res: Response,
   createCategoryPayload: CreateAccommodationCategoryType,
 ) {
-  try {
-    const createdCategories = await Promise.all(
-      createCategoryPayload.categories.map((category) =>
-        prisma.accommodationCategory.create({
-          data: {
-            eventId: createCategoryPayload.eventId,
-            name: category.name,
-          },
-        }),
-      ),
-    );
-    return response.successResponse(res, {
-      createdCategories: createdCategories.map((category) => ({
-        id: category.accommodationCategoryId,
-        name: category.name,
-      })),
-    });
-  } catch (error: any) {
-    console.log(error);
+    try {
+        const createdCategories = await Promise.all(
+            createCategoryPayload.categories.map((category) =>
+                prisma.accommodationCategory.create({
+                    data: {
+                        eventId: createCategoryPayload.eventId,
+                        name: category.name,
+                    },
+                }),
+            ),
+        );
+        return response.successResponse(res, {
+            createdCategories: createdCategories.map((category) => ({
+                id: category.accommodationCategoryId,
+                name: category.name,
+            })),
+        });
+    } catch (error: any) {
+        console.log(error);
 
     response.internalServerError(res, error.message);
   }
@@ -67,111 +67,105 @@ async function createHostelAccommodation(
   res: Response,
   createHostelAccommodationPayload: CreateHostelAccommodationType,
 ) {
-  try {
-    const createdAccommodation = await prisma.hostelAccommodation.create({
-      data: {
-        facilityId: createHostelAccommodationPayload.facilityId,
-        roomCode: createHostelAccommodationPayload.roomCode,
-        roomIdentifier: createHostelAccommodationPayload.roomIdentifier,
-        capacity: createHostelAccommodationPayload.capacity,
-        adminReserved: createHostelAccommodationPayload.adminReserved,
-        genderRestriction: createHostelAccommodationPayload.genderRestriction,
-      },
-    });
+    try {
+        const createdAccommodation = await prisma.hostelAccommodation.create({
+            data: {
+                facilityId: createHostelAccommodationPayload.facilityId,
+                roomCode: createHostelAccommodationPayload.roomCode,
+                roomIdentifier: createHostelAccommodationPayload.roomIdentifier,
+                capacity: createHostelAccommodationPayload.capacity,
+                adminReserved: createHostelAccommodationPayload.adminReserved,
+                genderRestriction: createHostelAccommodationPayload.genderRestriction,
+            },
+        });
 
-    return response.successResponse(res, { id: createdAccommodation.roomId });
-  } catch (error) {
-    console.log(error);
-    response.badRequest(res, "Invalid input");
-  }
+        return response.successResponse(res, {id: createdAccommodation.roomId});
+    } catch (error) {
+        console.log(error);
+        response.badRequest(res, "Invalid input");
+    }
 }
 
 async function createHotelAccommodation(
-  res: Response,
-  createHotelAccommodationPayload: CreateHotelAccommodationType,
+    res: Response,
+    createHotelAccommodationPayload: CreateHotelAccommodationType,
 ) {
-  try {
-    const createdAccommodation = await prisma.hotelAccommodation.create({
-      data: {
-        facilityId: createHotelAccommodationPayload.facilityId,
-        roomType: createHotelAccommodationPayload.roomType,
-        address: createHotelAccommodationPayload.address,
-        description: createHotelAccommodationPayload.description,
-        available: createHotelAccommodationPayload.available,
-        adminReserved: createHotelAccommodationPayload.adminReserved,
-        price: createHotelAccommodationPayload.price,
-        noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
-      },
-    });
+    try {
+        const createdAccommodation = await prisma.hotelAccommodation.create({
+            data: {
+                facilityId: createHotelAccommodationPayload.facilityId,
+                roomType: createHotelAccommodationPayload.roomType,
+                address: createHotelAccommodationPayload.address,
+                description: createHotelAccommodationPayload.description,
+                available: createHotelAccommodationPayload.available,
+                adminReserved: createHotelAccommodationPayload.adminReserved,
+                price: createHotelAccommodationPayload.price,
+                noOfRoomsAvailable: createHotelAccommodationPayload.noOfRoomsAvailable,
+            },
+        });
 
-    return response.successResponse(res, {
-      id: createdAccommodation.roomTypeId,
-    });
-  } catch (error) {
-    console.log(error);
-    response.badRequest(res, error);
-  }
+        return response.successResponse(res, {
+            id: createdAccommodation.roomTypeId,
+        });
+    } catch (error) {
+        console.log(error);
+        response.badRequest(res, error);
+    }
 }
 
 interface fetchFacilities {
-  accommodationCategoryId: string;
-  facilityId: string;
-  facilityName: string;
-  capacityOccupied: number;
-  totalCapacity: number;
-  selfEmployedUserPrice: number | null;
-  unemployedUserPrice: number | null;
-  employedUserPrice: number | null;
-  eventName: String;
-  categoryName: String;
+    accommodationCategoryId: string,
+    facilityId: string,
+    facilityName: string,
+    capacityOccupied: number,
+    totalCapacity: number,
+    selfEmployedUserPrice: number | null,
+    unemployedUserPrice: number | null,
+    employedUserPrice: number | null,
+    eventName: String,
+    categoryName: String,
 }
 
-export async function getAllEventsFacility(
-  res: Response,
-  eventId: string,
-  categoryId?: string,
-) {
-  try {
-    const facilityQuery = await prisma.accommodationFacilities.findMany({
-      where: {
-        eventId: eventId,
-        ...(categoryId && { accommodationCategoryId: categoryId }),
-      },
-      select: {
-        accommodationCategoryId: true,
-        facilityId: true,
-        facilityName: true,
-        capacityOccupied: true,
-        totalCapacity: true,
-        selfEmployedUserPrice: true,
-        unemployedUserPrice: true,
-        employedUserPrice: true,
-        eventRecord: { select: { eventName: true } },
-        categoryRecord: { select: { name: true } },
-      },
-      orderBy: [{ facilityName: "asc" }],
-    });
+export async function getAllEventsFacility(res: Response, eventId: string, categoryId?: string) {
+    try {
+        const facilityQuery = await prisma.accommodationFacilities.findMany({
+            where: {
+                eventId: eventId,
+                ...(categoryId && {accommodationCategoryId: categoryId}),
+            },
+            select: {
+                accommodationCategoryId: true,
+                facilityId: true,
+                facilityName: true,
+                capacityOccupied: true,
+                totalCapacity: true,
+                selfEmployedUserPrice: true,
+                unemployedUserPrice: true,
+                employedUserPrice: true,
+                eventRecord: {select: {eventName: true}},
+                categoryRecord: {select: {name: true}}
+            },
+            orderBy: [{facilityName: "asc"}],
+        });
 
-    const facilityList: fetchFacilities[] = facilityQuery.map((f) => ({
-      facilityName: f.facilityName,
-      facilityId: f.facilityId,
-      accommodationCategoryId: f.accommodationCategoryId,
-      capacityOccupied: f.capacityOccupied,
-      totalCapacity: f.totalCapacity,
-      selfEmployedUserPrice: f.selfEmployedUserPrice,
-      unemployedUserPrice: f.unemployedUserPrice,
-      employedUserPrice: f.employedUserPrice,
-      eventName: f.eventRecord?.eventName ?? "",
-      categoryName: f.categoryRecord?.name ?? "",
-    }));
+        const facilityList: fetchFacilities[] = facilityQuery.map((f => ({
+            facilityName: f.facilityName,
+            facilityId: f.facilityId,
+            accommodationCategoryId: f.accommodationCategoryId,
+            capacityOccupied: f.capacityOccupied,
+            totalCapacity: f.totalCapacity,
+            selfEmployedUserPrice: f.selfEmployedUserPrice,
+            unemployedUserPrice: f.unemployedUserPrice,
+            employedUserPrice: f.employedUserPrice,
+            eventName: f.eventRecord?.eventName ?? "",
+            categoryName: f.categoryRecord?.name ?? "",
+        })));
 
-    return response.successResponse(res, facilityList);
-  } catch (error) {
-    console.log(
-      `Error occurred fetching facilities for event: ${eventId}: ==> ` + error,
-    );
-    return response.internalServerError(res, error);
-  }
+        return response.successResponse(res, facilityList);
+    } catch (error) {
+        console.log(`Error occurred fetching facilities for event: ${eventId}: ==> ` + error);
+        return response.internalServerError(res, error);
+    }
 }
 
 async function getSpacesLeft(res: Response) {
