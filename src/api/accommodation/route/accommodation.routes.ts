@@ -306,7 +306,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       200:
    *         description:  Successfully
    */
-  router.get("/spaces-left", controller.getHostelSpacesLeft);
+  router.get("/spaces-left", controller.getSpacesLeft);
 
   /**
    * @swagger

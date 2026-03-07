@@ -147,7 +147,7 @@ async function getHostels(req: Request, res: Response) {
     }
 }
 
-async function getHostelSpacesLeft(req: Request, res: Response) {
+async function getSpacesLeft(req: Request, res: Response) {
     try {
         await service.getSpacesLeft(res);
     } catch {
@@ -170,7 +170,7 @@ export {
     createCategories,
     createHostelAccommodation,
     createHotelAccommodation,
-    getHostelSpacesLeft,
+    getSpacesLeft,
     getAllCategoriesInfo,
     getFacility,
     getHotelRooms,
