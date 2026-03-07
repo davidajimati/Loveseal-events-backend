@@ -85,20 +85,20 @@ model eventInformation {
   startDate               DateTime
   endDate                 DateTime
   venue                   String?
-  forTeenagers            Boolean?
   eventStatus             eventStatus
   accommodationNeeded     Boolean
   registrationOpenAt      DateTime
   registrationCloseAt     DateTime
   createdAt               DateTime?                 @default(now())
   updatedAt               DateTime?
+  forTeenagers            Boolean?
+  accomodationCategories  accommodationCategory[]
   accommodationFacilities accommodationFacilities[]
   paymentRecords          paymentRecords[]
   registrants             eventRegistrationTable[]
   eventsAdminRolesTracker eventsAdminRolesTracker[]
   adminRecord             adminUserRecords          @relation(fields: [tenantId, eventOwnerId], references: [tenantId, adminUserId])
   dependantInfo           dependantInfoTable[]
-  accomodationCategories  accommodationCategory[]
 
   @@index([eventId, tenantId, eventOwnerId], map: "eventInfoIndex")
   @@index([tenantId, eventOwnerId], map: "idx_loveseal_events_table_tenantId_eventOwnerId_fkey")
@@ -134,10 +134,9 @@ model dependantInfoTable {
   eventId          String
   name             String
   age              Int
-  paymentRequired  Boolean?
   gender           gender?
   paymentStatus    paymentStatus?         @default(PENDING)
-  amount           BigInt?                @default(0)
+  amount           BigInt?                @default(7000)
   dateCreated      DateTime?              @default(now())
   updatedAt        DateTime?
   paymentReference String?
@@ -198,10 +197,10 @@ model hostelAccommodation {
   roomCode          String                  @default(uuid())
   roomIdentifier    String
   capacity          Int
-  teenagersRoom     Boolean?
   genderRestriction gender?
   adminReserved     Boolean
   capacityOccupied  Int                     @default(0)
+  teenagersRoom     Boolean?
   facilityRecord    accommodationFacilities @relation(fields: [facilityId], references: [facilityId])
 
   @@index([facilityId], map: "idx_hostel_accommodation_table_facilityId_fkey")
@@ -260,9 +259,10 @@ model accommodationCategory {
   accommodationCategoryId String                    @id @default(uuid())
   name                    accommodationType
   eventId                 String
-  facilityRecord          accommodationFacilities[]
   eventRecord             eventInformation          @relation(fields: [eventId], references: [eventId])
+  facilityRecord          accommodationFacilities[]
 
+  @@index([eventId], map: "accommodation_categories_eventId_fkey")
   @@map("accommodation_categories")
 }
 
