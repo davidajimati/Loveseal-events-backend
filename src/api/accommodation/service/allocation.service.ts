@@ -351,7 +351,7 @@ export class AllocationService {
     try {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-      console.log("CKECKING HOSTEL ALLOCATIONS");
+      console.log("CHECKING HOSTEL ALLOCATIONS");
 
       return await prisma.$transaction(async (tx) => {
         // 1) Read expired allocations INSIDE the transaction
@@ -435,7 +435,7 @@ export class AllocationService {
     try {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-      console.log("CKECKING HOTEL ALLOCATIONS");
+      console.log("CHECKING HOTEL ALLOCATIONS");
 
       const expiredAllocations = await prisma.hotelAllocations.findMany({
         where: {

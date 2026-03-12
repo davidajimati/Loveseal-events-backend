@@ -168,38 +168,99 @@ export async function getAllEventsFacility(res: Response, eventId: string, categ
     }
 }
 
-async function getHostelSpacesLeft(res: Response) {
+async function getSpacesLeft(res: Response) {
     try {
-        const allHostels = await prisma.accommodationCategory.findMany({
+        const hostelCategory = await prisma.accommodationCategory.findFirst({
             where: {
                 name: "HOSTEL",
             },
         });
-
-        if (allHostels.length < 1) {
-            throw new Error("Invalid category");
-        }
-
-        const aggregates = await prisma.accommodationFacilities.aggregate({
+        const hotelCategory = await prisma.accommodationCategory.findFirst({
             where: {
-                accommodationCategoryId: {
-                    in: allHostels.map((item) => item.accommodationCategoryId),
-                },
+                name: "HOTEL",
+            },
+        });
+
+        if (hostelCategory == null || hotelCategory == null) {
+            return response.internalServerError(res, {
+                mesaage: "An error occurred",
+            });
+        }
+        const allActiveHostels = await prisma.accommodationFacilities.findMany({
+            where: {
+                accommodationCategoryId: hostelCategory?.accommodationCategoryId,
                 eventRecord: {
                     eventStatus: "ACTIVE",
                 },
             },
-            _sum: {
-                capacityOccupied: true,
-                totalCapacity: true,
+        });
+
+        const allActiveHotels = await prisma.accommodationFacilities.findMany({
+            where: {
+                accommodationCategoryId: hotelCategory?.accommodationCategoryId,
+                eventRecord: {
+                    eventStatus: "ACTIVE",
+                },
             },
         });
 
-        const occupied = aggregates._sum.capacityOccupied ?? 0;
-        const total = aggregates._sum.totalCapacity ?? 0;
+        const totalNonTeenagersSpacesLeft =
+            await prisma.hostelAccommodation.aggregate({
+                where: {
+                    facilityId: {
+                        in: allActiveHostels.map((item) => item.facilityId),
+                    },
+                    OR: [{teenagersRoom: false}, {teenagersRoom: null}],
+                },
+                _sum: {
+                    capacity: true,
+                    capacityOccupied: true,
+                },
+            });
+
+        const totalTeenagersSpacesLeft = await prisma.hostelAccommodation.aggregate(
+            {
+                where: {
+                    facilityId: {
+                        in: allActiveHostels.map((item) => item.facilityId),
+                    },
+                    teenagersRoom: true,
+                },
+                _sum: {
+                    capacity: true,
+                    capacityOccupied: true,
+                },
+            },
+        );
+
+        const totalHotelSpacesLeft = await prisma.hotelAccommodation.aggregate({
+            where: {
+                facilityId: {
+                    in: allActiveHotels.map((item) => item.facilityId),
+                },
+            },
+            _sum: {
+                noOfRoomsOccupied: true,
+                noOfRoomsAvailable: true,
+            },
+        });
+
+        const nonTeenagersCapacity = totalNonTeenagersSpacesLeft._sum.capacity ?? 0;
+        const nonTeenagersOccupied =
+            totalNonTeenagersSpacesLeft._sum.capacityOccupied ?? 0;
+
+        const teenagersCapacity = totalTeenagersSpacesLeft._sum.capacity ?? 0;
+        const teenagersOccupied =
+            totalTeenagersSpacesLeft._sum.capacityOccupied ?? 0;
+
+        const hotelRoomsAvailable =
+            totalHotelSpacesLeft._sum.noOfRoomsAvailable ?? 0;
+        const hotelRoomsOccupied = totalHotelSpacesLeft._sum.noOfRoomsOccupied ?? 0;
 
         response.successResponse(res, {
-            capacityLeft: total - occupied,
+            totalHotelSpacesLeft: hotelRoomsAvailable - hotelRoomsOccupied,
+            totalYatSpacesLeft: teenagersCapacity - teenagersOccupied,
+            nonYatSpacesLeft: nonTeenagersCapacity - nonTeenagersOccupied,
         });
     } catch (error) {
         response.badRequest(res, error);
@@ -280,18 +341,16 @@ async function getFacilityInfo(res: Response, categoryId: string) {
     return response.successResponse(res, facilityQuery);
 }
 
-
 type FacilityRow = {
     accommodationCategoryId: string;
     facilityId: string;
     facilityName: string;
     capacityOccupied: number;
     totalCapacity: number;
-    selfEmployedUserPrice: number | null
+    selfEmployedUserPrice: number | null;
     unemployedUserPrice: number | null;
     employedUserPrice: number | null;
 };
-
 
 async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
     const categoryId = (data.categoryId ?? "").trim();
@@ -318,6 +377,7 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
 
     const facilityIds = facilityQuery.map((f) => f.facilityId);
 
+    //Get all rooms for that facility
     const hostelInfos = await prisma.hostelAccommodation.findMany({
         where: {facilityId: {in: facilityIds}},
         select: {
@@ -325,7 +385,7 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
             genderRestriction: true,
             teenagersRoom: true,
             capacity: true,
-            capacityOccupied: true
+            capacityOccupied: true,
         },
     });
 
@@ -347,10 +407,6 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
         if (h.genderRestriction != requestedGender) {
             continue;
         }
-        totalsByFacilityId.set(h.facilityId, {
-            totalCapacity: 0,
-            totalOccupied: 0,
-        });
 
 
         // If age range does NOT match the room reservation type,
@@ -389,7 +445,6 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
     return response.successResponse(res, responseList);
 }
 
-
 async function getHotelRooms(facilityId: string) {
     const allHotels = await prisma.hotelAccommodation.findMany({
         where: {
@@ -418,5 +473,5 @@ export {
     getCategoriesInfo,
     getFacilityInfo,
     getHotelRooms,
-    getHostelSpacesLeft,
+    getSpacesLeft,
 };
