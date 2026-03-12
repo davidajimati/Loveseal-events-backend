@@ -377,6 +377,7 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
 
   const facilityIds = facilityQuery.map((f) => f.facilityId);
 
+  //Get all rooms for that facility
   const hostelInfos = await prisma.hostelAccommodation.findMany({
     where: { facilityId: { in: facilityIds } },
     select: {
@@ -406,10 +407,9 @@ async function getHostelFacilityInfo(res: Response, data: getFacilityType) {
     if (h.genderRestriction != requestedGender) {
       continue;
     }
-    totalsByFacilityId.set(h.facilityId, {
-      totalCapacity: 0,
-      totalOccupied: 0,
-    });
+
+
+  
 
     // If age range does NOT match the room reservation type,
     // explicitly store zero totals for that facility
