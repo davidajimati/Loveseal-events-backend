@@ -147,9 +147,9 @@ async function getHostels(req: Request, res: Response) {
     }
 }
 
-async function getHostelSpacesLeft(req: Request, res: Response) {
+async function getSpacesLeft(req: Request, res: Response) {
     try {
-        await service.getHostelSpacesLeft(res);
+        await service.getSpacesLeft(res);
     } catch {
         return response.badRequest(res, "Failed to get hostel spaces");
     }
@@ -170,7 +170,7 @@ export {
     createCategories,
     createHostelAccommodation,
     createHotelAccommodation,
-    getHostelSpacesLeft,
+    getSpacesLeft,
     getAllCategoriesInfo,
     getFacility,
     getHotelRooms,

@@ -298,7 +298,7 @@ export default function registerAccommodationRoutes(app: Router) {
 
   /**
    * @swagger
-   * /accommodation/hostel/unoccupied:
+   * /accommodation/spaces-left:
    *   get:
    *     summary: Get all hostel spaces left (All)
    *     tags: [Accommodation]
@@ -306,7 +306,7 @@ export default function registerAccommodationRoutes(app: Router) {
    *       200:
    *         description:  Successfully
    */
-  router.get("/hostel/unoccupied", controller.getHostelSpacesLeft);
+  router.get("/spaces-left", controller.getSpacesLeft);
 
   /**
    * @swagger
