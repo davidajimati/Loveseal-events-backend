@@ -15,6 +15,11 @@ import * as response from "../../ApiResponseContract.js";
 import type { Response } from "express";
 import { HttpError } from "../../exceptions/HttpError.js";
 import type { hostelAccommodation } from "@prisma/client";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import type { HtmlNotifyRequest } from "src/api/emailing/model/notification.model.js";
+import { EmailingService } from "src/api/emailing/brevo/notification.service.js";
 
 export class BillingService {
   async initializePayment(res: Response, req: InitiatePaymentRequest) {
@@ -30,6 +35,46 @@ export class BillingService {
       return this.mapPaymentResponse(res, thirdPartyResponse);
     } catch (error: any) {
       return response.badRequest(res, error.message || error);
+    }
+  }
+
+  async sendToMail(
+    res: Response,
+    email: string,
+    facilityName: string | undefined,
+    roomCode: string | undefined,
+    roomIdentifier: string | undefined,
+    bookingReference: string,
+  ) {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const htmlContent = fs.readFileSync(
+      path.join(__dirname, "../../../static/templates/accommodation.html"),
+      "utf8",
+    );
+
+    const emailService = new EmailingService();
+
+    const emailData: HtmlNotifyRequest = {
+      email: email,
+      subject: "ACCOMMODATION CONFIRMATION",
+      params: {
+        facilityName: facilityName,
+        roomCode: roomCode,
+        roomIdentifier: roomIdentifier,
+        bookingReference: bookingReference,
+      },
+      htmlContent: htmlContent,
+    };
+
+    const emailSent = await emailService.sendHtmlContent(res, emailData);
+
+    if (!emailSent) {
+      return response.internalServerError(
+        res,
+        "Error sending OTP. Please try again later",
+      );
     }
   }
 
@@ -94,6 +139,34 @@ export class BillingService {
               accommodationDetails: JSON.stringify(accommodationDetails),
             },
           });
+
+          const regUser = await prisma.eventRegistrationTable.findFirst({
+            where: {
+              regId: hostelAllocation.registrationId,
+            },
+          });
+
+          if (regUser == null) {
+            throw new HttpError("Invalid user", 400);
+          }
+          const user = await prisma.userInformation.findFirst({
+            where: {
+              userId: regUser.userId,
+            },
+          });
+
+          if (user == null) {
+            throw new HttpError("Invalid user", 400);
+          }
+
+          this.sendToMail(
+            res,
+            user?.email,
+            accommodationDetails.facilityName,
+            accommodationDetails.roomCode,
+            accommodationDetails.roomIdentifier,
+            req.data.reference,
+          );
         }
 
         if (dependants != null) {
@@ -310,8 +383,7 @@ export class BillingService {
       },
       merchant_bears_cost: false,
       narration: paymentRequest.narration,
-      notification_url:
-        `${process.env.API_URL}/billing/verify`,
+      notification_url: `${process.env.API_URL}/billing/verify`,
       redirect_url: `${process.env.CLIENT_BASE_URL}/dashboard`,
       reference: paymentRequest.reference,
     };

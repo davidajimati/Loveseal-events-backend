@@ -35,7 +35,9 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
       prisma.userInformation.findUnique({ where: { userId } }),
       prisma.eventInformation.findUnique({ where: { eventId } }),
       prisma.eventRegistrationTable.findFirst({ where: { userId, eventId } }),
-      prisma.paymentRecords.findFirst({ where: { userId, eventId } }),
+      prisma.paymentRecords.findFirst({
+        where: { userId, eventId, paymentStatus: "SUCCESSFUL" },
+      }),
     ]);
 
     if (!user) {
@@ -56,7 +58,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
       return response.badRequest(res, "You're not registered for this event");
     }
 
-    const paymentSuccessful = paymentRecord?.paymentStatus === "SUCCESSFUL";
+    const paymentSuccessful = paymentRecord != null;
 
     const dependants = await prisma.dependantInfoTable.findMany({
       where: { parentRegId: regRecord.regId, eventId },
@@ -258,7 +260,10 @@ async function payForDependants(
     if (dependant == null) {
       return response.badRequest(res, "Dependant not found");
     } else if (dependant.age < 3) {
-      return response.badRequest(res, "No payment required for dependants aged 3 and below")
+      return response.badRequest(
+        res,
+        "No payment required for dependants aged 3 and below",
+      );
     }
 
     const paymentRequest: InitiatePaymentRequest = {
@@ -298,9 +303,9 @@ async function payForAllDependants(
     const dependants = await prisma.dependantInfoTable.findMany({
       where: {
         parentRegId: data.parentRegId,
-          age: {
-            gt: 2
-          }
+        age: {
+          gt: 2,
+        },
       },
     });
 
