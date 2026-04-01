@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accommodation Details</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background-color: #f4f6f8; padding: 20px 0"
+    >
+      <tr>
+        <td align="center">
+          <!-- Main Container -->
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              background-color: #ffffff;
+              border-radius: 6px;
+              overflow: hidden;
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                align="center"
+                style="background-color: #8b2e00; padding: 20px"
+              >
+                <img
+                  src="https://smflx-image-buck.s3.us-east-1.amazonaws.com/smflx_logo.png"
+                  alt="SMFLX"
+                  width="120"
+                  style="display: block"
+                />
+              </td>
+            </tr>
+
+            <!-- Banner Image -->
+            <tr>
+              <td align="center" style="padding: 0">
+                <img
+                  src="https://smflx-image-buck.s3.us-east-1.amazonaws.com/noise_texture.png"
+                  alt="Accommodation Details"
+                  width="600"
+                  style="width: 100%; max-width: 600px; display: block"
+                />
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td
+                style="
+                  padding: 30px;
+                  color: #333333;
+                  font-size: 15px;
+                  line-height: 1.6;
+                "
+              >
+                <p style="margin-top: 0">Dearly Beloved {{params.userName}},</p>
+
+                <p>
+                  We are pleased to share your accommodation details for the
+                  upcoming
+                  <strong>WOTHSMFLX</strong> event. Please review the
+                  information below and reach out if you have any questions.
+                </p>
+
+                <!-- Accommodation Details Box -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    margin: 25px 0;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 6px;
+                    overflow: hidden;
+                  "
+                >
+                  <!-- Box Header -->
+                  <tr>
+                    <td
+                      colspan="2"
+                      style="
+                        background-color: #8b2e00;
+                        padding: 12px 20px;
+                        color: #ffffff;
+                        font-size: 14px;
+                        font-weight: bold;
+                        letter-spacing: 0.5px;
+                      "
+                    >
+                      🏨 &nbsp;YOUR ACCOMMODATION DETAILS
+                    </td>
+                  </tr>
+
+                  <!-- Booking Reference -->
+                  <tr style="background-color: #fff8f6">
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #555555;
+                        width: 45%;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      Booking Reference
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #8b2e00;
+                        font-weight: bold;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      {{params.bookingReference}}
+                    </td>
+                  </tr>
+
+                  <!-- Accommodation Name -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #555555;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      Facility Name
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #333333;
+                        font-weight: bold;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      {{params.facilityName}}
+                    </td>
+                  </tr>
+
+                  <!-- Room Type -->
+                  <tr style="background-color: #fff8f6">
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #555555;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      Room Code
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #333333;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      {{params.roomCode}}
+                    </td>
+                  </tr>
+
+                  <!-- Location -->
+                  <tr>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #555555;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      Room Identifier
+                    </td>
+                    <td
+                      style="
+                        padding: 12px 20px;
+                        font-size: 14px;
+                        color: #333333;
+                        border-bottom: 1px solid #f0e0db;
+                      "
+                    >
+                      {{params.roomIdentifier}}
+                    </td>
+                  </tr>
+                </table>
+
+                <p>
+                  Please present your booking reference upon arrival. If you
+                  have any special requirements or need to make changes to your
+                  accommodation, kindly contact us as soon as possible.
+                </p>
+
+                <p>
+                  We look forward to welcoming you and trust that your stay will
+                  be comfortable and memorable. See you at the event!
+                </p>
+
+                <p style="margin-bottom: 0">
+                  <strong>Keep Journeying,</strong><br />
+                  The Registrar
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #f9fafb;
+                  padding: 20px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #777777;
+                "
+              >
+                <img
+                  src="{{footer_logo_url}}"
+                  alt="Lively Meetings"
+                  width="80"
+                  style="display: block; margin: 0 auto 10px"
+                />
+
+                <p style="margin: 10px 0">
+                  ©️ {{year}} WayoftheHeartSMFLX. All rights reserved.
+                </p>
+
+                <p style="margin: 0">
+                  <a
+                    href="{{terms_url}}"
+                    style="color: #777777; text-decoration: none"
+                    >Terms</a
+                  >
+                  |
+                  <a
+                    href="{{privacy_url}}"
+                    style="color: #777777; text-decoration: none"
+                    >Privacy</a
+                  >
+                  |
+                  <a
+                    href="{{cookies_url}}"
+                    style="color: #777777; text-decoration: none"
+                    >Cookies</a
+                  >
+                </p>
+              </td>
+            </tr>
+          </table>
+          <!-- End Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
