@@ -14,6 +14,7 @@ import { BillingService } from "../billing/service/billing.service.js";
 import type { InitiatePaymentRequest } from "../billing/model/billing.model.js";
 import { dependantPrice } from "../../common/constants.js";
 import { generatePaymentReference } from "../../common/utils.js";
+import { HttpError } from "../exceptions/HttpError.js";
 
 function mapGender(gender: string): gender {
   switch (gender) {
@@ -31,15 +32,32 @@ const prisma = new PrismaClient();
 async function fetchDashboard(res: Response, userId: string, eventId: string) {
   try {
     // Fetch core records in parallel
-    const [user, event, regRecord, paymentRecord] = await Promise.all([
+    const [user, event, regRecord] = await Promise.all([
       prisma.userInformation.findUnique({ where: { userId } }),
       prisma.eventInformation.findUnique({ where: { eventId } }),
       prisma.eventRegistrationTable.findFirst({ where: { userId, eventId } }),
-      prisma.paymentRecords.findFirst({
-        where: { userId, eventId, paymentStatus: "SUCCESSFUL" },
-      }),
     ]);
 
+    if (!regRecord) {
+      console.log(`Registration record for user ${userId} not found.`);
+      return response.badRequest(res, "You're not registered for this event");
+    }
+
+    const hostelAllocation = await prisma.hostelAllocations.findFirst({
+      where: {
+        registrationId: regRecord?.regId,
+        allocationStatus: "ACTIVE",
+      },
+    });
+    let paymentRecord: any = null;
+
+    if (hostelAllocation != null) {
+      paymentRecord = await prisma.paymentRecords.findFirst({
+        where: { paymentReference: hostelAllocation?.paymentReference },
+      });
+    }
+
+    console.log("PAYMENT RECORD FOR THE USER", paymentRecord);
     if (!user) {
       console.log(`record for user ${userId} not found.`);
       return response.badRequest(res, "Create an account to begin");
@@ -53,16 +71,17 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
       );
     }
 
-    if (!regRecord) {
-      console.log(`Registration record for user ${userId} not found.`);
-      return response.badRequest(res, "You're not registered for this event");
-    }
-
     const paymentSuccessful = paymentRecord != null;
 
     const dependants = await prisma.dependantInfoTable.findMany({
       where: { parentRegId: regRecord.regId, eventId },
-      select: { id: true, name: true, age: true, gender: true },
+      select: {
+        id: true,
+        name: true,
+        age: true,
+        gender: true,
+        paymentStatus: true,
+      },
       orderBy: { dateCreated: "desc" },
     });
 
@@ -106,6 +125,7 @@ async function fetchDashboard(res: Response, userId: string, eventId: string) {
         dependantsData: dependants.map((d) => ({
           dependantId: d.id,
           dependantName: d.name,
+          paymentStatus: d.paymentStatus,
           dependantAge: d.age,
           dependantGender: d.gender ?? "MALE",
         })),
