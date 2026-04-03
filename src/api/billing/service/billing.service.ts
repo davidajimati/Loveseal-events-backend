@@ -50,7 +50,7 @@ export class BillingService {
     const __dirname = path.dirname(__filename);
 
     const htmlContent = fs.readFileSync(
-      path.join(__dirname, "../../../static/templates/accommodation.html"),
+      path.join(__dirname, "../../static/templates/accommodation.html"),
       "utf8",
     );
 
