@@ -18,8 +18,8 @@ import type { hostelAccommodation } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import type { HtmlNotifyRequest } from "src/api/emailing/model/notification.model.js";
-import { EmailingService } from "src/api/emailing/brevo/notification.service.js";
+import type { HtmlNotifyRequest } from "../../emailing/model/notification.model.js";
+import { EmailingService } from "../../emailing/brevo/notification.service.js";
 
 export class BillingService {
   async initializePayment(res: Response, req: InitiatePaymentRequest) {
