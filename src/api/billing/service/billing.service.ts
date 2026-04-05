@@ -1,9 +1,9 @@
 import type {
-  InitiatePaymentRequest,
-  InitiatePaymentResponse,
-  KoraPayInitiatePaymentResponse,
-  KorapPayInitiatePaymentRequest,
-  PaymentStatusWebhook,
+    InitiatePaymentRequest,
+    InitiatePaymentResponse,
+    KoraPayInitiatePaymentResponse,
+    KorapPayInitiatePaymentRequest,
+    PaymentStatusWebhook,
 } from "../model/billing.model.js";
 import dotenv from "dotenv";
 
@@ -12,382 +12,381 @@ dotenv.config();
 import prisma from "../../../../prisma/Prisma.js";
 
 import * as response from "../../ApiResponseContract.js";
-import type { Response } from "express";
-import { HttpError } from "../../exceptions/HttpError.js";
-import type { hostelAccommodation } from "@prisma/client";
+import type {Response} from "express";
+import {HttpError} from "../../exceptions/HttpError.js";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-import type { HtmlNotifyRequest } from "../../emailing/model/notification.model.js";
-import { EmailingService } from "../../emailing/brevo/notification.service.js";
+import {fileURLToPath} from "url";
+import type {HtmlNotifyRequest} from "../../emailing/model/notification.model.js";
+import {EmailingService} from "../../emailing/brevo/notification.service.js";
 
 export class BillingService {
-  async initializePayment(res: Response, req: InitiatePaymentRequest) {
-    try {
-      const paymentRequest: any = await this.mapKoraPayRequest(res, req);
+    async initializePayment(res: Response, req: InitiatePaymentRequest) {
+        try {
+            const paymentRequest: any = await this.mapKoraPayRequest(res, req);
 
-      const thirdPartyResponse = await this.hitThirdPartyEndpoint(
-        res,
-        paymentRequest,
-      );
+            const thirdPartyResponse = await this.hitThirdPartyEndpoint(
+                res,
+                paymentRequest,
+            );
 
-      await this.populateTable(req);
-      return this.mapPaymentResponse(res, thirdPartyResponse);
-    } catch (error: any) {
-      return response.badRequest(res, error.message || error);
+            await this.populateTable(req);
+            return this.mapPaymentResponse(res, thirdPartyResponse);
+        } catch (error: any) {
+            return response.badRequest(res, error.message || error);
+        }
     }
-  }
 
-  async sendToMail(
-    res: Response,
-    email: string,
-    facilityName: string | undefined,
-    roomCode: string | undefined,
-    roomIdentifier: string | undefined,
-    bookingReference: string,
-  ) {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    async sendToMail(
+        res: Response,
+        email: string,
+        facilityName: string | undefined,
+        roomCode: string | undefined,
+        roomIdentifier: string | undefined,
+        bookingReference: string,
+    ) {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
 
-    const htmlContent = fs.readFileSync(
-      path.join(__dirname, "../../static/templates/accommodation.html"),
-      "utf8",
-    );
+        const htmlContent = fs.readFileSync(
+            path.join(__dirname, "../../static/templates/accommodation.html"),
+            "utf8",
+        );
 
-    const emailService = new EmailingService();
+        const emailService = new EmailingService();
 
-    const emailData: HtmlNotifyRequest = {
-      email: email,
-      subject: "ACCOMMODATION CONFIRMATION",
-      params: {
-        facilityName: facilityName,
-        roomCode: roomCode,
-        roomIdentifier: roomIdentifier,
-        bookingReference: bookingReference,
-      },
-      htmlContent: htmlContent,
-    };
+        const emailData: HtmlNotifyRequest = {
+            email: email,
+            subject: "ACCOMMODATION CONFIRMATION",
+            params: {
+                facilityName: facilityName,
+                roomCode: roomCode,
+                roomIdentifier: roomIdentifier,
+                bookingReference: bookingReference,
+            },
+            htmlContent: htmlContent,
+        };
 
-    const emailSent = await emailService.sendHtmlContent(res, emailData);
+        const emailSent = await emailService.sendHtmlContent(res, emailData);
 
-    if (!emailSent) {
-      return response.internalServerError(
-        res,
-        "Error sending OTP. Please try again later",
-      );
+        if (!emailSent) {
+            return response.internalServerError(
+                res,
+                "Error sending OTP. Please try again later",
+            );
+        }
     }
-  }
 
-  async verifyPayment(res: Response, req: PaymentStatusWebhook) {
-    const hostelAllocation = await prisma.hostelAllocations.findFirst({
-      where: {
-        paymentReference: req.data.reference,
-      },
-    });
-
-    const hotelAllocation = await prisma.hotelAllocations.findFirst({
-      where: {
-        paymentReference: req.data.reference,
-      },
-      include: {
-        hotelRoomRecord: true,
-      },
-    });
-
-    const dependants = await prisma.dependantInfoTable.findMany({
-      where: {
-        paymentReference: req.data.reference,
-      },
-    });
-
-    try {
-      const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
-
-      if (req.data.status === "success") {
-        if (hostelAllocation != null) {
-          await prisma.hostelAllocations.update({
+    async verifyPayment(res: Response, req: PaymentStatusWebhook) {
+        const hostelAllocation = await prisma.hostelAllocations.findFirst({
             where: {
-              paymentReference: req.data.reference,
+                paymentReference: req.data.reference,
             },
-            data: {
-              allocationStatus: "ACTIVE",
-            },
-          });
+        });
 
-          const roomAllocated = await prisma.hostelAccommodation.findFirst({
+        const hotelAllocation = await prisma.hotelAllocations.findFirst({
             where: {
-              roomId: hostelAllocation.roomId,
+                paymentReference: req.data.reference,
             },
             include: {
-              facilityRecord: true,
+                hotelRoomRecord: true,
             },
-          });
+        });
 
-          const accommodationDetails = {
-            roomCode: roomAllocated?.roomCode,
-            roomIdentifier: roomAllocated?.roomIdentifier,
-            facilityName: roomAllocated?.facilityRecord.facilityName,
-          };
-
-          await prisma.eventRegistrationTable.update({
+        const dependants = await prisma.dependantInfoTable.findMany({
             where: {
-              regId: hostelAllocation.registrationId,
+                paymentReference: req.data.reference,
             },
-            data: {
-              accommodationAssigned: true,
-              status: "CONFIRMED",
-              accommodationDetails: JSON.stringify(accommodationDetails),
-            },
-          });
+        });
 
-          const regUser = await prisma.eventRegistrationTable.findFirst({
-            where: {
-              regId: hostelAllocation.registrationId,
-            },
-          });
+        try {
+            const newStatus = req.data.status === "success" ? "SUCCESSFUL" : "FAILED";
 
-          if (regUser == null) {
-            throw new HttpError("Invalid user", 400);
-          }
-          const user = await prisma.userInformation.findFirst({
-            where: {
-              userId: regUser.userId,
-            },
-          });
+            if (req.data.status === "success") {
+                if (hostelAllocation != null) {
+                    await prisma.hostelAllocations.update({
+                        where: {
+                            paymentReference: req.data.reference,
+                        },
+                        data: {
+                            allocationStatus: "ACTIVE",
+                        },
+                    });
 
-          if (user == null) {
-            throw new HttpError("Invalid user", 400);
-          }
+                    const roomAllocated = await prisma.hostelAccommodation.findFirst({
+                        where: {
+                            roomId: hostelAllocation.roomId,
+                        },
+                        include: {
+                            facilityRecord: true,
+                        },
+                    });
 
-          this.sendToMail(
-            res,
-            user?.email,
-            accommodationDetails.facilityName,
-            accommodationDetails.roomCode,
-            accommodationDetails.roomIdentifier,
-            req.data.reference,
-          );
+                    const accommodationDetails = {
+                        roomCode: roomAllocated?.roomCode,
+                        roomIdentifier: roomAllocated?.roomIdentifier,
+                        facilityName: roomAllocated?.facilityRecord.facilityName,
+                    };
+
+                    await prisma.eventRegistrationTable.update({
+                        where: {
+                            regId: hostelAllocation.registrationId,
+                        },
+                        data: {
+                            accommodationAssigned: true,
+                            status: "CONFIRMED",
+                            accommodationDetails: JSON.stringify(accommodationDetails),
+                        },
+                    });
+
+                    const regUser = await prisma.eventRegistrationTable.findFirst({
+                        where: {
+                            regId: hostelAllocation.registrationId,
+                        },
+                    });
+
+                    if (regUser == null) {
+                        throw new HttpError("Invalid user", 400);
+                    }
+                    const user = await prisma.userInformation.findFirst({
+                        where: {
+                            userId: regUser.userId,
+                        },
+                    });
+
+                    if (user == null) {
+                        throw new HttpError("Invalid user", 400);
+                    }
+
+                    // this.sendToMail(
+                    //     res,
+                    //     user?.email,
+                    //     accommodationDetails.facilityName,
+                    //     accommodationDetails.roomCode,
+                    //     accommodationDetails.roomIdentifier,
+                    //     req.data.reference,
+                    // );
+                }
+
+                if (dependants != null) {
+                    await prisma.dependantInfoTable.updateMany({
+                        where: {
+                            paymentReference: req.data.reference,
+                        },
+                        data: {
+                            paymentStatus: "SUCCESSFUL",
+                        },
+                    });
+                }
+
+                if (hotelAllocation != null) {
+                    await prisma.hotelAllocations.update({
+                        where: {
+                            paymentReference: req.data.reference,
+                        },
+                        data: {
+                            allocationStatus: "ACTIVE",
+                        },
+                    });
+
+                    const roomAllocated = await prisma.hotelAccommodation.findFirst({
+                        where: {
+                            roomTypeId: hotelAllocation.hotelRoomId,
+                        },
+                        include: {
+                            facilityRecord: true,
+                        },
+                    });
+
+                    const accommodationDetails = {
+                        roomCode: roomAllocated?.roomType,
+                        address: roomAllocated?.address,
+                        facilityName: roomAllocated?.facilityRecord.facilityName,
+                        price: roomAllocated?.price,
+                    };
+
+                    await prisma.eventRegistrationTable.update({
+                        where: {
+                            regId: hotelAllocation.registrationId,
+                        },
+                        data: {
+                            accommodationAssigned: true,
+                            status: "CONFIRMED",
+                            accommodationDetails: JSON.stringify(accommodationDetails),
+                        },
+                    });
+                }
+            } else {
+                if (hostelAllocation != null) {
+                    const hostel = await prisma.hostelAllocations.update({
+                        where: {
+                            paymentReference: req.data.reference,
+                        },
+                        data: {
+                            allocationStatus: "REVOKED",
+                        },
+                    });
+                    const revokedAccommodation = await prisma.hostelAccommodation.update({
+                        where: {roomId: hostel.roomId},
+                        data: {
+                            capacityOccupied: {decrement: 1},
+                        },
+                    });
+
+                    await prisma.accommodationFacilities.update({
+                        where: {facilityId: revokedAccommodation.facilityId},
+                        data: {
+                            capacityOccupied: {decrement: 1},
+                        },
+                    });
+                }
+
+                if (hotelAllocation != null) {
+                    const hotel = await prisma.hotelAllocations.update({
+                        where: {
+                            paymentReference: req.data.reference,
+                        },
+                        data: {
+                            allocationStatus: "REVOKED",
+                        },
+                    });
+                    const revokedAccommodation = await prisma.hotelAccommodation.update({
+                        where: {roomTypeId: hotel.hotelRoomId},
+                        data: {
+                            noOfRoomsOccupied: {decrement: 1},
+                        },
+                    });
+
+                    await prisma.accommodationFacilities.update({
+                        where: {facilityId: revokedAccommodation.facilityId},
+                        data: {
+                            capacityOccupied: {decrement: 1},
+                        },
+                    });
+                }
+            }
+
+            const transaction = await prisma.paymentRecords.findFirst({
+                where: {
+                    paymentReference: req.data.reference,
+                },
+            });
+
+            if (transaction == null) {
+                throw new HttpError("Invalid transaction reference", 404);
+            }
+
+            await prisma.paymentRecords.update({
+                where: {
+                    paymentReference: req.data.reference,
+                },
+                data: {
+                    paymentStatus: newStatus,
+                    providerRawResponse: JSON.parse(JSON.stringify(req)),
+                },
+            });
+
+            return response.successResponse(res, "Successful");
+        } catch (error: any) {
+            console.log(error);
+            if (error instanceof HttpError) {
+                throw error;
+            }
+            response.badRequest(res, error.message);
         }
-
-        if (dependants != null) {
-          await prisma.dependantInfoTable.updateMany({
-            where: {
-              paymentReference: req.data.reference,
-            },
-            data: {
-              paymentStatus: "SUCCESSFUL",
-            },
-          });
-        }
-
-        if (hotelAllocation != null) {
-          await prisma.hotelAllocations.update({
-            where: {
-              paymentReference: req.data.reference,
-            },
-            data: {
-              allocationStatus: "ACTIVE",
-            },
-          });
-
-          const roomAllocated = await prisma.hotelAccommodation.findFirst({
-            where: {
-              roomTypeId: hotelAllocation.hotelRoomId,
-            },
-            include: {
-              facilityRecord: true,
-            },
-          });
-
-          const accommodationDetails = {
-            roomCode: roomAllocated?.roomType,
-            address: roomAllocated?.address,
-            facilityName: roomAllocated?.facilityRecord.facilityName,
-            price: roomAllocated?.price,
-          };
-
-          await prisma.eventRegistrationTable.update({
-            where: {
-              regId: hotelAllocation.registrationId,
-            },
-            data: {
-              accommodationAssigned: true,
-              status: "CONFIRMED",
-              accommodationDetails: JSON.stringify(accommodationDetails),
-            },
-          });
-        }
-      } else {
-        if (hostelAllocation != null) {
-          const hostel = await prisma.hostelAllocations.update({
-            where: {
-              paymentReference: req.data.reference,
-            },
-            data: {
-              allocationStatus: "REVOKED",
-            },
-          });
-          const revokedAccommodation = await prisma.hostelAccommodation.update({
-            where: { roomId: hostel.roomId },
-            data: {
-              capacityOccupied: { decrement: 1 },
-            },
-          });
-
-          await prisma.accommodationFacilities.update({
-            where: { facilityId: revokedAccommodation.facilityId },
-            data: {
-              capacityOccupied: { decrement: 1 },
-            },
-          });
-        }
-
-        if (hotelAllocation != null) {
-          const hotel = await prisma.hotelAllocations.update({
-            where: {
-              paymentReference: req.data.reference,
-            },
-            data: {
-              allocationStatus: "REVOKED",
-            },
-          });
-          const revokedAccommodation = await prisma.hotelAccommodation.update({
-            where: { roomTypeId: hotel.hotelRoomId },
-            data: {
-              noOfRoomsOccupied: { decrement: 1 },
-            },
-          });
-
-          await prisma.accommodationFacilities.update({
-            where: { facilityId: revokedAccommodation.facilityId },
-            data: {
-              capacityOccupied: { decrement: 1 },
-            },
-          });
-        }
-      }
-
-      const transaction = await prisma.paymentRecords.findFirst({
-        where: {
-          paymentReference: req.data.reference,
-        },
-      });
-
-      if (transaction == null) {
-        throw new HttpError("Invalid transaction reference", 404);
-      }
-
-      await prisma.paymentRecords.update({
-        where: {
-          paymentReference: req.data.reference,
-        },
-        data: {
-          paymentStatus: newStatus,
-          providerRawResponse: JSON.parse(JSON.stringify(req)),
-        },
-      });
-
-      return response.successResponse(res, "Successful");
-    } catch (error: any) {
-      console.log(error);
-      if (error instanceof HttpError) {
-        throw error;
-      }
-      response.badRequest(res, error.message);
-    }
-  }
-
-  private async populateTable(paymentRequest: InitiatePaymentRequest) {
-    await prisma.paymentRecords.create({
-      data: {
-        amount: paymentRequest.amount,
-        eventId: paymentRequest.eventId,
-        paymentReference: paymentRequest.reference,
-        userId: paymentRequest.userId,
-        paymentReason: paymentRequest?.narration
-          ? paymentRequest?.narration
-          : "narration",
-        currencyCode: "NGN",
-      },
-    });
-  }
-
-  private mapPaymentResponse(
-    res: Response,
-    koraPayResponse: KoraPayInitiatePaymentResponse,
-  ) {
-    const paymentResponse: InitiatePaymentResponse = {
-      checkoutUrl: koraPayResponse?.data.checkout_url,
-      reference: koraPayResponse?.data?.reference,
-    };
-
-    return response.successResponse(res, paymentResponse);
-  }
-
-  private async hitThirdPartyEndpoint(
-    res: Response,
-    paymentRequest: InitiatePaymentRequest,
-  ) {
-    try {
-      const response = await fetch(
-        `${process.env.KORAPAY_BASE_URL}/charges/initialize`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.KORAPAY_SECRET_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(paymentRequest),
-        },
-      );
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Korapay API error: ${response.status} - ${text}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.log("INITIALIZE ERROR ", error);
-      throw new HttpError("internal Server error", 500);
-    }
-  }
-
-  private async mapKoraPayRequest(
-    res: Response,
-    paymentRequest: InitiatePaymentRequest,
-  ) {
-    const userInformation = await prisma.userInformation.findFirst({
-      where: {
-        userId: paymentRequest.userId,
-      },
-    });
-
-    const eventInformation = await prisma.eventInformation.findFirst({
-      where: {
-        eventId: paymentRequest.eventId,
-      },
-    });
-
-    if (userInformation == null || eventInformation == null) {
-      response.notFound(res, "Invalid details");
     }
 
-    const korapayRequest: KorapPayInitiatePaymentRequest = {
-      amount: paymentRequest.amount,
-      currency: "NGN",
-      customer: {
-        email: userInformation?.email,
-        name: `${userInformation?.firstName} ${userInformation?.lastName}`,
-      },
-      merchant_bears_cost: false,
-      narration: paymentRequest.narration,
-      notification_url: `${process.env.API_URL}/billing/verify`,
-      redirect_url: `${process.env.CLIENT_BASE_URL}/dashboard`,
-      reference: paymentRequest.reference,
-    };
+    private async populateTable(paymentRequest: InitiatePaymentRequest) {
+        await prisma.paymentRecords.create({
+            data: {
+                amount: paymentRequest.amount,
+                eventId: paymentRequest.eventId,
+                paymentReference: paymentRequest.reference,
+                userId: paymentRequest.userId,
+                paymentReason: paymentRequest?.narration
+                    ? paymentRequest?.narration
+                    : "narration",
+                currencyCode: "NGN",
+            },
+        });
+    }
 
-    return korapayRequest;
-  }
+    private mapPaymentResponse(
+        res: Response,
+        koraPayResponse: KoraPayInitiatePaymentResponse,
+    ) {
+        const paymentResponse: InitiatePaymentResponse = {
+            checkoutUrl: koraPayResponse?.data.checkout_url,
+            reference: koraPayResponse?.data?.reference,
+        };
+
+        return response.successResponse(res, paymentResponse);
+    }
+
+    private async hitThirdPartyEndpoint(
+        res: Response,
+        paymentRequest: InitiatePaymentRequest,
+    ) {
+        try {
+            const response = await fetch(
+                `${process.env.KORAPAY_BASE_URL}/charges/initialize`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.KORAPAY_SECRET_KEY}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(paymentRequest),
+                },
+            );
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Korapay API error: ${response.status} - ${text}`);
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.log("INITIALIZE ERROR ", error);
+            throw new HttpError("internal Server error", 500);
+        }
+    }
+
+    private async mapKoraPayRequest(
+        res: Response,
+        paymentRequest: InitiatePaymentRequest,
+    ) {
+        const userInformation = await prisma.userInformation.findFirst({
+            where: {
+                userId: paymentRequest.userId,
+            },
+        });
+
+        const eventInformation = await prisma.eventInformation.findFirst({
+            where: {
+                eventId: paymentRequest.eventId,
+            },
+        });
+
+        if (userInformation == null || eventInformation == null) {
+            response.notFound(res, "Invalid details");
+        }
+
+        const korapayRequest: KorapPayInitiatePaymentRequest = {
+            amount: paymentRequest.amount,
+            currency: "NGN",
+            customer: {
+                email: userInformation?.email,
+                name: `${userInformation?.firstName} ${userInformation?.lastName}`,
+            },
+            merchant_bears_cost: false,
+            narration: paymentRequest.narration,
+            notification_url: `${process.env.API_URL}/billing/verify`,
+            redirect_url: `${process.env.CLIENT_BASE_URL}/dashboard`,
+            reference: paymentRequest.reference,
+        };
+
+        return korapayRequest;
+    }
 }
