@@ -37,45 +37,45 @@ export class BillingService {
         }
     }
 
-    async sendToMail(
-        res: Response,
-        email: string,
-        facilityName: string | undefined,
-        roomCode: string | undefined,
-        roomIdentifier: string | undefined,
-        bookingReference: string,
-    ) {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-
-        const htmlContent = fs.readFileSync(
-            path.join(__dirname, "../../static/templates/accommodation.html"),
-            "utf8",
-        );
-
-        const emailService = new EmailingService();
-
-        const emailData: HtmlNotifyRequest = {
-            email: email,
-            subject: "ACCOMMODATION CONFIRMATION",
-            params: {
-                facilityName: facilityName,
-                roomCode: roomCode,
-                roomIdentifier: roomIdentifier,
-                bookingReference: bookingReference,
-            },
-            htmlContent: htmlContent,
-        };
-
-        const emailSent = await emailService.sendHtmlContent(res, emailData);
-
-        if (!emailSent) {
-            return response.internalServerError(
-                res,
-                "Error sending OTP. Please try again later",
-            );
-        }
-    }
+    // async sendToMail(
+    //     res: Response,
+    //     email: string,
+    //     facilityName: string | undefined,
+    //     roomCode: string | undefined,
+    //     roomIdentifier: string | undefined,
+    //     bookingReference: string,
+    // ) {
+    //     const __filename = fileURLToPath(import.meta.url);
+    //     const __dirname = path.dirname(__filename);
+    //
+    //     const htmlContent = fs.readFileSync(
+    //         path.join(__dirname, "../../static/templates/accommodation.html"),
+    //         "utf8",
+    //     );
+    //
+    //     const emailService = new EmailingService();
+    //
+    //     const emailData: HtmlNotifyRequest = {
+    //         email: email,
+    //         subject: "ACCOMMODATION CONFIRMATION",
+    //         params: {
+    //             facilityName: facilityName,
+    //             roomCode: roomCode,
+    //             roomIdentifier: roomIdentifier,
+    //             bookingReference: bookingReference,
+    //         },
+    //         htmlContent: htmlContent,
+    //     };
+    //
+    //     const emailSent = await emailService.sendHtmlContent(res, emailData);
+    //
+    //     if (!emailSent) {
+    //         return response.internalServerError(
+    //             res,
+    //             "Error sending OTP. Please try again later",
+    //         );
+    //     }
+    // }
 
     async verifyPayment(res: Response, req: PaymentStatusWebhook) {
         const hostelAllocation = await prisma.hostelAllocations.findFirst({
