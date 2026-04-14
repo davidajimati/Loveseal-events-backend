@@ -1,7 +1,11 @@
-import type {BrevoRequest, HtmlNotifyRequest, TextNotifyRequest,} from "../model/notification.model.js";
+import type {
+  BrevoRequest,
+  HtmlNotifyRequest,
+  TextNotifyRequest,
+} from "../model/notification.model.js";
 import * as response from "../../ApiResponseContract.js";
-import type {Response} from "express";
-import {HttpError} from "../../exceptions/HttpError.js";
+import type { Response } from "express";
+import { HttpError } from "../../exceptions/HttpError.js";
 
 export class EmailingService {
   public async sendTextContent(res: Response, emailData: TextNotifyRequest) {
@@ -65,7 +69,7 @@ export class EmailingService {
         body: JSON.stringify(emailData),
       });
 
-      console.log("email sending successful:", response.ok? "true" : "false");
+      console.log("email sending successful:", response.ok ? "true" : "false");
       const result = await response.text();
       console.log("Brevo response: " + result);
       if (!response.ok) {
@@ -74,10 +78,8 @@ export class EmailingService {
       }
       return true;
     } catch (error) {
-      if (error instanceof HttpError) {
-        throw error;
-      }
-      response.badRequest(res, "Unable to send email");
+      console.error("Brevo email error:", error);
+      return false;
     }
   }
 }
