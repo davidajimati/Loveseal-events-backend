@@ -158,14 +158,14 @@ export class BillingService {
                         throw new HttpError("Invalid user", 400);
                     }
 
-                    this.sendToMail(
-                        res,
-                        user?.email,
-                        accommodationDetails.facilityName,
-                        accommodationDetails.roomCode,
-                        accommodationDetails.roomIdentifier,
-                        req.data.reference,
-                    );
+                    // this.sendToMail(
+                    //     res,
+                    //     user?.email,
+                    //     accommodationDetails.facilityName,
+                    //     accommodationDetails.roomCode,
+                    //     accommodationDetails.roomIdentifier,
+                    //     req.data.reference,
+                    // );
                 }
 
                 if (dependants != null) {
