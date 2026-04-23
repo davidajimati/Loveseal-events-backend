@@ -236,8 +236,7 @@ export class AllocationService {
                 WHERE facilityId = ${facility.facilityId}
                   AND capacityOccupied < capacity AND adminReserved = FALSE
                 ORDER BY "capacityOccupied" ASC, "roomId" ASC LIMIT 1
-                FOR
-                UPDATE
+                FOR UPDATE SKIP LOCKED
             `;
 
       const room = availableRooms?.[0];
