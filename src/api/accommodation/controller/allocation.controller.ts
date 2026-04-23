@@ -17,6 +17,7 @@ class AllocationController {
   }
 
   async secureAccommodation(res: Response, req: Request) {
+    console.log("Request body: " + req.body);
     const result = initiateAccommodationAllocationSchema.safeParse(req.body);
     if (!result.success) {
       return handleZodError(res, result.error);
@@ -29,6 +30,7 @@ class AllocationController {
   }
 
   async secureHotelAccommodation(res: Response, req: Request) {
+    console.log("Request body: " + req.body);
     const result = initiateHotelAllocationSchema.safeParse(req.body);
     if (!result.success) {
       return handleZodError(res, result.error);
