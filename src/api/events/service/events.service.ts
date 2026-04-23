@@ -38,7 +38,8 @@ export class EventsService extends BaseService<eventInformation, CreateEventType
 
         const activeEvents = await prisma.eventInformation.findMany({
             where: {
-                eventStatus: "ACTIVE"
+                eventStatus: "ACTIVE",
+                forTeenagers: false
             }
         });
         return response.successResponse(res, {activeEvents});
